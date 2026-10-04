@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ClipboardCheck, Clock3, LayoutDashboard, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 /**
  * Layout for UC07 - Human Review Center (FE-09).
@@ -49,6 +50,8 @@ export default function ReviewLayout({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <NotificationBell />
+
               <Button asChild variant="ghost">
                 <Link href="/">
                   <LayoutDashboard />
