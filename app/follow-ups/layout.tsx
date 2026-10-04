@@ -3,14 +3,19 @@
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
-import { Clock3, Layers, LayoutDashboard } from "lucide-react";
-
+import {
+  Clock3,
+  Layers,
+  LayoutDashboard,
+  Target,
+  Users,
+  ClipboardCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 /**
- * Layout for UC06 - Follow-up execution history (FE-08).
- * The QueryClient lives in this nested layout so the shared root layout
- * is left untouched.
+ * Layout for UC05 (Follow-up Sequences & Step Builder) and UC06 (Follow-up Execution History).
  */
 export default function FollowUpsLayout({
   children,
@@ -32,34 +37,75 @@ export default function FollowUpsLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-[#f6f8f7] text-[#17221c]">
-        <header className="border-b border-[#e2e8e4] bg-white">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <div className="min-h-screen bg-[#f8faf9] text-[#17221c]">
+        <header className="border-b border-[#e2e8e4] bg-white sticky top-0 z-40">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-[#173b2b] p-2.5 text-white">
+              <div className="rounded-xl bg-emerald-800 p-2.5 text-white shadow-xs">
                 <Clock3 className="size-5" />
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC06 · Follow-up Execution
-                </p>
-                <h1 className="text-xl font-bold">Follow-up History</h1>
+                <div className="flex items-center gap-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                    UC05 &amp; UC06 · Follow-Up Studio
+                  </p>
+                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                    FE-06
+                  </span>
+                </div>
+                <h1 className="text-lg font-bold text-gray-900">
+                  Sequences &amp; Cadence Builder
+                </h1>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="ghost">
+              <NotificationBell />
+
+              <Button asChild variant="outline" className="text-xs h-9">
                 <Link href="/">
-                  <LayoutDashboard />
+                  <LayoutDashboard className="size-3.5 mr-1" />
                   Dashboard
                 </Link>
               </Button>
 
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="text-xs h-9">
+                <Link href="/leads">
+                  <Target className="size-3.5 mr-1" />
+                  Leads
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                variant="default"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs h-9 shadow-2xs"
+              >
+                <Link href="/follow-ups">
+                  <Clock3 className="size-3.5 mr-1" />
+                  Cadences
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline" className="text-xs h-9">
+                <Link href="/customers">
+                  <Users className="size-3.5 mr-1" />
+                  Customers
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline" className="text-xs h-9">
                 <Link href="/segments">
-                  <Layers />
+                  <Layers className="size-3.5 mr-1" />
                   Segments
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline" className="text-xs h-9">
+                <Link href="/review">
+                  <ClipboardCheck className="size-3.5 mr-1" />
+                  Review Center
                 </Link>
               </Button>
             </div>
