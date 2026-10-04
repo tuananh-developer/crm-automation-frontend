@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Building2,
   CheckCircle2,
+  Clock,
   Mail,
   Search,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
+import { EnrollInSequenceModal } from "@/components/follow-ups/EnrollInSequenceModal";
 import type { Lead, LeadScore } from "@/types/lead";
 
 interface LeadListTableProps {
@@ -29,6 +31,7 @@ export function LeadListTable({
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
   const [tierFilter, setTierFilter] = React.useState<string>("ALL");
+  const [leadToEnroll, setLeadToEnroll] = React.useState<Lead | null>(null);
 
   const filteredLeads = React.useMemo(() => {
     return leads.filter((lead) => {
@@ -239,17 +242,31 @@ export function LeadListTable({
 
                       {/* Action Column */}
                       <td className="py-4 px-5 text-right">
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-                        >
-                          <Link href={`/leads/${lead.id}`}>
-                            View Intelligence
-                            <ArrowRight className="size-3.5" />
-                          </Link>
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLeadToEnroll(lead)}
+                            className="h-8 gap-1 text-xs font-semibold text-emerald-800 border-emerald-200 hover:bg-emerald-50"
+                            title="Enroll in follow-up sequence"
+                          >
+                            <Clock className="size-3 text-emerald-600" />
+                            Enroll
+                          </Button>
+
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                          >
+                            <Link href={`/leads/${lead.id}`}>
+                              View Intelligence
+                              <ArrowRight className="size-3.5" />
+                            </Link>
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -259,6 +276,15 @@ export function LeadListTable({
           </table>
         </div>
       </div>
+
+      {/* Enroll in Sequence Modal */}
+      {leadToEnroll && (
+        <EnrollInSequenceModal
+          lead={leadToEnroll}
+          isOpen={Boolean(leadToEnroll)}
+          onClose={() => setLeadToEnroll(null)}
+        />
+      )}
     </div>
   );
 }

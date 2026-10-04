@@ -13,6 +13,7 @@ import {
   Phone,
   RefreshCw,
   User,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +21,14 @@ import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { EnrichmentCard } from "@/components/leads/EnrichmentCard";
 import { LeadScoreCard } from "@/components/leads/LeadScoreCard";
+import { LeadEnrollmentsWidget } from "@/components/follow-ups/LeadEnrollmentsWidget";
+import { EnrollInSequenceModal } from "@/components/follow-ups/EnrollInSequenceModal";
 import { leadService } from "@/services/lead.service";
 
 export default function LeadDetailPage() {
   const params = useParams();
   const leadId = params.id as string;
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = React.useState(false);
 
   // 1. Fetch Lead Details
   const {
@@ -147,14 +151,26 @@ export default function LeadDetailPage() {
             Refresh Intelligence
           </Button>
 
+          {/* Enroll in Sequence CTA Button */}
           <Button
-            asChild
+            type="button"
             size="sm"
+            onClick={() => setIsEnrollModalOpen(true)}
             className="h-8 gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs shadow-2xs"
           >
-            <Link href={`/follow-ups`}>
-              <Clock3 className="size-3.5" />
-              Follow-up Sequences
+            <UserPlus className="size-3.5" />
+            Enroll in Sequence
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-gray-700 hover:text-gray-900 font-medium text-xs"
+          >
+            <Link href="/follow-ups">
+              <Clock3 className="size-3.5 text-gray-400" />
+              All Cadences
             </Link>
           </Button>
         </div>
@@ -224,6 +240,9 @@ export default function LeadDetailPage() {
         </div>
       </div>
 
+      {/* FE-07 UC05: Active Follow-up Cadences & Sequences Widget */}
+      <LeadEnrollmentsWidget lead={lead} />
+
       {/* Main 2-Column Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left Column: Enrichment Card (UC03) & Basic Profile */}
@@ -289,6 +308,13 @@ export default function LeadDetailPage() {
           />
         </div>
       </div>
+
+      {/* Enroll in Sequence Modal */}
+      <EnrollInSequenceModal
+        lead={lead}
+        isOpen={isEnrollModalOpen}
+        onClose={() => setIsEnrollModalOpen(false)}
+      />
     </div>
   );
 }

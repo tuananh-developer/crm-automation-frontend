@@ -87,16 +87,28 @@ export interface LeadFollowUpEnrollment {
   id: string;
   leadId: string;
   sequenceId: string;
+  currentStepId?: string | null;
   status: EnrollmentStatus;
-  currentStepOrder: number | null;
+  currentStepOrder?: number | null;
   startedAt: string | null;
+  pausedAt?: string | null;
   completedAt: string | null;
   cancelledAt: string | null;
-  cancelReason: string | null;
-  metadata: Record<string, unknown> | null;
+  cancellationReason?: string | null;
+  cancelReason?: string | null;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
   sequence?: FollowUpSequence;
+  currentStep?: FollowUpStep | null;
+  lead?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    companyName: string;
+    status?: string;
+  };
   executions?: FollowUpExecution[];
 }
 
@@ -160,6 +172,10 @@ export interface UpdateStepDto {
 export interface EnrollLeadPayload {
   leadId: string;
   sequenceId: string;
+}
+
+export interface CancelEnrollmentPayload {
+  cancellationReason?: string;
 }
 
 export interface ExecuteFollowUpPayload {

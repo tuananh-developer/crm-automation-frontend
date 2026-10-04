@@ -1,5 +1,6 @@
 import { apiClient } from "./api-client";
 import type {
+  CancelEnrollmentPayload,
   CreateSequenceDto,
   CreateStepDto,
   EnrollLeadPayload,
@@ -121,12 +122,19 @@ export async function updateStep(
 export async function enrollLead(
   payload: EnrollLeadPayload,
 ): Promise<LeadFollowUpEnrollment> {
-  const response = await apiClient.post<LeadFollowUpEnrollment>(
-    "/follow-up/enroll",
-    payload,
-  );
-  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
-  return body.data ?? body;
+  const response = await apiClient.post<
+    | { message?: string; enrollment?: LeadFollowUpEnrollment; data?: LeadFollowUpEnrollment }
+    | LeadFollowUpEnrollment
+  >("/follow-up/enroll", payload);
+
+  const resData = response.data;
+  if (resData && "enrollment" in resData && resData.enrollment) {
+    return resData.enrollment;
+  }
+  if (resData && "data" in resData && resData.data) {
+    return resData.data;
+  }
+  return resData as LeadFollowUpEnrollment;
 }
 
 export async function getEnrollments(params?: {
@@ -141,6 +149,39 @@ export async function getEnrollments(params?: {
   if (Array.isArray(response.data)) return response.data;
   const body = response.data as { data?: LeadFollowUpEnrollment[] } | null;
   return body?.data ?? [];
+}
+
+export async function getEnrollmentsByLead(
+  leadId: string,
+): Promise<LeadFollowUpEnrollment[]> {
+  const response = await apiClient.get<LeadFollowUpEnrollment[]>(
+    `/follow-up/leads/${leadId}/enrollments`,
+  );
+  if (Array.isArray(response.data)) return response.data;
+  const body = response.data as { data?: LeadFollowUpEnrollment[] } | null;
+  return body?.data ?? [];
+}
+
+export async function getEnrollmentById(
+  id: string,
+): Promise<LeadFollowUpEnrollment> {
+  const response = await apiClient.get<LeadFollowUpEnrollment>(
+    `/follow-up/enrollments/${id}`,
+  );
+  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
+  return body.data ?? body;
+}
+
+export async function cancelEnrollment(
+  id: string,
+  payload?: CancelEnrollmentPayload,
+): Promise<LeadFollowUpEnrollment> {
+  const response = await apiClient.patch<LeadFollowUpEnrollment>(
+    `/follow-up/enrollments/${id}/cancel`,
+    payload || {},
+  );
+  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
+  return body.data ?? body;
 }
 
 // ── Execution History (UC06) ───────────────────────────────────────────────
