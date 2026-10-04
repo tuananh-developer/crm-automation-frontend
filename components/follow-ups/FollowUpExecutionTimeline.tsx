@@ -98,6 +98,7 @@ export function FollowUpExecutionTimeline({
   const [expandedIds, setExpandedIds] = React.useState<string[]>([]);
   const [retryingId, setRetryingId] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<Notice | null>(null);
+  
 
   const activeEnrollmentId = enrollmentId ?? searchEnrollmentId.trim();
 
@@ -222,7 +223,6 @@ export function FollowUpExecutionTimeline({
                 variant="outline"
                 size="icon"
                 aria-label="Tải lại lịch sử"
-                disabled={query.isFetching}
                 onClick={() => query.refetch()}
               >
                 <RefreshCw className={query.isFetching ? "animate-spin" : ""} />
