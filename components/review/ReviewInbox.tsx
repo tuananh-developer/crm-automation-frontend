@@ -7,12 +7,14 @@ import {
   Inbox,
   Loader2,
   RefreshCw,
+  Search,
   TriangleAlert,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { getApiErrorMessage } from "@/services/api-client";
 import {
@@ -20,6 +22,7 @@ import {
   getReviewTask,
   getReviewTasks,
 } from "@/services/review.service";
+import { useWorkspaceUser } from "@/components/notifications/useWorkspaceUser";
 import { ReviewTaskCard } from "./ReviewTaskCard";
 import { ReviewTaskDrawer } from "./ReviewTaskDrawer";
 import {
@@ -30,6 +33,7 @@ import {
 import type { ReviewStatus, ReviewTask } from "@/types/review";
 
 const UNASSIGNED = "__unassigned__";
+const CURRENT_USER = "__current_user__";
 
 type Notice = { tone: "success" | "danger"; message: string };
 
@@ -42,10 +46,13 @@ type ReviewInboxProps = {
 export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
   const queryClient = useQueryClient();
 
+  const { activeUser } = useWorkspaceUser();
+
   const [statusFilter, setStatusFilter] = React.useState<
     "" | ReviewStatus
   >("");
   const [reviewerFilter, setReviewerFilter] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [claimingId, setClaimingId] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<Notice | null>(null);
 
@@ -90,17 +97,40 @@ export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
   const reviewers = React.useMemo(() => collectReviewers(tasks), [tasks]);
 
   const visibleTasks = React.useMemo(() => {
+    const currentUserId = activeUser?.id ?? null;
+
     const filtered = tasks.filter((task) => {
       if (statusFilter && task.status !== statusFilter) return false;
 
       if (!reviewerFilter) return true;
       if (reviewerFilter === UNASSIGNED) return !task.assignedTo;
+      if (reviewerFilter === CURRENT_USER) return currentUserId ? task.assignedTo === currentUserId : false;
 
       return task.assignedTo === reviewerFilter;
     });
 
+    if (searchQuery.trim()) {
+      const queryLower = searchQuery.toLowerCase().trim();
+      return sortReviewTasksByPriority(
+        filtered.filter((task) => {
+          const lead = task.lead;
+          const leadName = lead
+            ? `${lead.firstName} ${lead.lastName ?? ""}`.toLowerCase()
+            : "";
+          const leadEmail = lead?.email?.toLowerCase() ?? "";
+          const taskId = task.id.toLowerCase();
+
+          return (
+            leadName.includes(queryLower) ||
+            leadEmail.includes(queryLower) ||
+            taskId.includes(queryLower)
+          );
+        }),
+      );
+    }
+
     return sortReviewTasksByPriority(filtered);
-  }, [tasks, statusFilter, reviewerFilter]);
+  }, [tasks, statusFilter, reviewerFilter, searchQuery, activeUser?.id]);
 
   const pendingCount = tasks.filter((task) => task.status === "PENDING").length;
   const inReviewCount = tasks.filter(
@@ -135,7 +165,18 @@ export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
               <Badge tone="success">ĐÃ XỬ LÝ: {resolvedCount}</Badge>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full lg:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  className="pl-9 h-9 text-xs"
+                  placeholder="Tìm theo tên lead, email, task ID…"
+                  aria-label="Tìm kiếm review task"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </div>
+
               <Select
                 className="sm:w-44"
                 aria-label="Lọc theo trạng thái"
@@ -160,6 +201,11 @@ export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
               >
                 <option value="">Tất cả reviewer</option>
                 <option value={UNASSIGNED}>Chưa phân công</option>
+                {activeUser ? (
+                  <option value={CURRENT_USER}>Người dùng hiện tại ({activeUser.name})</option>
+                ) : (
+                  <option value={CURRENT_USER} disabled>Người dùng hiện tại (chưa chọn)</option>
+                )}
                 {reviewers.map((reviewer) => (
                   <option key={reviewer.id} value={reviewer.id}>
                     {reviewer.name}
@@ -236,7 +282,7 @@ export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
                   Không có task khớp bộ lọc
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
-                  Thử đổi trạng thái hoặc reviewer đã chọn.
+                  Thử đổi trạng thái, reviewer hoặc từ khóa tìm kiếm.
                 </p>
               </div>
             </div>
