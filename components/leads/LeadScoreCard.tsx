@@ -9,18 +9,17 @@ import {
   ChevronUp,
   Flame,
   History,
-  Info,
   Loader2,
   RefreshCw,
   Sliders,
   Sparkles,
-  TrendingDown,
   TrendingUp,
   Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScoreBadge } from "@/components/leads/ScoreBadge";
+import { ScoreHistoryList } from "@/components/leads/ScoreHistoryList";
 import { leadService } from "@/services/lead.service";
 import { getApiErrorMessage } from "@/services/api-client";
 import type { Lead, LeadScore } from "@/types/lead";
@@ -59,37 +58,44 @@ export function LeadScoreCard({
     },
   });
 
-  const numericScore = latestScore?.score
+  const numericScore = latestScore?.score !== undefined && latestScore?.score !== null
     ? Math.round(Number(latestScore.score))
     : 0;
 
-  const label = latestScore?.label || (numericScore >= 75 ? "HOT" : numericScore >= 50 ? "WARM" : "COLD");
+  const label =
+    latestScore?.label ||
+    (numericScore >= 75 ? "HOT" : numericScore >= 40 ? "WARM" : "COLD");
 
   // Scoring features breakdown
   const features = latestScore?.scoringFeatures || {};
   const companyFitPct = features.companyFit !== undefined
-    ? Math.round(features.companyFit > 1 ? features.companyFit : features.companyFit * 100)
+    ? Math.round(Number(features.companyFit) > 1 ? Number(features.companyFit) : Number(features.companyFit) * 100)
     : 85;
   const intentScorePct = features.intentScore !== undefined
-    ? Math.round(features.intentScore > 1 ? features.intentScore : features.intentScore * 100)
+    ? Math.round(Number(features.intentScore) > 1 ? Number(features.intentScore) : Number(features.intentScore) * 100)
     : Math.min(100, Math.round(numericScore * 0.95));
   const industryMatchPct = features.industryMatch !== undefined
-    ? Math.round(features.industryMatch > 1 ? features.industryMatch : features.industryMatch * 100)
+    ? Math.round(Number(features.industryMatch) > 1 ? Number(features.industryMatch) : Number(features.industryMatch) * 100)
     : 90;
   const titleSeniorityPct = features.titleSeniority !== undefined
-    ? Math.round(features.titleSeniority > 1 ? features.titleSeniority : features.titleSeniority * 100)
+    ? Math.round(Number(features.titleSeniority) > 1 ? Number(features.titleSeniority) : Number(features.titleSeniority) * 100)
     : 80;
 
-  // Format creation time
-  const formattedScoreTime = latestScore?.createdAt
-    ? new Date(latestScore.createdAt).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
+  // Format date helper: dd/MM/yyyy HH:mm
+  const formatDateTime = (dateStr?: string | null) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth() + 1);
+    const year = d.getFullYear();
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
+
+  const formattedScoreTime = formatDateTime(latestScore?.createdAt);
 
   return (
     <Card className="overflow-hidden border border-[#e2e8e4] bg-white shadow-sm">
@@ -154,9 +160,21 @@ export function LeadScoreCard({
         )}
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12 text-sm text-gray-500">
-            <Loader2 className="mr-2 size-5 animate-spin text-blue-600" />
-            Evaluating AI scoring signals...
+          <div className="space-y-4 py-2">
+            <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+              <Loader2 className="size-4 animate-spin text-blue-600" />
+              <span>Evaluating AI predictive signals...</span>
+            </div>
+            <div className="h-28 animate-pulse rounded-2xl border border-gray-100 bg-gray-50/70 p-4" />
+            <div className="h-20 animate-pulse rounded-xl border border-gray-100 bg-gray-50/70 p-4" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-xl border border-gray-100 bg-gray-50/70 p-3"
+                />
+              ))}
+            </div>
           </div>
         ) : !latestScore ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-10 px-4 text-center">
@@ -199,11 +217,11 @@ export function LeadScoreCard({
                     className={cn(
                       "flex size-24 items-center justify-center rounded-full border-4 shadow-sm",
                       label === "HOT" &&
-                        "border-emerald-500 bg-emerald-50/80 text-emerald-700 shadow-emerald-500/10",
+                        "border-emerald-500 bg-emerald-100 text-emerald-700 shadow-emerald-500/10",
                       label === "WARM" &&
-                        "border-amber-500 bg-amber-50/80 text-amber-700 shadow-amber-500/10",
+                        "border-amber-500 bg-amber-100 text-amber-700 shadow-amber-500/10",
                       label === "COLD" &&
-                        "border-sky-500 bg-sky-50/80 text-sky-700 shadow-sky-500/10",
+                        "border-sky-500 bg-sky-100 text-sky-700 shadow-sky-500/10",
                     )}
                   >
                     <div className="flex flex-col items-center">
@@ -261,11 +279,11 @@ export function LeadScoreCard({
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="size-2 rounded-full bg-amber-500" />
-                    <span>WARM: 50 - 74</span>
+                    <span>WARM: 40 - 74</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="size-2 rounded-full bg-sky-500" />
-                    <span>COLD: &lt; 50</span>
+                    <span>COLD: &lt; 40</span>
                   </div>
                 </div>
               </div>
@@ -273,27 +291,25 @@ export function LeadScoreCard({
 
             {/* AI Explanation & Rationale */}
             <div>
-              <div className="mb-2 flex items-center gap-1.5">
-                <Info className="size-4 text-gray-400" />
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Scoring Explanation &amp; Key Rationale
-                </span>
-              </div>
-              <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 text-xs leading-relaxed text-gray-800">
-                <p className="font-medium">
-                  {latestScore.reason ||
-                    "This lead matches the ideal customer profile with verified company headcounts and active digital campaign discovery."}
-                </p>
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="size-4 text-blue-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    AI Scoring Explanation &amp; Key Rationale
+                  </span>
+                </div>
                 {latestScore.modelName && (
-                  <div className="mt-3 flex items-center gap-2 border-t border-gray-200/70 pt-2 text-[11px] text-gray-400">
-                    <span>
-                      Model: {latestScore.modelProvider || "AI"}/
-                      {latestScore.modelName}
-                    </span>
-                    <span>·</span>
-                    <span>Version: {latestScore.modelVersion || "1.0"}</span>
-                  </div>
+                  <span className="text-[11px] text-gray-400 font-medium">
+                    {latestScore.modelProvider || "AI"}/{latestScore.modelName} (v
+                    {latestScore.modelVersion || "1.0"})
+                  </span>
                 )}
+              </div>
+              <div className="relative rounded-xl border border-blue-100 bg-blue-50/40 p-4 border-l-4 border-l-blue-500 text-xs leading-relaxed text-gray-800 shadow-2xs">
+                <p className="font-medium italic">
+                  &ldquo;{latestScore.reason ||
+                    "This lead matches the ideal customer profile with verified company headcounts and active digital campaign discovery."}&rdquo;
+                </p>
               </div>
             </div>
 
@@ -380,78 +396,8 @@ export function LeadScoreCard({
               </button>
 
               {showHistory && (
-                <div className="mt-3 space-y-3">
-                  {historyScores.length === 0 ? (
-                    <p className="text-xs text-gray-400 py-2">
-                      No previous scoring history recorded.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {historyScores.map((hScore, idx) => {
-                        const hNum = Math.round(Number(hScore.score));
-                        const prevNum =
-                          idx < historyScores.length - 1
-                            ? Math.round(Number(historyScores[idx + 1].score))
-                            : null;
-                        const delta = prevNum !== null ? hNum - prevNum : null;
-
-                        return (
-                          <div
-                            key={hScore.id || idx}
-                            className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/60 p-3 text-xs"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="flex size-7 items-center justify-center rounded-lg bg-white font-bold text-gray-700 shadow-2xs border border-gray-100">
-                                {hNum}
-                              </span>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <ScoreBadge
-                                    score={hNum}
-                                    label={hScore.label}
-                                    size="sm"
-                                  />
-                                  {delta !== null && delta !== 0 && (
-                                    <span
-                                      className={cn(
-                                        "inline-flex items-center gap-0.5 text-[11px] font-semibold",
-                                        delta > 0
-                                          ? "text-emerald-600"
-                                          : "text-rose-600",
-                                      )}
-                                    >
-                                      {delta > 0 ? (
-                                        <TrendingUp className="size-3" />
-                                      ) : (
-                                        <TrendingDown className="size-3" />
-                                      )}
-                                      {delta > 0 ? `+${delta}` : delta} pts
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="mt-0.5 text-[11px] text-gray-400">
-                                  {new Date(hScore.createdAt).toLocaleString(
-                                    "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    },
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-
-                            <p className="max-w-xs truncate text-[11px] text-gray-500">
-                              {hScore.reason || "Automated recalculation"}
-                            </p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                <div className="mt-3">
+                  <ScoreHistoryList historyScores={historyScores} />
                 </div>
               )}
             </div>

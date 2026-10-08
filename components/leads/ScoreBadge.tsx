@@ -29,7 +29,7 @@ export function ScoreBadge({
     effectiveLabel = "HOT";
   } else if (
     label === "WARM" ||
-    (numericScore !== null && numericScore >= 50)
+    (numericScore !== null && numericScore >= 40)
   ) {
     effectiveLabel = "WARM";
   }
@@ -46,27 +46,27 @@ export function ScoreBadge({
     }
   > = {
     HOT: {
-      bg: "bg-emerald-50",
+      bg: "bg-emerald-100",
       text: "text-emerald-700",
-      border: "border-emerald-200",
+      border: "border-emerald-300",
       ring: "ring-emerald-500/20",
       icon: <Flame className="size-3.5 fill-emerald-500 text-emerald-600" />,
       labelName: "HOT",
     },
     WARM: {
-      bg: "bg-amber-50",
+      bg: "bg-amber-100",
       text: "text-amber-700",
-      border: "border-amber-200",
+      border: "border-amber-300",
       ring: "ring-amber-500/20",
-      icon: <Sparkles className="size-3.5 text-amber-500" />,
+      icon: <Sparkles className="size-3.5 text-amber-600" />,
       labelName: "WARM",
     },
     COLD: {
-      bg: "bg-sky-50",
+      bg: "bg-sky-100",
       text: "text-sky-700",
-      border: "border-sky-200",
+      border: "border-sky-300",
       ring: "ring-sky-500/20",
-      icon: <Snowflake className="size-3.5 text-sky-500" />,
+      icon: <Snowflake className="size-3.5 text-sky-600" />,
       labelName: "COLD",
     },
   };
