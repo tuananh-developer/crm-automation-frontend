@@ -16,6 +16,7 @@ import {
   User,
   UserCheck,
   UserPlus,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ import { ConvertLeadModal } from "@/components/leads/ConvertLeadModal";
 import { EditLeadModal } from "@/components/leads/EditLeadModal";
 import { LeadActiveSequencesWidget } from "@/components/follow-ups/LeadActiveSequencesWidget";
 import { LeadEnrollmentModal } from "@/components/follow-ups/LeadEnrollmentModal";
+import { FollowUpExecutionTimeline } from "@/components/follow-ups/FollowUpExecutionTimeline";
 import { leadService } from "@/services/lead.service";
 
 export default function LeadDetailPage() {
@@ -87,7 +89,20 @@ export default function LeadDetailPage() {
     refetchEnrichment();
     refetchScore();
     refetchHistory();
+    refetchEnrollment();
   };
+
+  // 5. Fetch Follow-up Enrollment for this lead (UC06)
+  const {
+    data: enrollment,
+    isLoading: isEnrollmentLoading,
+    error: enrollmentError,
+    refetch: refetchEnrollment,
+  } = useQuery({
+    queryKey: ["lead-enrollment", leadId],
+    queryFn: () => leadService.getActiveEnrollmentByLeadId(leadId),
+    enabled: !!leadId,
+  });
 
   if (isLeadLoading) {
     return (
@@ -363,6 +378,56 @@ export default function LeadDetailPage() {
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={() => handleRefreshAll()}
       />
+
+      {/* Follow-up Execution History (UC06) */}
+      <div className="space-y-6">
+        {isEnrollmentLoading ? (
+          <Card className="border border-[#e2e8e4] bg-white shadow-sm">
+            <CardContent className="flex items-center justify-center gap-3 px-5 py-14 text-sm text-gray-500">
+              <Loader2 className="size-5 animate-spin text-[#173b2b]" />
+              Đang tải enrollment follow-up…
+            </CardContent>
+          </Card>
+        ) : enrollmentError ? (
+          <Card className="border border-red-200 bg-red-50 shadow-sm">
+            <CardContent className="flex flex-col items-center gap-3 px-5 py-14 text-center">
+              <div className="rounded-xl bg-red-100 p-3 text-red-600">
+                <AlertCircle className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-red-800">Không tải được enrollment</p>
+                <p className="mt-1 max-w-md text-sm text-red-700">
+                  {enrollmentError instanceof Error
+                    ? enrollmentError.message
+                    : "Lỗi không xác định"}
+                </p>
+              </div>
+              <Button type="button" variant="outline" onClick={() => refetchEnrollment()}>
+                Thử lại
+              </Button>
+            </CardContent>
+          </Card>
+        ) : !enrollment ? (
+          <Card className="border border-[#edf4ef] bg-[#f6fdf9] shadow-sm">
+            <CardContent className="flex flex-col items-center gap-3 px-5 py-14 text-center">
+              <div className="rounded-xl bg-[#d1f2e8] p-3 text-[#173b2b]">
+                <Clock3 className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-[#173b2b]">Chưa có follow-up enrollment</p>
+                <p className="mt-1 text-sm text-gray-500 max-w-md">
+                  Lead này chưa được đăng ký vào sequence follow-up nào.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <FollowUpExecutionTimeline
+            enrollmentId={enrollment.id}
+            title="Lịch sử thực hiện Follow-up"
+          />
+        )}
+      </div>
     </div>
   );
 }
