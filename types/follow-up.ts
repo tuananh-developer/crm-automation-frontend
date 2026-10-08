@@ -4,8 +4,44 @@
  * Shapes mirror the NestJS backend exactly:
  *  - GET  /api/v1/follow-ups/executions  -> FollowUpExecution[]
  *  - POST /api/v1/follow-ups/executions  -> ExecuteFollowUpResult
+ *  - GET  /api/v1/follow-ups/enrollments/by-lead/:leadId  -> LeadFollowUpEnrollment[]
+ *  - GET  /api/v1/follow-ups/enrollments/by-lead/:leadId/active  -> LeadFollowUpEnrollment | null
  *  (src/modules/follow-up/follow-up.controller.ts / follow-up.service.ts)
  */
+
+/** Value of `lead_follow_up_enrollments.status` (EnrollmentStatus enum backend). */
+export type EnrollmentStatus =
+  | "ACTIVE"
+  | "PAUSED"
+  | "COMPLETED"
+  | "CANCELLED";
+
+/** Lead Follow-up Enrollment entity. */
+export interface LeadFollowUpEnrollment {
+  id: string;
+  leadId: string;
+  sequenceId: string;
+  currentStepId: string | null;
+  status: EnrollmentStatus;
+  startedAt: string | null;
+  pausedAt: string | null;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  assignedBy: string | null;
+  cancellationReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sequence?: {
+    id: string;
+    name: string;
+    description: string | null;
+  };
+  currentStep?: {
+    id: string;
+    name: string;
+    order: number;
+  } | null;
+}
 
 /** Value of `follow_up_executions.status` (ExecutionStatus enum backend). */
 export type FollowUpExecutionStatus =
