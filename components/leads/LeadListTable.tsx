@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
-import { EnrollInSequenceModal } from "@/components/follow-ups/EnrollInSequenceModal";
+import { LeadEnrollmentModal } from "@/components/follow-ups/LeadEnrollmentModal";
 import type { Lead, LeadScore } from "@/types/lead";
 
 interface LeadListTableProps {
@@ -279,12 +279,13 @@ export function LeadListTable({
 
       {/* Enroll in Sequence Modal */}
       {leadToEnroll && (
-        <EnrollInSequenceModal
+        <LeadEnrollmentModal
           lead={leadToEnroll}
           isOpen={Boolean(leadToEnroll)}
           onClose={() => setLeadToEnroll(null)}
         />
       )}
+
     </div>
   );
 }

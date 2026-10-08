@@ -21,8 +21,8 @@ import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { EnrichmentCard } from "@/components/leads/EnrichmentCard";
 import { LeadScoreCard } from "@/components/leads/LeadScoreCard";
-import { LeadEnrollmentsWidget } from "@/components/follow-ups/LeadEnrollmentsWidget";
-import { EnrollInSequenceModal } from "@/components/follow-ups/EnrollInSequenceModal";
+import { LeadActiveSequencesWidget } from "@/components/follow-ups/LeadActiveSequencesWidget";
+import { LeadEnrollmentModal } from "@/components/follow-ups/LeadEnrollmentModal";
 import { leadService } from "@/services/lead.service";
 
 export default function LeadDetailPage() {
@@ -241,7 +241,7 @@ export default function LeadDetailPage() {
       </div>
 
       {/* FE-07 UC05: Active Follow-up Cadences & Sequences Widget */}
-      <LeadEnrollmentsWidget lead={lead} />
+      <LeadActiveSequencesWidget lead={lead} />
 
       {/* Main 2-Column Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -310,7 +310,7 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Enroll in Sequence Modal */}
-      <EnrollInSequenceModal
+      <LeadEnrollmentModal
         lead={lead}
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}

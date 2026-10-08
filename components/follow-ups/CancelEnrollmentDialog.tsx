@@ -72,10 +72,10 @@ export function CancelEnrollmentDialog({
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-900">
-                Cancel Active Follow-Up
+                Hủy chuỗi chăm sóc
               </h3>
-              <p className="text-xs text-gray-500">
-                Halt cadence executions for this lead
+              <p className="text-xs text-rose-600 font-semibold">
+                Bạn có chắc chắn muốn hủy chuỗi chăm sóc này?
               </p>
             </div>
           </div>
@@ -100,15 +100,15 @@ export function CancelEnrollmentDialog({
           <div className="rounded-xl bg-amber-50/70 border border-amber-200 p-3.5 text-xs text-amber-900 space-y-1">
             <p className="font-bold flex items-center gap-1.5 text-amber-950">
               <Ban className="size-4 text-amber-600" />
-              What happens when you cancel?
+              Điều gì sẽ xảy ra khi bạn xác nhận hủy?
             </p>
             <p className="text-[11px] text-amber-800 leading-relaxed">
-              Active sequence &ldquo;{enrollment.sequence?.name || "Cadence"}&rdquo; will be marked as <strong>CANCELLED</strong>. All pending scheduled dispatches will be automatically skipped.
+              Chuỗi chăm sóc &ldquo;{enrollment.sequence?.name || "Cadence"}&rdquo; sẽ chuyển sang trạng thái <strong>CANCELLED</strong>. Tất cả các bước gửi email/tin nhắn tiếp theo chưa chạy sẽ tự động bị bỏ qua (Skipped).
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-gray-700">Cancellation Reason</Label>
+            <Label className="text-xs font-bold text-gray-700">Lý do hủy (Cancellation Reason)</Label>
             <Select
               value={selectedReason}
               onChange={(e) => setSelectedReason(e.target.value)}
@@ -124,12 +124,12 @@ export function CancelEnrollmentDialog({
 
           {selectedReason === "Custom reason..." && (
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-gray-700">Custom Reason Details</Label>
+              <Label className="text-xs font-bold text-gray-700">Chi tiết lý do khác</Label>
               <Textarea
                 rows={2}
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Explain why this cadence is being stopped..."
+                placeholder="Nhập lý do chi tiết..."
                 className="text-xs"
               />
             </div>
@@ -138,7 +138,7 @@ export function CancelEnrollmentDialog({
 
         <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
           <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
-            Keep Running
+            Giữ nguyên chuỗi
           </Button>
           <Button
             size="sm"
@@ -146,10 +146,11 @@ export function CancelEnrollmentDialog({
             disabled={cancelMutation.isPending}
             className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
           >
-            {cancelMutation.isPending ? "Cancelling..." : "Confirm Cancellation"}
+            {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy chuỗi"}
           </Button>
         </div>
       </div>
     </div>
   );
 }
+

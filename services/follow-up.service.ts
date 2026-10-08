@@ -184,6 +184,47 @@ export async function cancelEnrollment(
   return body.data ?? body;
 }
 
+export async function pauseEnrollment(id: string): Promise<LeadFollowUpEnrollment> {
+  const response = await apiClient.patch<LeadFollowUpEnrollment>(
+    `/follow-up/enrollments/${id}/pause`,
+    {},
+  );
+  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
+  return body.data ?? body;
+}
+
+export async function resumeEnrollment(id: string): Promise<LeadFollowUpEnrollment> {
+  const response = await apiClient.patch<LeadFollowUpEnrollment>(
+    `/follow-up/enrollments/${id}/resume`,
+    {},
+  );
+  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
+  return body.data ?? body;
+}
+
+export async function updateEnrollmentStatus(
+  id: string,
+  status: "ACTIVE" | "PAUSED" | "CANCELLED",
+  reason?: string,
+): Promise<LeadFollowUpEnrollment> {
+  if (status === "CANCELLED") {
+    return cancelEnrollment(id, { cancellationReason: reason });
+  }
+  if (status === "PAUSED") {
+    return pauseEnrollment(id);
+  }
+  if (status === "ACTIVE") {
+    return resumeEnrollment(id);
+  }
+  const response = await apiClient.patch<LeadFollowUpEnrollment>(
+    `/follow-up/enrollments/${id}/status`,
+    { status, reason },
+  );
+  const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
+  return body.data ?? body;
+}
+
+
 // ── Execution History (UC06) ───────────────────────────────────────────────
 
 export async function getFollowUpExecutions(
