@@ -53,9 +53,7 @@ export function LeadEnrollmentModal({
 
   // Filter to guarantee only active sequences are selectable
   const sequences = React.useMemo(() => {
-    return rawSequences.filter(
-      (s) => s.status === "ACTIVE" || (s.isActive !== false && (s.status as string) !== "ARCHIVED"),
-    );
+    return rawSequences.filter((s) => s.status === "ACTIVE");
   }, [rawSequences]);
 
   // 2. Fetch current enrollments for this lead to check duplicates

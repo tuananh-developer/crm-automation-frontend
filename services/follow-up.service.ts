@@ -38,6 +38,15 @@ import type {
  *   POST   /follow-ups/executions               -> ExecuteFollowUpResult
  */
 
+function is404(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    (err as { response?: { status?: number } }).response?.status === 404
+  );
+}
+
 // ── Sequence Management (UC05) ─────────────────────────────────────────────
 
 export async function getSequences(
@@ -50,7 +59,8 @@ export async function getSequences(
     if (Array.isArray(response.data)) return response.data;
     const body = response.data as { data?: FollowUpSequence[] } | null;
     return body?.data ?? [];
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.get<FollowUpSequence[]>(
       "/follow-up/sequences",
       {
@@ -68,7 +78,8 @@ export async function getSequenceById(id: string): Promise<FollowUpSequence> {
     const response = await apiClient.get<FollowUpSequence>(`/sequences/${id}`);
     const body = response.data as { data?: FollowUpSequence } & FollowUpSequence;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.get<FollowUpSequence>(
       `/follow-up/sequences/${id}`,
     );
@@ -84,7 +95,8 @@ export async function createSequence(
     const response = await apiClient.post<FollowUpSequence>("/sequences", dto);
     const body = response.data as { data?: FollowUpSequence } & FollowUpSequence;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.post<FollowUpSequence>(
       "/follow-up/sequences",
       dto,
@@ -105,7 +117,8 @@ export async function updateSequence(
     );
     const body = response.data as { data?: FollowUpSequence } & FollowUpSequence;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<FollowUpSequence>(
       `/follow-up/sequences/${id}`,
       dto,
@@ -128,7 +141,8 @@ export async function deleteSequence(
   try {
     await apiClient.delete(`/sequences/${id}`);
     return { success: true };
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     try {
       await apiClient.delete(`/follow-up/sequences/${id}`);
       return { success: true };
@@ -151,7 +165,8 @@ export async function getStepsBySequence(
     if (Array.isArray(response.data)) return response.data;
     const body = response.data as { data?: FollowUpStep[] } | null;
     return body?.data ?? [];
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.get<FollowUpStep[]>(
       `/follow-up/sequences/${sequenceId}/steps`,
     );
@@ -172,7 +187,8 @@ export async function createStep(
     );
     const body = response.data as { data?: FollowUpStep } & FollowUpStep;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.post<FollowUpStep>(
       `/follow-up/sequences/${sequenceId}/steps`,
       dto,
@@ -193,7 +209,8 @@ export async function updateStep(
     );
     const body = response.data as { data?: FollowUpStep } & FollowUpStep;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<FollowUpStep>(
       `/follow-up/steps/${stepId}`,
       dto,
@@ -215,7 +232,8 @@ export async function enrollLead(
       | LeadFollowUpEnrollment
     >("/sequences/enroll", payload);
     resData = response.data;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.post<
       | { message?: string; enrollment?: LeadFollowUpEnrollment; data?: LeadFollowUpEnrollment }
       | LeadFollowUpEnrollment
@@ -245,7 +263,8 @@ export async function getEnrollments(params?: {
     if (Array.isArray(response.data)) return response.data;
     const body = response.data as { data?: LeadFollowUpEnrollment[] } | null;
     return body?.data ?? [];
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.get<LeadFollowUpEnrollment[]>(
       "/follow-up/enrollments",
       { params },
@@ -266,7 +285,8 @@ export async function getEnrollmentsByLead(
     if (Array.isArray(response.data)) return response.data;
     const body = response.data as { data?: LeadFollowUpEnrollment[] } | null;
     return body?.data ?? [];
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     return getEnrollments({ leadId });
   }
 }
@@ -280,7 +300,8 @@ export async function getEnrollmentById(
     );
     const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.get<LeadFollowUpEnrollment>(
       `/follow-up/enrollments/${id}`,
     );
@@ -300,7 +321,8 @@ export async function cancelEnrollment(
     );
     const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<LeadFollowUpEnrollment>(
       `/follow-up/enrollments/${id}/cancel`,
       payload || {},
@@ -318,7 +340,8 @@ export async function pauseEnrollment(id: string): Promise<LeadFollowUpEnrollmen
     );
     const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<LeadFollowUpEnrollment>(
       `/follow-up/enrollments/${id}/pause`,
       {},
@@ -336,7 +359,8 @@ export async function resumeEnrollment(id: string): Promise<LeadFollowUpEnrollme
     );
     const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<LeadFollowUpEnrollment>(
       `/follow-up/enrollments/${id}/resume`,
       {},
@@ -367,7 +391,8 @@ export async function updateEnrollmentStatus(
     );
     const body = response.data as { data?: LeadFollowUpEnrollment } & LeadFollowUpEnrollment;
     return body.data ?? body;
-  } catch {
+  } catch (err) {
+    if (!is404(err)) throw err;
     const response = await apiClient.patch<LeadFollowUpEnrollment>(
       `/follow-up/enrollments/${id}/status`,
       { status, reason },
