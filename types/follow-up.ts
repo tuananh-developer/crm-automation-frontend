@@ -172,6 +172,7 @@ export interface UpdateStepDto {
 export interface EnrollLeadPayload {
   leadId: string;
   sequenceId: string;
+  assignedBy?: string;
 }
 
 export interface CancelEnrollmentPayload {

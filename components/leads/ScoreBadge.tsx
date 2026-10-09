@@ -29,7 +29,7 @@ export function ScoreBadge({
     effectiveLabel = "HOT";
   } else if (
     label === "WARM" ||
-    (numericScore !== null && numericScore >= 50)
+    (numericScore !== null && numericScore >= 40)
   ) {
     effectiveLabel = "WARM";
   }
