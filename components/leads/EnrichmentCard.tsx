@@ -92,15 +92,20 @@ export function EnrichmentCard({
     (raw.foundedYear as number) ||
     null;
 
-  const formattedEnrichedAt = enrichment?.enrichedAt
-    ? new Date(enrichment.enrichedAt).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
+  const dateStr = enrichment?.enrichedAt || enrichment?.createdAt;
+  let formattedEnrichedAt: string | null = null;
+  if (dateStr) {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const day = pad(d.getDate());
+      const month = pad(d.getMonth() + 1);
+      const year = d.getFullYear();
+      const hours = pad(d.getHours());
+      const minutes = pad(d.getMinutes());
+      formattedEnrichedAt = `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+  }
 
   return (
     <Card className="overflow-hidden border border-[#e2e8e4] bg-white shadow-sm">
@@ -173,7 +178,7 @@ export function EnrichmentCard({
             ) : (
               <>
                 <RefreshCw className="size-3.5" />
-                {enrichment ? "Re-enrich" : "Enrich Lead"}
+                {enrichment ? "Re-trigger Enrichment" : "Enrich Lead"}
               </>
             )}
           </Button>
@@ -196,11 +201,21 @@ export function EnrichmentCard({
         )}
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12 text-sm text-gray-500">
-            <Loader2 className="mr-2 size-5 animate-spin text-emerald-600" />
-            Loading enrichment intelligence...
+          <div className="space-y-4 py-2">
+            <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+              <Loader2 className="size-4 animate-spin text-emerald-600" />
+              <span>Fetching intelligence signals...</span>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-20 animate-pulse rounded-xl border border-gray-100 bg-gray-50/70 p-3.5"
+                />
+              ))}
+            </div>
           </div>
-        ) : !enrichment && !companyName ? (
+        ) : !enrichment ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-10 px-4 text-center">
             <div className="mb-3 rounded-full bg-emerald-100 p-3 text-emerald-700">
               <Building2 className="size-6" />
@@ -223,7 +238,7 @@ export function EnrichmentCard({
               ) : (
                 <Sparkles className="size-3.5" />
               )}
-              Trigger AI Enrichment Now
+              Enrich this lead
             </Button>
           </div>
         ) : (
@@ -234,11 +249,16 @@ export function EnrichmentCard({
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Company Architecture
                 </span>
-                {enrichment?.provider && (
-                  <Badge tone="neutral" className="text-[11px] font-medium">
-                    Source: {enrichment.provider.toUpperCase()}
+                <div className="flex items-center gap-2">
+                  <Badge tone="neutral" className="text-[11px] font-medium bg-emerald-50 text-emerald-800 border-emerald-200">
+                    Enriched by {enrichment?.provider ? enrichment.provider.toUpperCase() : "AI"}
                   </Badge>
-                )}
+                  {formattedEnrichedAt && (
+                    <span className="text-[11px] text-gray-500 font-medium">
+                      {formattedEnrichedAt}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -305,7 +325,7 @@ export function EnrichmentCard({
                             : `https://${companyWebsite}`
                         }
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline"
                       >
                         <span className="truncate max-w-[180px]">
@@ -330,7 +350,7 @@ export function EnrichmentCard({
                       <a
                         href={linkedinUrl}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0077b5] hover:underline"
                       >
                         <span>View Company Page</span>
