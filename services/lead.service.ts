@@ -17,6 +17,7 @@ import type {
   TriggerScoringDto,
   UpdateLeadDto,
 } from "@/types/lead";
+import type { LeadFollowUpEnrollment } from "@/types/follow-up";
 
 export const leadService = {
   /**
@@ -181,6 +182,33 @@ export const leadService = {
         `/lead-intelligence/qualifications/${leadId}/latest`,
       );
       return data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        return null;
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Get all follow-up enrollments for a lead (UC06)
+   */
+  async getEnrollmentsByLeadId(leadId: string): Promise<LeadFollowUpEnrollment[]> {
+    const { data } = await apiClient.get<LeadFollowUpEnrollment[]>(
+      `/follow-ups/enrollments/by-lead/${leadId}`,
+    );
+    return data ?? [];
+  },
+
+  /**
+   * Get active follow-up enrollment for a lead (UC06)
+   */
+  async getActiveEnrollmentByLeadId(leadId: string): Promise<LeadFollowUpEnrollment | null> {
+    try {
+      const { data } = await apiClient.get<LeadFollowUpEnrollment | null>(
+        `/follow-ups/enrollments/by-lead/${leadId}/active`,
+      );
+      return data ?? null;
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 404) {
         return null;

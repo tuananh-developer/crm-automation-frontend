@@ -23,6 +23,14 @@ export interface Customer {
   createdAt: string;
   updatedAt: string;
   creator?: { id: string; name?: string | null; email?: string | null } | null;
+  segments?: {
+  id: string;
+  name: string | null;
+  assignmentType: string;
+  confidence: string | number | null;
+  assignedReason: string | null;
+  assignedAt: string | null;
+}[];
 }
 
 /** Lead a customer was converted from (UC08 lead conversion). */

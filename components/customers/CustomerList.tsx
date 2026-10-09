@@ -40,7 +40,22 @@ function formatDate(value?: string | null): string {
 }
 
 /** `customers.status` is a free-form column, so render whatever exists. */
-function CustomerStatusBadge({ status }: { status?: string | null }) {
+function CustomerStatusBadge({
+  status,
+  segments,
+}: {
+  status?: string | null;
+  segments?: Customer["segments"];
+}) {
+  if (segments && segments.length > 0) {
+    return (
+      <Badge tone="success">
+        <Users />
+        {segments[0].name ?? "Đã gán"}
+      </Badge>
+    );
+  }
+
   if (!status) {
     return (
       <Badge tone="neutral">
@@ -51,7 +66,9 @@ function CustomerStatusBadge({ status }: { status?: string | null }) {
   }
 
   return (
-    <Badge tone={status === "CONVERTED" ? "success" : "neutral"}>{status}</Badge>
+    <Badge tone={status === "CONVERTED" ? "success" : "neutral"}>
+      {status}
+    </Badge>
   );
 }
 
@@ -82,7 +99,10 @@ function CustomerCard({
             </div>
           </div>
 
-          <CustomerStatusBadge status={customer.status} />
+          <CustomerStatusBadge
+            status={customer.status}
+            segments={customer.segments}
+          />
         </div>
 
         <div className="flex items-center justify-between text-xs text-gray-500">
@@ -261,7 +281,10 @@ export function CustomerList() {
                           {customer.companyName ?? "—"}
                         </td>
                         <td className="px-5 py-3">
-                          <CustomerStatusBadge status={customer.status} />
+                          <CustomerStatusBadge
+                            status={customer.status}
+                            segments={customer.segments}
+                          />
                         </td>
                         <td className="px-5 py-3 text-gray-500">
                           {formatDate(customer.createdAt)}
