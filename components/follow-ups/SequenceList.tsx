@@ -6,14 +6,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Search,
   Plus,
-  Play,
-  Pause,
   Sliders,
   UserPlus,
   ArrowRight,
   Sparkles,
   FileEdit,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,12 @@ import { SequenceStatusBadge } from "./SequenceStatusBadge";
 import { SequenceModal } from "./SequenceModal";
 import { EnrollLeadDialog } from "./EnrollLeadDialog";
 import { ChannelBadge } from "./ChannelBadge";
-import { getSequences, updateSequence } from "@/services/follow-up.service";
+import {
+  getSequences,
+  updateSequence,
+  deleteSequence,
+} from "@/services/follow-up.service";
+import { cn } from "@/lib/utils";
 import type { FollowUpSequence, SequenceStatus } from "@/types/follow-up";
 
 export function SequenceList() {
@@ -34,6 +38,7 @@ export function SequenceList() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [sequenceToEdit, setSequenceToEdit] = React.useState<FollowUpSequence | null>(null);
   const [sequenceToEnroll, setSequenceToEnroll] = React.useState<FollowUpSequence | null>(null);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
 
   // Fetch sequences
   const {
@@ -62,6 +67,29 @@ export function SequenceList() {
     },
   });
 
+  // Delete sequence mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSequence(id),
+    onSuccess: () => {
+      setDeleteError(null);
+      queryClient.invalidateQueries({ queryKey: ["sequences"] });
+    },
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err instanceof Error ? err.message : null) ||
+        "Failed to delete or archive sequence. It may have active lead enrollments.";
+      setDeleteError(msg);
+    },
+  });
+
+  const handleDeleteSequence = (seq: FollowUpSequence) => {
+    if (confirm(`Are you sure you want to delete or archive "${seq.name}"?`)) {
+      deleteMutation.mutate(seq.id);
+    }
+  };
+
   // Filter & Search
   const filteredSequences = React.useMemo(() => {
     return sequences.filter((seq) => {
@@ -71,7 +99,10 @@ export function SequenceList() {
           seq.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesStatus =
-        statusFilter === "ALL" || seq.status === statusFilter;
+        statusFilter === "ALL" ||
+        (statusFilter === "ACTIVE" && seq.status === "ACTIVE") ||
+        (statusFilter === "INACTIVE" && seq.status !== "ACTIVE") ||
+        seq.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -160,10 +191,11 @@ export function SequenceList() {
               className="text-xs"
             >
               <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="DRAFT">DRAFT</option>
-              <option value="PAUSED">PAUSED</option>
-              <option value="ARCHIVED">ARCHIVED</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+              <option value="DRAFT">Draft</option>
+              <option value="PAUSED">Paused</option>
+              <option value="ARCHIVED">Archived</option>
             </Select>
           </div>
 
@@ -184,15 +216,29 @@ export function SequenceList() {
         {/* CTA Buttons */}
         <div className="flex items-center gap-2">
           <Button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
+            asChild
             className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs h-9 shadow-sm"
           >
-            <Plus className="size-4 mr-1.5" />
-            Create Sequence
+            <Link href="/follow-ups/sequences/new">
+              <Plus className="size-4 mr-1.5" />
+              Create New Sequence
+            </Link>
           </Button>
         </div>
       </div>
+
+      {deleteError && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800 flex items-center justify-between">
+          <span>{deleteError}</span>
+          <button
+            type="button"
+            onClick={() => setDeleteError(null)}
+            className="font-semibold text-rose-900 hover:underline ml-4"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Sequences List / Table */}
       {isLoading ? (
@@ -290,42 +336,48 @@ export function SequenceList() {
 
                   {/* Right Column: Actions */}
                   <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 lg:border-t-0 lg:pt-0">
-                    {/* Status quick toggle */}
-                    {seq.status === "ACTIVE" ? (
-                      <Button
+                    {/* Status quick toggle switch */}
+                    <div className="flex items-center gap-2 pr-1">
+                      <button
                         type="button"
-                        variant="outline"
-                        size="sm"
+                        role="switch"
+                        aria-checked={seq.status === "ACTIVE"}
                         onClick={() =>
                           toggleStatusMutation.mutate({
                             id: seq.id,
-                            newStatus: "PAUSED",
+                            newStatus:
+                              seq.status === "ACTIVE" ? "PAUSED" : "ACTIVE",
                           })
                         }
-                        className="text-xs text-amber-700 border-amber-200 hover:bg-amber-50 h-8"
-                        title="Pause this cadence"
-                      >
-                        <Pause className="size-3 mr-1" />
-                        Pause
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          toggleStatusMutation.mutate({
-                            id: seq.id,
-                            newStatus: "ACTIVE",
-                          })
+                        disabled={
+                          toggleStatusMutation.isPending &&
+                          toggleStatusMutation.variables?.id === seq.id
                         }
-                        className="text-xs text-emerald-700 border-emerald-200 hover:bg-emerald-50 h-8"
-                        title="Activate this cadence"
+                        className={cn(
+                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden",
+                          seq.status === "ACTIVE"
+                            ? "bg-emerald-600"
+                            : "bg-gray-300",
+                        )}
+                        title={
+                          seq.status === "ACTIVE"
+                            ? "Click to deactivate sequence"
+                            : "Click to activate sequence"
+                        }
                       >
-                        <Play className="size-3 mr-1" />
-                        Activate
-                      </Button>
-                    )}
+                        <span
+                          className={cn(
+                            "pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
+                            seq.status === "ACTIVE"
+                              ? "translate-x-4"
+                              : "translate-x-0",
+                          )}
+                        />
+                      </button>
+                      <span className="text-xs font-semibold text-gray-700 min-w-[50px]">
+                        {seq.status === "ACTIVE" ? "Active" : "Inactive"}
+                      </span>
+                    </div>
 
                     {/* Enroll Lead Action */}
                     <Button
@@ -362,6 +414,18 @@ export function SequenceList() {
                         Step Builder
                         <ArrowRight className="size-3 ml-1" />
                       </Link>
+                    </Button>
+
+                    {/* Delete Sequence Button */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteSequence(seq)}
+                      className="size-8 p-0 text-gray-400 hover:text-rose-600 hover:bg-rose-50"
+                      title="Delete or archive sequence"
+                    >
+                      <Trash2 className="size-4" />
                     </Button>
                   </div>
                 </div>

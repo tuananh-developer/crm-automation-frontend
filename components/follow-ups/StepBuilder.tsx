@@ -33,6 +33,12 @@ import type {
   SequenceStatus,
 } from "@/types/follow-up";
 
+function getNextTempId(): string {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? `temp-step-${crypto.randomUUID()}`
+    : `temp-step-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 interface StepBuilderWorkspaceProps {
   initialSequence?: FollowUpSequence | null;
   sequenceId?: string;
@@ -66,7 +72,7 @@ function StepBuilderWorkspace({
     if (isNew) {
       return [
         {
-          id: `temp-${Date.now()}-1`,
+          id: getNextTempId(),
           sequenceId: "",
           stepOrder: 1,
           delayMinutes: 0,
@@ -95,6 +101,7 @@ function StepBuilderWorkspace({
   const validationErrors = React.useMemo(() => {
     const errors: string[] = [];
     if (!name.trim()) errors.push("Sequence name is required.");
+    if (steps.length === 0) errors.push("Sequence must contain at least 1 step.");
 
     steps.forEach((step, idx) => {
       const stepNum = idx + 1;
@@ -104,10 +111,32 @@ function StepBuilderWorkspace({
       if (!step.contentTemplate?.trim()) {
         errors.push(`Step #${stepNum}: Content/Message template is required.`);
       }
+      if (step.delayMinutes === undefined || step.delayMinutes < 0) {
+        errors.push(`Step #${stepNum}: Delay value must be 0 or greater.`);
+      }
     });
 
     return errors;
   }, [name, steps]);
+
+  // Duplicate step
+  const handleDuplicateStep = (index: number) => {
+    const source = steps[index];
+    const duplicated: FollowUpStep = {
+      ...source,
+      id: getNextTempId(),
+      stepOrder: index + 2,
+      conditions: source.conditions
+        ? JSON.parse(JSON.stringify(source.conditions))
+        : null,
+    };
+    setSteps((prev) => {
+      const copy = [...prev];
+      copy.splice(index + 1, 0, duplicated);
+      return copy.map((s, idx) => ({ ...s, stepOrder: idx + 1 }));
+    });
+    setFocusedStepId(duplicated.id);
+  };
 
   // Reorder steps
   const handleMoveUp = (index: number) => {
@@ -151,7 +180,7 @@ function StepBuilderWorkspace({
     }
 
     const newStep: FollowUpStep = {
-      id: `temp-${Date.now()}-${nextOrder}`,
+      id: getNextTempId(),
       sequenceId: sequenceId || "",
       stepOrder: nextOrder,
       delayMinutes: defaultDelay,
@@ -467,6 +496,7 @@ function StepBuilderWorkspace({
               onMoveUp={() => handleMoveUp(idx)}
               onMoveDown={() => handleMoveDown(idx)}
               onDelete={() => handleDeleteStep(idx)}
+              onDuplicate={() => handleDuplicateStep(idx)}
               isFocused={focusedStepId === step.id}
             />
           ))}
