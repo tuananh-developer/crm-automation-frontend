@@ -25,7 +25,12 @@ export type FollowUpChannel =
   | "WEBHOOK"
   | "MESSAGE";
 
+export type StepDelayUnit = "minutes" | "hours" | "days";
+
 export type StepActionType =
+  | "EMAIL"
+  | "SMS"
+  | "WEBHOOK"
   | "SEND_EMAIL"
   | "SEND_SMS"
   | "SCHEDULE_CALL"

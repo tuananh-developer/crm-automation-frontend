@@ -5,8 +5,10 @@ import {
   ArrowDown,
   ArrowUp,
   Clock,
+  Copy,
   Eye,
   FileCode,
+  Filter,
   Sliders,
   Trash2,
   Sparkles,
@@ -37,6 +39,7 @@ interface StepBuilderItemProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onDelete: () => void;
+  onDuplicate?: () => void;
   isFocused?: boolean;
 }
 
@@ -66,6 +69,7 @@ export function StepBuilderItem({
   onMoveUp,
   onMoveDown,
   onDelete,
+  onDuplicate,
   isFocused,
 }: StepBuilderItemProps) {
   const [showPreview, setShowPreview] = React.useState(false);
@@ -78,6 +82,63 @@ export function StepBuilderItem({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const subjectInputRef = React.useRef<HTMLInputElement>(null);
   const [lastFocusedField, setLastFocusedField] = React.useState<"subject" | "content">("content");
+
+  // Condition state (Key - Operator - Value rule builder)
+  const existingConditions = (step.conditions || {}) as Record<string, unknown>;
+  const [hasCondition, setHasCondition] = React.useState<boolean>(
+    Boolean(step.conditions && Object.keys(step.conditions).length > 0),
+  );
+  const [condField, setCondField] = React.useState<string>(
+    (existingConditions.field as string) || "leadScore",
+  );
+  const [condOperator, setCondOperator] = React.useState<string>(
+    (existingConditions.operator as string) || ">=",
+  );
+  const [condValue, setCondValue] = React.useState<string>(
+    existingConditions.value !== undefined ? String(existingConditions.value) : "70",
+  );
+
+  const updateConditionPayload = (
+    enabled: boolean,
+    f: string,
+    op: string,
+    val: string,
+  ) => {
+    if (!enabled) {
+      onChange({ ...step, conditions: null });
+      return;
+    }
+    const num = Number(val);
+    const parsedVal = !isNaN(num) && val.trim() !== "" ? num : val;
+    onChange({
+      ...step,
+      conditions: {
+        field: f,
+        operator: op,
+        value: parsedVal,
+      },
+    });
+  };
+
+  const handleToggleCondition = (enabled: boolean) => {
+    setHasCondition(enabled);
+    updateConditionPayload(enabled, condField, condOperator, condValue);
+  };
+
+  const handleConditionFieldChange = (newField: string) => {
+    setCondField(newField);
+    updateConditionPayload(true, newField, condOperator, condValue);
+  };
+
+  const handleConditionOperatorChange = (newOp: string) => {
+    setCondOperator(newOp);
+    updateConditionPayload(true, condField, newOp, condValue);
+  };
+
+  const handleConditionValueChange = (newVal: string) => {
+    setCondValue(newVal);
+    updateConditionPayload(true, condField, condOperator, newVal);
+  };
 
   // Delay converter state
   const { value: delayVal, unit: delayUnit } = React.useMemo(
@@ -242,6 +303,20 @@ export function StepBuilderItem({
           >
             <ArrowDown className="size-4" />
           </Button>
+
+          {/* Duplicate step */}
+          {onDuplicate && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onDuplicate}
+              className="size-8 p-0 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50"
+              title="Duplicate this step"
+            >
+              <Copy className="size-4" />
+            </Button>
+          )}
 
           {/* Delete step */}
           <Button
@@ -467,6 +542,100 @@ export function StepBuilderItem({
             </div>
           </div>
         )}
+
+        {/* Conditions / Filter Builder (Rule: Key-Operator-Value) */}
+        <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="size-4 text-emerald-700" />
+              <Label className="text-xs font-bold text-gray-800">
+                Execution Condition (Filter Rule)
+              </Label>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-600">
+              <input
+                type="checkbox"
+                checked={hasCondition}
+                onChange={(e) => handleToggleCondition(e.target.checked)}
+                className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 size-3.5"
+              />
+              <span>Enable Condition</span>
+            </label>
+          </div>
+
+          {hasCondition ? (
+            <div className="space-y-3 pt-1">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                {/* Field */}
+                <div>
+                  <span className="text-[11px] font-semibold text-gray-500 block mb-1">
+                    Lead Field / Metric
+                  </span>
+                  <Select
+                    value={condField}
+                    onChange={(e) => handleConditionFieldChange(e.target.value)}
+                    className="text-xs bg-white font-medium"
+                  >
+                    <option value="leadScore">Lead Score (0-100)</option>
+                    <option value="status">Lead Status (e.g. QUALIFIED)</option>
+                    <option value="companySize">Company Headcount</option>
+                    <option value="industry">Industry Sector</option>
+                    <option value="custom">Custom Attribute</option>
+                  </Select>
+                </div>
+
+                {/* Operator */}
+                <div>
+                  <span className="text-[11px] font-semibold text-gray-500 block mb-1">
+                    Comparison Operator
+                  </span>
+                  <Select
+                    value={condOperator}
+                    onChange={(e) =>
+                      handleConditionOperatorChange(e.target.value)
+                    }
+                    className="text-xs bg-white font-medium"
+                  >
+                    <option value=">=">&gt;= (Greater or Equal)</option>
+                    <option value=">">&gt; (Greater Than)</option>
+                    <option value="<=">&lt;= (Less or Equal)</option>
+                    <option value="<">&lt; (Less Than)</option>
+                    <option value="==">== (Equals)</option>
+                    <option value="!=">!= (Not Equals)</option>
+                    <option value="contains">Contains substring</option>
+                  </Select>
+                </div>
+
+                {/* Target Value */}
+                <div>
+                  <span className="text-[11px] font-semibold text-gray-500 block mb-1">
+                    Threshold / Value
+                  </span>
+                  <Input
+                    type="text"
+                    value={condValue}
+                    onChange={(e) => handleConditionValueChange(e.target.value)}
+                    placeholder="70"
+                    className="text-xs bg-white font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Friendly summary */}
+              <div className="flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50/80 px-3 py-1.5 rounded-lg border border-emerald-200/60">
+                <CheckCircle2 className="size-3.5 shrink-0 text-emerald-600" />
+                <span>
+                  Rule applied: <strong>{condField}</strong> {condOperator}{" "}
+                  <strong>&ldquo;{condValue}&rdquo;</strong> (e.g. Lead Score &ge; 70)
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[11px] text-gray-500">
+              No filter conditions. This step will execute automatically for all enrolled leads.
+            </p>
+          )}
+        </div>
 
         {/* Advanced JSON Conditions / Metadata Toggle */}
         <div className="pt-1">
