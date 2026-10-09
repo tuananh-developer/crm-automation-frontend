@@ -48,8 +48,13 @@ export function LeadEnrollmentModal({
   onSuccess,
 }: LeadEnrollmentModalProps) {
   // 1. Fetch only ACTIVE sequences via useActiveSequences hook
-  const { data: sequences = [], isLoading: isSequencesLoading } =
+  const { data: rawSequences = [], isLoading: isSequencesLoading } =
     useActiveSequences();
+
+  // Filter to guarantee only active sequences are selectable
+  const sequences = React.useMemo(() => {
+    return rawSequences.filter((s) => s.status === "ACTIVE");
+  }, [rawSequences]);
 
   // 2. Fetch current enrollments for this lead to check duplicates
   const { data: leadEnrollments = [], isLoading: isEnrollmentsLoading } =
@@ -120,6 +125,7 @@ export function LeadEnrollmentModal({
       const res = await enrollMutation.mutateAsync({
         leadId: lead.id,
         sequenceId: effectiveSequenceId,
+        assignedBy: (lead as { ownerId?: string }).ownerId,
       });
       setCreatedEnrollmentId(res.id);
       onSuccess?.();

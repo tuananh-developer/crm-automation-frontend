@@ -96,6 +96,15 @@ export function LeadActiveSequencesWidget({ lead }: LeadActiveSequencesWidgetPro
     }
   };
 
+  // Next scheduled execution step
+  const nextScheduledExecution = React.useMemo(() => {
+    return (
+      currentEnrollment?.executions?.find(
+        (ex) => (ex.status === "PENDING" || ex.status === "RUNNING") && ex.scheduledAt,
+      ) || null
+    );
+  }, [currentEnrollment]);
+
   // Step Calculation
   const totalSteps = Math.max(
     currentEnrollment?.sequence?.steps?.length || 1,
@@ -278,18 +287,34 @@ export function LeadActiveSequencesWidget({ lead }: LeadActiveSequencesWidgetPro
                         )}
                       </p>
                       <p className="text-[10px] text-gray-500">
-                        {currentEnrollment.currentStep
-                          ? formatDelayDescription(
-                              currentEnrollment.currentStep.delayMinutes,
-                              currentEnrollment.currentStep.stepOrder,
-                            )
-                          : "Immediate"}
+                        {nextScheduledExecution?.scheduledAt
+                          ? `Lên lịch gửi: ${new Date(nextScheduledExecution.scheduledAt).toLocaleString("vi-VN")}`
+                          : currentEnrollment.currentStep
+                            ? formatDelayDescription(
+                                currentEnrollment.currentStep.delayMinutes,
+                                currentEnrollment.currentStep.stepOrder,
+                              )
+                            : "Immediate"}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
+                  {nextScheduledExecution?.scheduledAt && (
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                        Lên lịch
+                      </span>
+                      <p className="text-xs font-semibold text-emerald-800">
+                        {new Date(nextScheduledExecution.scheduledAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="space-y-0.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
                       Kênh tương tác
