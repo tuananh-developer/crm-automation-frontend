@@ -9,9 +9,13 @@ import { leadService } from "@/services/lead.service";
 import type { LeadScore } from "@/types/lead";
 
 export default function LeadsPage() {
-  const { data: leadsData, isLoading: isLeadsLoading } = useQuery({
+  const {
+    data: leadsData,
+    isLoading: isLeadsLoading,
+    refetch: refetchLeads,
+  } = useQuery({
     queryKey: ["leads"],
-    queryFn: () => leadService.getLeads({ limit: 50 }),
+    queryFn: () => leadService.getLeads({ limit: 100 }),
   });
 
   const leads = React.useMemo(() => leadsData?.data || [], [leadsData?.data]);
@@ -166,6 +170,7 @@ export default function LeadsPage() {
         leads={leads}
         scoresMap={scoresMap}
         isLoading={isLeadsLoading}
+        onRefresh={refetchLeads}
       />
     </div>
   );

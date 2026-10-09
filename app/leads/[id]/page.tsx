@@ -8,11 +8,13 @@ import {
   ArrowLeft,
   Building2,
   Clock3,
+  Edit3,
   Loader2,
   Mail,
   Phone,
   RefreshCw,
   User,
+  UserCheck,
   UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,9 @@ import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { EnrichmentCard } from "@/components/leads/EnrichmentCard";
 import { LeadScoreCard } from "@/components/leads/LeadScoreCard";
+import { AiQualificationCard } from "@/components/leads/AiQualificationCard";
+import { ConvertLeadModal } from "@/components/leads/ConvertLeadModal";
+import { EditLeadModal } from "@/components/leads/EditLeadModal";
 import { LeadActiveSequencesWidget } from "@/components/follow-ups/LeadActiveSequencesWidget";
 import { LeadEnrollmentModal } from "@/components/follow-ups/LeadEnrollmentModal";
 import { leadService } from "@/services/lead.service";
@@ -29,6 +34,8 @@ export default function LeadDetailPage() {
   const params = useParams();
   const leadId = params.id as string;
   const [isEnrollModalOpen, setIsEnrollModalOpen] = React.useState(false);
+  const [isConvertModalOpen, setIsConvertModalOpen] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
   // 1. Fetch Lead Details
   const {
@@ -140,7 +147,7 @@ export default function LeadDetailPage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -150,6 +157,29 @@ export default function LeadDetailPage() {
             <RefreshCw className="size-3.5" />
             Refresh Intelligence
           </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditModalOpen(true)}
+            className="h-8 gap-1 text-xs"
+          >
+            <Edit3 className="size-3.5 text-gray-500" />
+            Edit Lead
+          </Button>
+
+          {/* UC08 Convert to Customer CTA if Qualified */}
+          {lead.status === "QUALIFIED" && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setIsConvertModalOpen(true)}
+              className="h-8 gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold text-xs shadow-xs"
+            >
+              <UserCheck className="size-3.5" />
+              Convert to Customer (UC08)
+            </Button>
+          )}
 
           {/* Enroll in Sequence CTA Button */}
           <Button
@@ -298,8 +328,10 @@ export default function LeadDetailPage() {
           </Card>
         </div>
 
-        {/* Right Column: AI Lead Scoring Card (UC04) */}
+        {/* Right Column: AI Lead Qualification (UC02) & Scoring Card (UC04) */}
         <div className="space-y-6">
+          <AiQualificationCard lead={lead} onRefresh={handleRefreshAll} />
+
           <LeadScoreCard
             lead={lead}
             latestScore={latestScore || null}
@@ -314,6 +346,22 @@ export default function LeadDetailPage() {
         lead={lead}
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}
+      />
+
+      {/* Convert to Customer Modal (UC08) */}
+      <ConvertLeadModal
+        lead={lead}
+        isOpen={isConvertModalOpen}
+        onClose={() => setIsConvertModalOpen(false)}
+        onSuccess={() => handleRefreshAll()}
+      />
+
+      {/* Edit Lead Modal */}
+      <EditLeadModal
+        lead={lead}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={() => handleRefreshAll()}
       />
     </div>
   );

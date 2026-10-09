@@ -111,3 +111,93 @@ export interface LeadsListResponse {
     totalPages: number;
   };
 }
+
+export interface CreateLeadDto {
+  firstName: string;
+  lastName?: string;
+  email: string;
+  phone?: string;
+  companyName?: string;
+  companyWebsite?: string;
+  jobTitle?: string;
+  companySize?: number;
+  industry?: string;
+  sourceId: string;
+  ownerId?: string;
+  notes?: string;
+}
+
+export interface UpdateLeadDto {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+  companyWebsite?: string;
+  jobTitle?: string;
+  companySize?: number;
+  industry?: string;
+  status?: LeadStatus;
+  sourceId?: string;
+  ownerId?: string | null;
+  notes?: string;
+}
+
+export interface CreateLeadSourceDto {
+  name: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export type QualificationStatus = "QUALIFIED" | "UNQUALIFIED" | "NEEDS_REVIEW";
+
+export interface LeadQualification {
+  id: string;
+  leadId: string;
+  status: QualificationStatus;
+  intent?: string | null;
+  confidence?: number | null;
+  reason?: string | null;
+  modelProvider?: string | null;
+  modelName?: string | null;
+  modelVersion?: string | null;
+  inputSnapshot?: Record<string, unknown> | null;
+  outputSnapshot?: Record<string, unknown> | null;
+  workflowRunId?: string | null;
+  createdAt: string;
+}
+
+export interface TriggerQualificationDto {
+  metadata?: Record<string, unknown>;
+}
+
+export interface ConvertLeadDto {
+  userId: string;
+}
+
+export interface ConvertLeadResult {
+  lead: Lead;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    companyName?: string | null;
+    status: string;
+  };
+  customerCreated: boolean;
+  matchedBy: "EMAIL" | "PHONE" | null;
+  message: string;
+}
+
+export interface LeadQueryParams {
+  search?: string;
+  status?: LeadStatus | "ALL";
+  sourceId?: string;
+  ownerId?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "ASC" | "DESC";
+}
+
