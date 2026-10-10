@@ -77,6 +77,13 @@ function CreateLeadForm({
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [successLead, setSuccessLead] = React.useState<Lead | null>(null);
 
+  // Auto-select first available source when sources are loaded
+  React.useEffect(() => {
+    if (!formData.sourceId && sources.length > 0) {
+      setFormData((prev) => ({ ...prev, sourceId: sources[0].id }));
+    }
+  }, [sources, formData.sourceId]);
+
   // Create Mutation
   const createMutation = useMutation({
     mutationFn: (dto: CreateLeadDto) => leadService.createLead(dto),
