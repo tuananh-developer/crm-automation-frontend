@@ -174,7 +174,7 @@ function CreateLeadForm({
               Create New Lead
             </h3>
             <p className="text-xs text-gray-500">
-              UC01 Lead Intake &amp; Real-time AI Pipeline Ingestion
+              New Lead Intake &amp; Real-time AI Pipeline Ingestion
             </p>
           </div>
         </div>

@@ -111,7 +111,7 @@ export function AiQualificationCard({
             <div>
               <div className="flex items-center gap-2">
                 <CardTitle className="text-sm font-bold text-gray-900">
-                  AI Lead Qualification (UC02)
+                  AI Lead Qualification
                 </CardTitle>
                 <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
                   Active ML Engine

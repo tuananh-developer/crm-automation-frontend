@@ -181,14 +181,14 @@ export default function DashboardPage() {
         <div className="rounded-3xl bg-gradient-to-br from-emerald-800 via-teal-900 to-[#17221c] p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
           <div className="relative z-10 max-w-3xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-semibold text-emerald-200 border border-emerald-400/20">
-              <Zap className="size-3" />
-              <span>FE-04 Executive Overview &amp; E2E Integration</span>
+              <Sparkles className="size-3" />
+              <span>AI-Powered Sales Automation</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
               Enterprise AI CRM Automation Hub
             </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-              Real-time monitoring across multi-source lead ingestion (UC01), automated AI qualification &amp; scoring (UC02-UC04), human review queues (UC07), customer conversions (UC08), and autonomous follow-up cadences (UC05-UC06).
+            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+              Real-time monitoring across multi-source lead ingestion, automated AI qualification &amp; scoring, human review queues, customer conversions, and autonomous follow-up cadences.
             </p>
             <div className="pt-2 flex flex-wrap gap-2.5">
               <Button
@@ -203,17 +203,15 @@ export default function DashboardPage() {
               </Button>
               <Button
                 asChild
-                variant="outline"
                 size="sm"
-                className="border-white/30 text-white hover:bg-white/10 font-semibold text-xs"
+                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
               >
                 <Link href="/review">Human Review Center ({pendingReviews})</Link>
               </Button>
               <Button
                 asChild
-                variant="outline"
                 size="sm"
-                className="border-white/30 text-white hover:bg-white/10 font-semibold text-xs"
+                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
               >
                 <Link href="/customers">Customers &amp; Segments</Link>
               </Button>
@@ -228,7 +226,7 @@ export default function DashboardPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-gray-500">
-                  Total Active Leads (UC01)
+                  Total Active Leads
                 </span>
                 <div className="rounded-xl bg-gray-100 p-2 text-gray-700">
                   <Users className="size-4" />
@@ -253,7 +251,7 @@ export default function DashboardPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-emerald-800">
-                  AI Qualification Rate (UC02)
+                  AI Qualification Rate
                 </span>
                 <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
                   <Bot className="size-4" />
@@ -278,7 +276,7 @@ export default function DashboardPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-amber-800">
-                  Hot Predictive Leads (UC04)
+                  Hot Predictive Leads
                 </span>
                 <div className="rounded-xl bg-amber-100 p-2 text-amber-700">
                   <Flame className="size-4" />
@@ -293,7 +291,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-gray-500">
-                Prime candidates for conversion (UC08)
+                Prime candidates for sales conversion
               </p>
             </CardContent>
           </Card>
@@ -303,7 +301,7 @@ export default function DashboardPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-purple-800">
-                  Human Review Tasks (UC07)
+                  Pending Review Tasks
                 </span>
                 <div className="rounded-xl bg-purple-100 p-2 text-purple-700">
                   <ClipboardCheck className="size-4" />
@@ -501,7 +499,7 @@ export default function DashboardPage() {
             <CardHeader className="border-b border-[#edf0ee] px-6 py-4 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-sm font-bold text-gray-900">
-                  Human Review Tasks Queue (UC07)
+                  Human Review Tasks Queue
                 </CardTitle>
                 <p className="text-[11px] text-gray-500">
                   Low-confidence qualification reviews
@@ -577,7 +575,7 @@ export default function DashboardPage() {
                 <h4 className="text-xs font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">
                   Leads Pipeline
                 </h4>
-                <p className="text-[11px] text-gray-500">UC01, UC03, UC04</p>
+                <p className="text-[11px] text-gray-500">Lead Intake, AI Qualification &amp; Scoring</p>
               </div>
             </Link>
 
@@ -592,7 +590,7 @@ export default function DashboardPage() {
                 <h4 className="text-xs font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
                   Follow-up Cadences
                 </h4>
-                <p className="text-[11px] text-gray-500">UC05, UC06 Sequences</p>
+                <p className="text-[11px] text-gray-500">Outreach Sequences &amp; Cadences</p>
               </div>
             </Link>
 
@@ -607,7 +605,7 @@ export default function DashboardPage() {
                 <h4 className="text-xs font-bold text-gray-900 group-hover:text-amber-700 transition-colors">
                   Customers &amp; Segments
                 </h4>
-                <p className="text-[11px] text-gray-500">UC08, UC09 Cohorts</p>
+                <p className="text-[11px] text-gray-500">Conversion &amp; Dynamic Cohorts</p>
               </div>
             </Link>
 
@@ -622,7 +620,7 @@ export default function DashboardPage() {
                 <h4 className="text-xs font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
                   Review Center
                 </h4>
-                <p className="text-[11px] text-gray-500">UC07 Human Review</p>
+                <p className="text-[11px] text-gray-500">Manual Quality &amp; Approval Queue</p>
               </div>
             </Link>
           </div>

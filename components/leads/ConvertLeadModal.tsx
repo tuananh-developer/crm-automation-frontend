@@ -90,7 +90,7 @@ function ConvertLeadDialog({
           </div>
           <div>
             <h3 className="text-base font-bold text-gray-900">
-              Convert Lead to Customer (UC08)
+              Convert Lead to Customer
             </h3>
             <p className="text-xs text-gray-500">
               Transition verified prospect into permanent customer account
