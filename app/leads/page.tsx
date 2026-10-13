@@ -6,7 +6,7 @@ import { Brain, Flame, Sparkles, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeadListTable } from "@/components/leads/LeadListTable";
 import { leadService } from "@/services/lead.service";
-import type { LeadScore } from "@/types/lead";
+import type { Lead, LeadScore } from "@/types/lead";
 
 export default function LeadsPage() {
   const { data: leadsData, isLoading: isLeadsLoading } = useQuery({
@@ -23,7 +23,7 @@ export default function LeadsPage() {
     if (leads.length > 0) {
       let isMounted = true;
       Promise.allSettled(
-        leads.map(async (l) => {
+        leads.map(async (l: Lead) => {
           const score = await leadService.getLatestScore(l.id);
           return { leadId: l.id, score };
         }),
@@ -52,7 +52,7 @@ export default function LeadsPage() {
     return s.label === "HOT" || num >= 75;
   }).length;
   const enrichedCount = leads.filter(
-    (l) => !!l.companySize || !!l.industry,
+    (l: Lead) => !!l.companySize || !!l.industry,
   ).length;
 
   return (

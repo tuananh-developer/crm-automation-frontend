@@ -4,7 +4,7 @@ import type {
   Lead,
   LeadEnrichment,
   LeadScore,
-  LeadsListResponse,
+  PaginatedResponse,
   TriggerEnrichmentDto,
   TriggerScoringDto,
 } from "@/types/lead";
@@ -13,14 +13,17 @@ import type { LeadFollowUpEnrollment } from "@/types/follow-up";
 export const leadService = {
   /**
    * Fetch paginated list of leads
+   * Backend returns PaginatedResponseDto<LeadResponseDto>
    */
   async getLeads(params?: {
     search?: string;
     status?: string;
     page?: number;
     limit?: number;
-  }): Promise<LeadsListResponse> {
-    const { data } = await apiClient.get<LeadsListResponse>("/leads", {
+    sortBy?: string;
+    sortOrder?: "ASC" | "DESC";
+  }): Promise<PaginatedResponse<Lead>> {
+    const { data } = await apiClient.get<PaginatedResponse<Lead>>("/leads", {
       params,
     });
     return data;

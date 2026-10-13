@@ -4,12 +4,13 @@ import type {
   EvaluateBulkPayload,
   EvaluateBulkResult,
   EvaluateCustomerPayload,
+  PaginatedResponse,
   Segment,
   SegmentAssignmentType,
   SegmentCriteria,
   SegmentCustomerListResponse,
   SegmentEvaluationResult,
-  SegmentListResponse,
+  SegmentListParams,
   SegmentPayload,
 } from "@/types/segment";
 
@@ -17,18 +18,13 @@ import type {
  * UC09 - Customer Segmentation API layer.
  *
  * Endpoints follow the NestJS conventions already used by the backend
- * (`@Controller('leads')`, `@Controller('follow-ups')`, global prefix `api/v1`).
+ * (`@Controller('segments')`, global prefix `api/v1`).
  * Every path below was verified against the running backend; the query
  * parameters are restricted to what `QuerySegmentDto` whitelists because the
  * API runs with `forbidNonWhitelisted` (an unknown param returns HTTP 400).
  */
 
-export interface SegmentListParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  isActive?: boolean;
-}
+export type { SegmentListParams };
 
 export interface SegmentCustomerListParams {
   page?: number;
@@ -36,30 +32,45 @@ export interface SegmentCustomerListParams {
   search?: string;
 }
 
-function unwrapList<T>(response: { data?: unknown }): {
-  data: T[];
-  meta?: SegmentListResponse["meta"];
-} {
+function unwrapList<T>(response: { data?: unknown }): PaginatedResponse<T> {
   const body = response.data as
-    | SegmentListResponse
+    | PaginatedResponse<T>
     | T[]
     | undefined;
 
   if (Array.isArray(body)) {
-    return { data: body as T[] };
+    return {
+      data: body as T[],
+      meta: {
+        page: 1,
+        limit: body.length,
+        total: body.length,
+        totalPages: 1,
+      },
+    };
   }
 
+  const data = (body?.data ?? []) as T[];
+  const meta = body?.meta ?? {
+    page: 1,
+    limit: data.length || 10,
+    total: data.length,
+    totalPages: 1,
+  };
+
   return {
-    data: (body?.data ?? []) as T[],
-    meta: body?.meta,
+    data,
+    meta,
   };
 }
 
 export async function getSegments(
   params: SegmentListParams = {},
-): Promise<SegmentListResponse> {
+): Promise<PaginatedResponse<Segment>> {
   const response = await apiClient.get("/segments", { params });
-  return unwrapList<Segment>(response);
+  // Backend returns PaginatedResponseDto<Segment>
+  const body = response.data as PaginatedResponse<Segment>;
+  return body;
 }
 
 export async function getSegment(id: string): Promise<Segment> {

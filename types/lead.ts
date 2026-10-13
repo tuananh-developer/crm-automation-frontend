@@ -1,3 +1,5 @@
+import type { PaginationMeta, PaginatedResponse } from "./api";
+
 export type LeadStatus =
   | "NEW"
   | "QUALIFYING"
@@ -15,34 +17,38 @@ export type ScoreLabel = "HOT" | "WARM" | "COLD";
 export interface LeadSource {
   id: string;
   name: string;
-  description?: string | null;
-  isActive?: boolean;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LeadOwner {
   id: string;
   name: string;
   email: string;
-  role?: string;
 }
 
 export interface Lead {
   id: string;
   firstName: string;
-  lastName: string;
+  lastName: string | null;
   email: string;
-  phone?: string | null;
-  companyName: string;
-  companyWebsite?: string | null;
-  jobTitle?: string | null;
-  companySize?: number | null;
-  industry?: string | null;
+  phone: string | null;
+  companyName: string | null;
+  companyWebsite: string | null;
+  jobTitle: string | null;
+  companySize: number | null;
+  industry: string | null;
   status: LeadStatus;
-  sourceId?: string | null;
-  ownerId?: string | null;
-  source?: LeadSource | null;
-  owner?: LeadOwner | null;
-  notes?: string | null;
+  sourceId: string;
+  source: LeadSource | null;
+  ownerId: string | null;
+  owner: LeadOwner | null;
+  convertedCustomerId: string | null;
+  convertedBy: string | null;
+  convertedAt: string | null;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,18 +56,18 @@ export interface Lead {
 export interface LeadEnrichment {
   id: string;
   leadId: string;
-  workflowRunId?: string | null;
+  workflowRunId: string | null;
   provider: string;
-  externalRequestId?: string | null;
+  externalRequestId: string | null;
   status: EnrichmentStatus;
-  companyName?: string | null;
-  companyWebsite?: string | null;
-  companyIndustry?: string | null;
-  companySize?: number | null;
-  contactJobTitle?: string | null;
-  contactLinkedinUrl?: string | null;
-  rawResponse?: Record<string, unknown> | null;
-  errorMessage?: string | null;
+  companyName: string | null;
+  companyWebsite: string | null;
+  companyIndustry: string | null;
+  companySize: number | null;
+  contactJobTitle: string | null;
+  contactLinkedinUrl: string | null;
+  rawResponse: Record<string, unknown> | null;
+  errorMessage: string | null;
   enrichedAt: string;
   createdAt: string;
 }
@@ -80,16 +86,16 @@ export interface ScoringFeatures {
 export interface LeadScore {
   id: string;
   leadId: string;
-  workflowRunId?: string | null;
+  workflowRunId: string | null;
   score: number | string;
   label: ScoreLabel;
-  reason?: string | null;
-  modelProvider?: string | null;
-  modelName?: string | null;
-  modelVersion?: string | null;
-  scoringFeatures?: ScoringFeatures | null;
-  inputSnapshot?: Record<string, unknown> | null;
-  outputSnapshot?: Record<string, unknown> | null;
+  reason: string | null;
+  modelProvider: string | null;
+  modelName: string | null;
+  modelVersion: string | null;
+  scoringFeatures: ScoringFeatures | null;
+  inputSnapshot: Record<string, unknown> | null;
+  outputSnapshot: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -102,12 +108,8 @@ export interface TriggerScoringDto {
   modelName?: string;
 }
 
-export interface LeadsListResponse {
-  data: Lead[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+export interface LeadsListResponse extends PaginatedResponse<Lead> {
+  meta: PaginationMeta;
 }
+
+export type { PaginationMeta, PaginatedResponse };

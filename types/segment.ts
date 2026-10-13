@@ -1,3 +1,5 @@
+import type { PaginationMeta, PaginatedResponse } from "./api";
+
 /**
  * UC09 - Customer Segmentation: shared types.
  *
@@ -134,14 +136,21 @@ export interface SegmentListMeta {
   totalPages: number;
 }
 
-export interface SegmentListResponse {
-  data: Segment[];
-  meta?: SegmentListMeta;
+export interface SegmentListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+  sortBy?: string;
+  sortOrder?: "ASC" | "DESC";
 }
 
-export interface SegmentCustomerListResponse {
-  data: CustomerSegmentAssignment[];
-  meta?: SegmentListMeta;
+export interface SegmentListResponse extends PaginatedResponse<Segment> {
+  meta: PaginationMeta;
+}
+
+export interface SegmentCustomerListResponse extends PaginatedResponse<CustomerSegmentAssignment> {
+  meta: PaginationMeta;
 }
 
 export interface SegmentPayload {
@@ -268,3 +277,5 @@ export const ASSIGNMENT_TYPE_LABELS: Record<SegmentAssignmentType, string> = {
   RULE: "RULE_BASED",
   AI: "AI_ASSIGNED",
 };
+
+export type { PaginationMeta, PaginatedResponse };
