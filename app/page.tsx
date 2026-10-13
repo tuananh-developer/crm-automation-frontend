@@ -18,7 +18,6 @@ import {
   Target,
   TrendingUp,
   Users,
-  Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -214,6 +213,16 @@ export default function DashboardPage() {
                 className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
               >
                 <Link href="/customers">Customers &amp; Segments</Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-100 border border-emerald-400/30 font-semibold text-xs shadow-xs"
+              >
+                <Link href="/data-cleaning">
+                  <Sparkles className="size-3.5 mr-1.5 text-emerald-300" />
+                  Data Cleaning Agent
+                </Link>
               </Button>
             </div>
           </div>
@@ -563,7 +572,7 @@ export default function DashboardPage() {
           <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider text-xs">
             CRM Modules Quick Navigation
           </h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <Link
               href="/leads"
               className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-emerald-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
@@ -621,6 +630,21 @@ export default function DashboardPage() {
                   Review Center
                 </h4>
                 <p className="text-[11px] text-gray-500">Manual Quality &amp; Approval Queue</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/data-cleaning"
+              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-emerald-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
+            >
+              <div className="flex size-10 items-center justify-center rounded-xl bg-teal-100 text-teal-700 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                <Sparkles className="size-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900 group-hover:text-teal-700 transition-colors">
+                  Data Cleaning
+                </h4>
+                <p className="text-[11px] text-gray-500">AI Quality Audit &amp; Clean</p>
               </div>
             </Link>
           </div>

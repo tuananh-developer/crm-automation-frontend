@@ -80,6 +80,7 @@ function CreateLeadForm({
   // Auto-select first available source when sources are loaded
   React.useEffect(() => {
     if (!formData.sourceId && sources.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData((prev) => ({ ...prev, sourceId: sources[0].id }));
     }
   }, [sources, formData.sourceId]);
