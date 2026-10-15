@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Brain, Flame, Sparkles, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { LeadListTable } from "@/components/leads/LeadListTable";
 import { leadService } from "@/services/lead.service";
 import type { LeadScore } from "@/types/lead";
@@ -71,6 +73,19 @@ export default function LeadsPage() {
             Multi-source company enrichment (UC03) &amp; predictive machine
             learning lead scoring (UC04)
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs text-emerald-800 border-emerald-200 hover:bg-emerald-50 font-semibold"
+          >
+            <Link href="/data-cleaning">
+              <Sparkles className="size-3.5 text-emerald-600" />
+              Data Cleaning Agent
+            </Link>
+          </Button>
         </div>
       </div>
 
