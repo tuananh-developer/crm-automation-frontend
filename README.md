@@ -135,14 +135,6 @@ pnpm start
 
 ---
 
-## 🔐 6. Tài khoản Demo kiểm thử
-
-Đăng nhập bằng các tài khoản mẫu của hệ thống:
-- **Admin**: `admin@crm.local` / `Password123!`
-- **Sales Rep**: `sales@crm.local` / `Password123!`
-
----
-
-## 📄 7. Bản quyền & Đóng góp
+## 📄 6. Bản quyền & Đóng góp
 Dự án được xây dựng và duy trì bởi nhóm phát triển AI CRM Automation.
 Mọi thắc mắc hoặc đề xuất tính năng vui lòng gửi Pull Request hoặc liên hệ qua kênh trao đổi nội bộ của nhóm.
