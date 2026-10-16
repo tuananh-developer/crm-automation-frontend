@@ -27,7 +27,9 @@ export function setStoredToken(token: string, expiresIn: number = 86400): void {
     window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
   }
   if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+    const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+    const secureFlag = isHttps ? "; Secure" : "";
+    document.cookie = `${COOKIE_TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax${secureFlag}`;
   }
 }
 
@@ -36,7 +38,9 @@ export function clearStoredToken(): void {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY);
   }
   if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+    const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+    const secureFlag = isHttps ? "; Secure" : "";
+    document.cookie = `${COOKIE_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax${secureFlag}`;
   }
 }
 

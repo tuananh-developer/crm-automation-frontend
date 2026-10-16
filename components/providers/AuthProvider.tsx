@@ -3,8 +3,11 @@
 import * as React from "react";
 import {
   authService,
+  clearStoredToken,
+  clearStoredUser,
   getStoredToken,
   getStoredUser,
+  setStoredToken,
 } from "@/services/auth.service";
 import type {
   AuthContextType,
@@ -30,6 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedUser = getStoredUser();
 
       if (storedToken) {
+        // Ensure cookie is synchronized immediately for SSR / proxy middleware
+        setStoredToken(storedToken);
+
         if (isMounted) {
           setToken(storedToken);
           if (storedUser) setUser(storedUser);
@@ -40,9 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const freshUser = await authService.getProfile();
           if (isMounted && freshUser) {
             setUser(freshUser);
+            setStoredToken(storedToken);
           }
         } catch {
-          // If token expired or invalid, keep stored user or clear if 401
+          // If token expired, invalid, or unauthorized, purge stale state completely
+          if (isMounted) {
+            setToken(null);
+            setUser(null);
+          }
+          clearStoredToken();
+          clearStoredUser();
         }
       }
 

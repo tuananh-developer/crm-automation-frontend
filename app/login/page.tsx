@@ -23,7 +23,7 @@ import { getApiErrorMessage } from "@/services/api-client";
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -31,14 +31,18 @@ function LoginFormContent() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-  const returnUrl = searchParams.get("from") || "/";
+  const rawFrom = searchParams.get("from");
+  const returnUrl =
+    rawFrom && !rawFrom.startsWith("/login") && !rawFrom.startsWith("/register")
+      ? rawFrom
+      : "/";
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated and initial verification has finished
   React.useEffect(() => {
-    if (isAuthenticated) {
+    if (!isLoading && isAuthenticated) {
       router.replace(returnUrl);
     }
-  }, [isAuthenticated, router, returnUrl]);
+  }, [isAuthenticated, isLoading, router, returnUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

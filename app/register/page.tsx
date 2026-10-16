@@ -23,7 +23,7 @@ import { getApiErrorMessage } from "@/services/api-client";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated } = useAuth();
+  const { register, isAuthenticated, isLoading } = useAuth();
 
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -33,12 +33,12 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated and initial verification has finished
   React.useEffect(() => {
-    if (isAuthenticated) {
+    if (!isLoading && isAuthenticated) {
       router.replace("/");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
