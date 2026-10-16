@@ -13,6 +13,44 @@ export const apiClient = axios.create({
   timeout: 20000,
 });
 
+// Attach Authorization Bearer token to all outgoing API requests
+apiClient.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const match = document.cookie.match(/(?:^|; )crm_access_token=([^;]*)/);
+      const cookieToken = match ? decodeURIComponent(match[1]) : null;
+      const token = window.localStorage.getItem("crm_access_token") || cookieToken;
+
+      if (token && !config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+// Intercept 401 Unauthorized responses to clear expired credentials
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      typeof window !== "undefined"
+    ) {
+      const url = error.config?.url ?? "";
+      // Only clear and redirect if this was not an attempted login or register call
+      if (!url.includes("/auth/login") && !url.includes("/auth/register")) {
+        window.localStorage.removeItem("crm_access_token");
+        window.localStorage.removeItem("crm_user");
+        document.cookie = "crm_access_token=; path=/; max-age=0; SameSite=Lax";
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 /** Normalised error message so every screen can render the same error state. */
 export function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {

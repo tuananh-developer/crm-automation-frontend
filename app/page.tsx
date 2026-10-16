@@ -22,6 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserNav } from "@/components/auth/UserNav";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { ScoreBadge } from "@/components/leads/ScoreBadge";
 import { CreateLeadModal } from "@/components/leads/CreateLeadModal";
@@ -161,6 +162,10 @@ export default function DashboardPage() {
             </Button>
 
             <NotificationBell />
+
+            <div className="h-4 w-px bg-gray-200" />
+
+            <UserNav />
 
             <Button
               size="sm"

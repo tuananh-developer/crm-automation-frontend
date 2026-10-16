@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserNav } from "@/components/auth/UserNav";
 
 export default function LeadsLayout({
   children,
@@ -58,6 +59,7 @@ export default function LeadsLayout({
 
             <div className="flex flex-wrap items-center gap-2">
               <NotificationBell />
+              <UserNav />
 
               <Button
                 asChild

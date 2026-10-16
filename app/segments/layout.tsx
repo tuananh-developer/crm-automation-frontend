@@ -7,6 +7,7 @@ import { Clock3, Layers, LayoutDashboard, Plus, Sparkles, Users } from "lucide-r
 
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserNav } from "@/components/auth/UserNav";
 
 /**
  * Layout for UC09 - Customer Segmentation.
@@ -51,6 +52,7 @@ export default function SegmentsLayout({
 
             <div className="flex flex-wrap items-center gap-2">
               <NotificationBell />
+              <UserNav />
 
               <Button asChild variant="ghost">
                 <Link href="/">
