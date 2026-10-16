@@ -56,7 +56,7 @@ export const REVIEW_STATUS_OPTIONS: ReviewStatus[] = [
 
 /**
  * The backend exposes no priority column, so the inbox is ordered by status
- * urgency first and by age (oldest first) inside each group.
+ * urgency first and by age (newest first) inside each group.
  */
 const STATUS_PRIORITY: Record<ReviewStatus, number> = {
   PENDING: 0,
@@ -78,7 +78,7 @@ export function sortReviewTasksByPriority(tasks: ReviewTask[]): ReviewTask[] {
 
     if (Number.isNaN(leftTime) || Number.isNaN(rightTime)) return 0;
 
-    return leftTime - rightTime;
+    return rightTime - leftTime;
   });
 }
 
