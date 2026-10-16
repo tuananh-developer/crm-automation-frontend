@@ -18,6 +18,7 @@ import type {
   EvaluationStatus,
   Segment,
   SegmentAssignmentType,
+  SegmentCustomerRef,
   SegmentEvaluationResult,
 } from "@/types/segment";
 
@@ -183,12 +184,21 @@ export function EvaluateCustomerDialog({
             onChange={(event) => setCustomerId(event.target.value)}
           >
             <option value="">Select customer…</option>
-            {segmentCustomers.map((item) => (
-              <option key={item.customerId} value={item.customerId}>
-                {item.customer?.name ?? item.customerId}
-                {item.customer?.email ? ` · ${item.customer.email}` : ""}
-              </option>
-            ))}
+            {segmentCustomers.map((item, index) => {
+              const record = item as unknown as Partial<
+                CustomerSegmentAssignment & SegmentCustomerRef
+              >;
+              const customer = item.customer;
+              const id = item.customerId || record.id || String(index);
+              const name = customer?.name ?? record.name ?? id;
+              const email = customer?.email ?? record.email ?? "";
+              return (
+                <option key={id} value={id}>
+                  {name}
+                  {email ? ` · ${email}` : ""}
+                </option>
+              );
+            })}
           </Select>
           <p className="text-xs text-gray-500">
             No customer loaded yet? Paste the customer UUID below.
@@ -208,29 +218,37 @@ export function EvaluateCustomerDialog({
             </p>
 
             <ul className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-[#e2e8e4] p-2">
-              {segmentCustomers.map((item) => (
-                <li key={item.customerId}>
-                  <label className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-[#f6f8f7]">
-                    <input
-                      type="checkbox"
-                      className="size-4 accent-[#173b2b]"
-                      checked={selectedIds.includes(item.customerId)}
-                      onChange={(event) =>
-                        setSelectedIds((previous) =>
-                          event.target.checked
-                            ? [...previous, item.customerId]
-                            : previous.filter(
-                                (id) => id !== item.customerId,
-                              ),
-                        )
-                      }
-                    />
-                    <span className="truncate">
-                      {item.customer?.name ?? item.customerId}
-                    </span>
-                  </label>
-                </li>
-              ))}
+              {segmentCustomers.map((item, index) => {
+                const record = item as unknown as Partial<
+                  CustomerSegmentAssignment & SegmentCustomerRef
+                >;
+                const customer = item.customer;
+                const id = item.customerId || record.id || String(index);
+                const name = customer?.name ?? record.name ?? id;
+                return (
+                  <li key={id}>
+                    <label className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-[#f6f8f7]">
+                      <input
+                        type="checkbox"
+                        className="size-4 accent-[#173b2b]"
+                        checked={selectedIds.includes(id)}
+                        onChange={(event) =>
+                          setSelectedIds((previous) =>
+                            event.target.checked
+                              ? [...previous, id]
+                              : previous.filter(
+                                  (selectedId) => selectedId !== id,
+                                ),
+                          )
+                        }
+                      />
+                      <span className="truncate">
+                        {name}
+                      </span>
+                    </label>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ) : null}
