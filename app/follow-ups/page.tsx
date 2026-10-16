@@ -33,7 +33,8 @@ function FollowUpsContent() {
           }`}
         >
           <Sliders className="size-4 text-emerald-700" />
-          <span>Cadence Sequences (UC05)</span>
+          {/* <span>Cadence Sequences (UC05)</span> */}
+          <span>Cadence Sequences </span>
         </button>
 
         <button
@@ -46,7 +47,8 @@ function FollowUpsContent() {
           }`}
         >
           <Clock3 className="size-4 text-emerald-700" />
-          <span>Execution History &amp; Logs (UC06)</span>
+          {/* <span>Execution History &amp; Logs (UC06)</span> */}
+          <span>Execution History &amp; Logs </span>
         </button>
       </div>
 
