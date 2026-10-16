@@ -64,8 +64,8 @@ export default function LeadsPage() {
             Leads Pipeline &amp; AI Intelligence
           </h2>
           <p className="text-xs text-gray-500">
-            Multi-source company enrichment (UC03) &amp; predictive machine
-            learning lead scoring (UC04)
+            Multi-source company enrichment &amp; predictive machine learning
+            lead scoring
           </p>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function LeadsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-blue-800">
-                Enriched Profiles (UC03)
+                Enriched Profiles
               </span>
               <div className="rounded-lg bg-blue-100 p-2 text-blue-700">
                 <Sparkles className="size-4" />
@@ -143,7 +143,7 @@ export default function LeadsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-purple-800">
-                AI Scored (UC04)
+                AI Scored
               </span>
               <div className="rounded-lg bg-purple-100 p-2 text-purple-700">
                 <Brain className="size-4" />

@@ -141,7 +141,7 @@ export function EnrichmentCard({
               )}
             </div>
             <p className="text-xs text-gray-500">
-              AI-driven multi-source profile enrichment (Backend UC03)
+              AI-driven multi-source profile enrichment
             </p>
           </div>
         </div>

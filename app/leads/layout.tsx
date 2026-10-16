@@ -44,10 +44,7 @@ export default function LeadsLayout({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-                    UC03 &amp; UC04 · Lead Intelligence
-                  </span>
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                    FE-05
+                    Lead Intelligence
                   </span>
                 </div>
                 <h1 className="text-lg font-bold text-gray-900">

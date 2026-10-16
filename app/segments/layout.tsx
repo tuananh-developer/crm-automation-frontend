@@ -43,7 +43,7 @@ export default function SegmentsLayout({
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC09 · Customer Segmentation
+                  Customer Segmentation
                 </p>
                 <h1 className="text-xl font-bold">Segments</h1>
               </div>

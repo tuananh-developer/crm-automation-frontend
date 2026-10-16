@@ -51,7 +51,7 @@ export default function Home() {
           <div className="relative z-10 max-w-2xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200 border border-emerald-400/20">
               <Sparkles className="size-3.5" />
-              <span>UC03 &amp; UC04 Modules Active</span>
+              <span>Modules Active</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight">
               AI-Powered Lead Enrichment &amp; Predictive Scoring
@@ -99,10 +99,7 @@ export default function Home() {
                     <Target className="size-6" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
-                      FE-05 · UC03 &amp; UC04
-                    </span>
-                    <h4 className="text-base font-bold text-gray-900 mt-0.5">
+                    <h4 className="text-base font-bold text-gray-900">
                       AI Lead Intelligence
                     </h4>
                   </div>
@@ -128,10 +125,7 @@ export default function Home() {
                     <Clock3 className="size-6" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                      FE-08 · UC06
-                    </span>
-                    <h4 className="text-base font-bold text-gray-900 mt-0.5">
+                    <h4 className="text-base font-bold text-gray-900">
                       Follow-up Cadences
                     </h4>
                   </div>
@@ -154,10 +148,7 @@ export default function Home() {
                     <Users className="size-6" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                      FE-10 · UC09
-                    </span>
-                    <h4 className="text-base font-bold text-gray-900 mt-0.5">
+                    <h4 className="text-base font-bold text-gray-900">
                       Customers &amp; Segments
                     </h4>
                   </div>
@@ -180,10 +171,7 @@ export default function Home() {
                     <ClipboardCheck className="size-6" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                      FE-09 · UC07
-                    </span>
-                    <h4 className="text-base font-bold text-gray-900 mt-0.5">
+                    <h4 className="text-base font-bold text-gray-900">
                       Review &amp; Notifications
                     </h4>
                   </div>

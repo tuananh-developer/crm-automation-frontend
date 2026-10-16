@@ -42,7 +42,7 @@ export default function FollowUpsLayout({
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC06 · Follow-up Execution
+                  Follow-up Execution
                 </p>
                 <h1 className="text-xl font-bold">Follow-up History</h1>
               </div>

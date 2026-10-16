@@ -49,7 +49,7 @@ export default function CustomersLayout({
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC09 · Customer Management
+                  Customer Management
                 </p>
                 <h1 className="text-xl font-bold">Customers &amp; Segments</h1>
               </div>

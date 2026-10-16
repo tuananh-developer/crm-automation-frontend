@@ -104,11 +104,6 @@ export function LeadScoreCard({
               <CardTitle className="text-base font-bold text-gray-900">
                 AI Predictive Lead Scoring
               </CardTitle>
-              {latestScore && (
-                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-200">
-                  UC04 Model
-                </span>
-              )}
             </div>
             <p className="text-xs text-gray-500">
               Evaluates ICP fit, engagement signals, and conversion probability

@@ -43,7 +43,7 @@ export default function ReviewLayout({
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC07 · Human Review
+                  Human Review
                 </p>
                 <h1 className="text-xl font-bold">Review Center</h1>
               </div>

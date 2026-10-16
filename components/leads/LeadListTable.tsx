@@ -136,8 +136,8 @@ export function LeadListTable({
                 <th className="py-3 px-5 font-semibold">Lead Contact</th>
                 <th className="py-3 px-5 font-semibold">Company &amp; Industry</th>
                 <th className="py-3 px-5 font-semibold">Status</th>
-                <th className="py-3 px-5 font-semibold">AI Lead Score (UC04)</th>
-                <th className="py-3 px-5 font-semibold">Enrichment (UC03)</th>
+                <th className="py-3 px-5 font-semibold">AI Lead Score</th>
+                <th className="py-3 px-5 font-semibold">Enrichment</th>
                 <th className="py-3 px-5 text-right font-semibold">Action</th>
               </tr>
             </thead>
