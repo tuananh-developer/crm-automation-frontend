@@ -13,6 +13,7 @@ import { ASSIGNMENT_TYPE_LABELS } from "@/types/segment";
 import type {
   CustomerSegmentAssignment,
   SegmentAssignmentType,
+  SegmentCustomerRef,
   SegmentListMeta,
 } from "@/types/segment";
 
@@ -49,11 +50,12 @@ export function CustomerSegmentTable({
 
   // The API filters by page/limit/search only, so the assignment type filter
   // runs on the rows of the current page.
+  const list = assignments ?? [];
   const visibleAssignments =
     assignmentFilter === "ALL"
-      ? assignments
-      : assignments.filter(
-          (assignment) => assignment.assignmentType === assignmentFilter,
+      ? list
+      : list.filter(
+          (assignment) => (assignment.assignmentType ?? "RULE") === assignmentFilter,
         );
 
   return (
@@ -129,51 +131,78 @@ export function CustomerSegmentTable({
                 </thead>
 
                 <tbody className="divide-y divide-[#f1f4f2]">
-                  {visibleAssignments.map((assignment) => (
-                    <tr key={`${assignment.customerId}-${assignment.segmentId}`} className="hover:bg-[#f6f8f7]">
-                      <td className="px-5 py-4 font-semibold text-[#17221c]">
-                        {assignment.customer?.name ?? assignment.customerId}
-                      </td>
+                  {visibleAssignments.map((assignment, index) => {
+                    const record = assignment as unknown as Partial<
+                      CustomerSegmentAssignment &
+                        SegmentCustomerRef & { leadScore?: number }
+                    >;
+                    const customer = assignment.customer;
+                    const rowKey =
+                      assignment.customerId && assignment.segmentId
+                        ? `${assignment.customerId}-${assignment.segmentId}`
+                        : (record.id ?? `row-${index}`);
+                    const customerName =
+                      customer?.name ?? record.name ?? assignment.customerId ?? "—";
+                    const customerEmail = customer?.email ?? record.email ?? "—";
+                    const companyName = customer?.companyName ?? record.companyName ?? "—";
+                    const score =
+                      assignment.score ??
+                      record.leadScore ??
+                      record.score ??
+                      "—";
+                    const assignmentType = assignment.assignmentType;
 
-                      <td className="px-5 py-4 text-xs text-gray-600">
-                        {assignment.customer?.email ?? "—"}
-                      </td>
+                    return (
+                      <tr key={rowKey} className="hover:bg-[#f6f8f7]">
+                        <td className="px-5 py-4 font-semibold text-[#17221c]">
+                          {customerName}
+                        </td>
 
-                      <td className="px-5 py-4 text-xs text-gray-600">
-                        {assignment.customer?.companyName ?? "—"}
-                      </td>
+                        <td className="px-5 py-4 text-xs text-gray-600">
+                          {customerEmail}
+                        </td>
 
-                      <td className="px-5 py-4 text-xs text-gray-600">
-                        {assignment.score ?? "—"}
-                      </td>
+                        <td className="px-5 py-4 text-xs text-gray-600">
+                          {companyName}
+                        </td>
 
-                      <td className="px-5 py-4">
-                        <Badge
-                          tone={assignment.assignmentType === "AI" ? "info" : "neutral"}
-                        >
-                          {ASSIGNMENT_TYPE_LABELS[assignment.assignmentType] ?? assignment.assignmentType}
-                        </Badge>
-                      </td>
+                        <td className="px-5 py-4 text-xs text-gray-600">
+                          {score}
+                        </td>
 
-                      <td className="px-5 py-4">
-                        <ConfidenceBar value={assignment.confidence} />
-                      </td>
+                        <td className="px-5 py-4">
+                          <Badge
+                            tone={assignmentType === "AI" ? "info" : "neutral"}
+                          >
+                            {assignmentType
+                              ? (ASSIGNMENT_TYPE_LABELS[assignmentType] ??
+                                assignmentType)
+                              : "ASSIGNED"}
+                          </Badge>
+                        </td>
 
-                      <td className="max-w-xs px-5 py-4 text-xs text-gray-600">
-                        {assignment.assignedReason ?? "—"}
-                      </td>
+                        <td className="px-5 py-4">
+                          <ConfidenceBar value={assignment.confidence} />
+                        </td>
 
-                      <td className="px-5 py-4 text-xs text-gray-500">
-                        {formatDateTime(assignment.assignedAt)}
-                      </td>
+                        <td className="max-w-xs px-5 py-4 text-xs text-gray-600">
+                          {assignment.assignedReason ?? "—"}
+                        </td>
 
-                      <td className="px-5 py-4 text-xs text-gray-500">
-                        {assignment.assignedByUser?.name ??
-                          assignment.assignedBy ??
-                          "—"}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="px-5 py-4 text-xs text-gray-500">
+                          {formatDateTime(
+                            assignment.assignedAt ?? customer?.createdAt,
+                          )}
+                        </td>
+
+                        <td className="px-5 py-4 text-xs text-gray-500">
+                          {assignment.assignedByUser?.name ??
+                            assignment.assignedBy ??
+                            "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

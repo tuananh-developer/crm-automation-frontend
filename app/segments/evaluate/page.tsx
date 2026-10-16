@@ -34,8 +34,10 @@ import {
   Notice,
 } from "@/components/segments/States";
 import type {
+  CustomerSegmentAssignment,
   EvaluationStatus,
   SegmentAssignmentType,
+  SegmentCustomerRef,
   SegmentEvaluationResult,
 } from "@/types/segment";
 
@@ -189,7 +191,13 @@ export default function EvaluateSegmentPage() {
                 </Select>
                 {segmentQuery.data ? (
                   <p className="text-xs text-gray-500">
-                    Criteria: {segmentQuery.data.criteria?.conditions.length ?? 0}{" "}
+                    Criteria:{" "}
+                    {Array.isArray(segmentQuery.data.criteria?.conditions)
+                      ? segmentQuery.data.criteria.conditions.length
+                      : segmentQuery.data.criteria &&
+                          typeof segmentQuery.data.criteria === "object"
+                        ? Object.keys(segmentQuery.data.criteria).length
+                        : 0}{" "}
                     condition(s)
                   </p>
                 ) : null}
@@ -239,32 +247,39 @@ export default function EvaluateSegmentPage() {
               />
             ) : (
               <ul className="max-h-64 space-y-1 overflow-y-auto rounded-xl border border-[#e2e8e4] p-2">
-                {customers.map((item) => (
-                  <li key={item.customerId}>
-                    <label className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-[#f6f8f7]">
-                      <input
-                        type="checkbox"
-                        className="size-4 accent-[#173b2b]"
-                        checked={selectedIds.includes(item.customerId)}
-                        onChange={(event) =>
-                          setSelectedIds((previous) =>
-                            event.target.checked
-                              ? [...previous, item.customerId]
-                              : previous.filter(
-                                  (id) => id !== item.customerId,
-                                ),
-                          )
-                        }
-                      />
-                      <span className="flex-1 truncate">
-                        {item.customer?.name ?? item.customerId}
-                      </span>
-                      <span className="truncate text-xs text-gray-400">
-                        {item.customer?.email ?? ""}
-                      </span>
-                    </label>
-                  </li>
-                ))}
+                {customers.map((item, index) => {
+                  const record = item as unknown as Partial<
+                    CustomerSegmentAssignment & SegmentCustomerRef
+                  >;
+                  const customer = item.customer;
+                  const id = item.customerId || record.id || String(index);
+                  const name = customer?.name || record.name || id;
+                  const email = customer?.email || record.email || "";
+                  return (
+                    <li key={id}>
+                      <label className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-[#f6f8f7]">
+                        <input
+                          type="checkbox"
+                          className="size-4 accent-[#173b2b]"
+                          checked={selectedIds.includes(id)}
+                          onChange={(event) =>
+                            setSelectedIds((previous) =>
+                              event.target.checked
+                                ? [...previous, id]
+                                : previous.filter(
+                                    (selectedId) => selectedId !== id,
+                                  ),
+                            )
+                          }
+                        />
+                        <span className="flex-1 truncate">{name}</span>
+                        <span className="truncate text-xs text-gray-400">
+                          {email}
+                        </span>
+                      </label>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

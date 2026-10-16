@@ -53,23 +53,44 @@ export function getSegmentAssignmentType(
 }
 
 /** Human readable one-line summary of a criteria document. */
-export function describeCriteria(criteria?: SegmentCriteria | null): string {
-  if (!criteria || criteria.conditions.length === 0) {
+export function describeCriteria(
+  criteria?: SegmentCriteria | Record<string, unknown> | null,
+): string {
+  if (!criteria) {
     return "No criteria defined";
   }
 
-  return criteria.conditions
-    .map((condition) => {
-      const meta = SEGMENT_CRITERIA_FIELDS.find(
-        (field) => field.value === condition.field,
-      );
-      const operator =
-        SEGMENT_OPERATORS.find((item) => item.value === condition.operator)
-          ?.label ?? condition.operator;
+  const rawConditions = (criteria as { conditions?: unknown }).conditions;
+  if (Array.isArray(rawConditions) && rawConditions.length > 0) {
+    const conditions = rawConditions as Array<{
+      field?: string;
+      operator?: string;
+      value?: unknown;
+    }>;
+    const logic = (criteria as { logic?: string }).logic || "AND";
 
-      return `${meta?.label ?? condition.field} ${operator} ${condition.value}`;
-    })
-    .join(` ${criteria.logic} `);
+    return conditions
+      .map((condition) => {
+        const meta = SEGMENT_CRITERIA_FIELDS.find(
+          (field) => field.value === condition.field,
+        );
+        const operator =
+          SEGMENT_OPERATORS.find((item) => item.value === condition.operator)
+            ?.label ?? (condition.operator || "");
+
+        return `${meta?.label ?? condition.field ?? ""} ${operator} ${String(condition.value ?? "")}`.trim();
+      })
+      .join(` ${logic} `);
+  }
+
+  if (typeof criteria === "object" && Object.keys(criteria).length > 0) {
+    const parts = Object.entries(criteria)
+      .filter(([key]) => key !== "assignmentType" && key !== "logic" && key !== "conditions")
+      .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : String(val)}`);
+    return parts.length > 0 ? parts.join(" · ") : "Custom criteria";
+  }
+
+  return "No criteria defined";
 }
 
 export function getEvaluationDisplayName(
