@@ -161,7 +161,7 @@ export function CustomerList() {
             <div>
               <h2 className="font-bold text-[#17221c]">Customers</h2>
               <p className="text-sm text-gray-500">
-                Khách hàng đã chuyển đổi từ lead (UC08).{" "}
+                Khách hàng đã chuyển đổi từ lead.{" "}
                 {meta ? `${meta.total} bản ghi.` : ""}
               </p>
             </div>

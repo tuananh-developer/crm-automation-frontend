@@ -112,7 +112,7 @@ export function LeadScoreCard({
               </CardTitle>
               {latestScore && (
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-200">
-                  UC04 Model
+                  AI Model
                 </span>
               )}
             </div>

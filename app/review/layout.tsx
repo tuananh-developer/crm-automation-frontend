@@ -10,10 +10,9 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { UserNav } from "@/components/auth/UserNav";
 
 /**
- * Layout for UC07 - Human Review Center (FE-09).
+ * Layout for Human Review Center.
  * The QueryClient lives in this nested layout so the shared root layout
  * stays untouched.
- * 
  */
 export default function ReviewLayout({
   children,
@@ -44,9 +43,6 @@ export default function ReviewLayout({
               </div>
 
               <div>
-                {/* <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  UC07 · Human Review
-                </p> */}
                 <h1 className="text-xl font-bold">Review Center</h1>
               </div>
             </div>
