@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { useAuth } from "@/components/providers/AuthProvider";
 import { getWorkspaceUsers } from "@/services/user.service";
 import type { WorkspaceUser } from "@/types/user";
 
@@ -11,11 +12,13 @@ const STORAGE_KEY = "crm-flow.workspace-user-id";
 const subscribe = () => () => {};
 
 /**
- * The backend has no authentication, so the active workspace member is picked
- * in the UI and remembered in localStorage. `useSyncExternalStore` keeps the
- * stored value out of the server render pass.
+ * Resolves the active workspace member. Prioritizes the currently authenticated
+ * user from AuthProvider, then explicit user override, stored localStorage ID,
+ * and finally falls back to the first seeded workspace user.
  */
 export function useWorkspaceUser() {
+  const { user: authUser } = useAuth();
+
   const usersQuery = useQuery({
     queryKey: ["workspace-users"],
     queryFn: getWorkspaceUsers,
@@ -33,7 +36,12 @@ export function useWorkspaceUser() {
   const storedId = isHydrated ? window.localStorage.getItem(STORAGE_KEY) : null;
 
   const activeUser: WorkspaceUser | null =
-    users.find((user) => user.id === (selectedId ?? storedId)) ?? users[0] ?? null;
+    users.find(
+      (user) => user.id === (selectedId ?? authUser?.id ?? storedId),
+    ) ??
+    authUser ??
+    users[0] ??
+    null;
 
   const selectUser = React.useCallback((userId: string) => {
     setSelectedId(userId);

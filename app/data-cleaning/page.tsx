@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UserNav } from "@/components/auth/UserNav";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScopeSelector } from "@/components/data-cleaning/ScopeSelector";
 import { FindingsTable } from "@/components/data-cleaning/FindingsTable";
@@ -213,6 +214,10 @@ export default function DataCleaningPage() {
             >
               <Link href="/leads">View Leads Pipeline</Link>
             </Button>
+
+            <div className="h-4 w-px bg-gray-200" />
+
+            <UserNav />
           </div>
         </div>
       </header>

@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserNav } from "@/components/auth/UserNav";
 
 /**
  * Layout for UC09 - Customers and Segments (FE-10).
@@ -57,6 +58,7 @@ export default function CustomersLayout({
 
             <div className="flex flex-wrap items-center gap-2">
               <NotificationBell />
+              <UserNav />
 
               <Button asChild variant="ghost">
                 <Link href="/">

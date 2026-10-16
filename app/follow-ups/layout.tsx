@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserNav } from "@/components/auth/UserNav";
 
 /**
  * Layout for UC05 (Follow-up Sequences & Step Builder) and UC06 (Follow-up Execution History).
@@ -62,6 +63,7 @@ export default function FollowUpsLayout({
 
             <div className="flex flex-wrap items-center gap-2">
               <NotificationBell />
+              <UserNav />
 
               <Button asChild variant="outline" className="text-xs h-9">
                 <Link href="/">
