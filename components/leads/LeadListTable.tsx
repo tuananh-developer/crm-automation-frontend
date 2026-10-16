@@ -260,8 +260,8 @@ export function LeadListTable({
                 <th className="py-3 px-5 font-semibold">Company &amp; Industry</th>
                 <th className="py-3 px-5 font-semibold">Source</th>
                 <th className="py-3 px-5 font-semibold">Status</th>
-                <th className="py-3 px-5 font-semibold">AI Score (UC04)</th>
-                <th className="py-3 px-5 font-semibold">Enrichment (UC03)</th>
+                <th className="py-3 px-5 font-semibold">AI Score</th>
+                <th className="py-3 px-5 font-semibold">Enrichment</th>
                 <th className="py-3 px-5 text-right font-semibold">Actions</th>
               </tr>
             </thead>

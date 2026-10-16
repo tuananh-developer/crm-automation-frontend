@@ -192,7 +192,7 @@ export default function LeadDetailPage() {
               className="h-8 gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold text-xs shadow-xs"
             >
               <UserCheck className="size-3.5" />
-              Convert to Customer (UC08)
+              Convert to Customer
             </Button>
           )}
 

@@ -154,7 +154,7 @@ export function LeadEnrollmentModal({
                 Ghi danh Lead vào Chuỗi chăm sóc (Enroll in Sequence)
               </h3>
               <p className="text-xs text-gray-500">
-                UC05 Follow-Up Sequence Automation
+                Follow-Up Sequence Automation
               </p>
             </div>
           </div>

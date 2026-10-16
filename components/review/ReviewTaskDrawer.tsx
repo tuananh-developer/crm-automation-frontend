@@ -213,7 +213,7 @@ export function ReviewTaskDrawer({
         <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[#e2e8e4] bg-white px-5 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-              UC07 · Human Review
+              Human Review
             </p>
             <h2 id="review-drawer-title" className="text-lg font-bold">
               Chi tiết review task

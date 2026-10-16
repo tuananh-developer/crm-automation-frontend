@@ -307,7 +307,7 @@ function StepBuilderWorkspace({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-                UC05 · Cadence Studio
+                Cadence Studio
               </span>
               <SequenceStatusBadge status={status} />
             </div>

@@ -47,14 +47,6 @@ export default function FollowUpsLayout({
               </div>
 
               <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-                    UC05 &amp; UC06 · Follow-Up Studio
-                  </p>
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                    FE-06
-                  </span>
-                </div>
                 <h1 className="text-lg font-bold text-gray-900">
                   Sequences &amp; Cadence Builder
                 </h1>

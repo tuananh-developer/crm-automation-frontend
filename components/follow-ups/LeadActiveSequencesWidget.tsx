@@ -143,7 +143,7 @@ export function LeadActiveSequencesWidget({ lead }: LeadActiveSequencesWidgetPro
               Chuỗi chăm sóc khách hàng (Follow-Up Cadences)
             </CardTitle>
             <p className="text-[11px] text-gray-500">
-              UC05 Multi-Touch Automated Outreach
+              Multi-Touch Automated Outreach
             </p>
           </div>
         </div>
