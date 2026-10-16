@@ -44,7 +44,9 @@ apiClient.interceptors.response.use(
       if (!url.includes("/auth/login") && !url.includes("/auth/register")) {
         window.localStorage.removeItem("crm_access_token");
         window.localStorage.removeItem("crm_user");
-        document.cookie = "crm_access_token=; path=/; max-age=0; SameSite=Lax";
+        const isHttps = window.location.protocol === "https:";
+        const secureFlag = isHttps ? "; Secure" : "";
+        document.cookie = `crm_access_token=; path=/; max-age=0; SameSite=Lax${secureFlag}`;
       }
     }
     return Promise.reject(error);
