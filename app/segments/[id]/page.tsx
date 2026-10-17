@@ -15,6 +15,7 @@ import {
   deactivateSegment,
   deleteSegment,
   evaluateCustomer,
+  evaluateSegmentCustomers,
   getSegment,
   getSegmentCustomers,
 } from "@/services/segment.service";
@@ -137,6 +138,24 @@ export default function SegmentDetailPage() {
     },
   });
 
+  const evaluateAllMutation = useMutation({
+    mutationFn: (assignmentType: SegmentAssignmentType) =>
+      evaluateSegmentCustomers(segmentId, { assignmentType }),
+    onSuccess: async (response) => {
+      await invalidateSegmentQueries();
+      setNotice({
+        tone: "success",
+        message:
+          response.message ||
+          `Đã quét toàn bộ: ${response.matched}/${response.total} khách hàng phù hợp và đã được thêm vào phân khúc!`,
+      });
+      setEvaluateOpen(false);
+    },
+    onError: (error) => {
+      setNotice({ tone: "danger", message: getApiErrorMessage(error) });
+    },
+  });
+
   if (segmentQuery.isLoading) {
     return <LoadingState label="Loading segment…" />;
   }
@@ -256,9 +275,10 @@ export default function SegmentDetailPage() {
           open
           onClose={() => setEvaluateOpen(false)}
           segments={[segment]}
-          customers={customersQuery.data?.data ?? []}
           initialSegmentId={segmentId}
-          isEvaluating={evaluateMutation.isPending}
+          isEvaluating={
+            evaluateMutation.isPending || evaluateAllMutation.isPending
+          }
           onEvaluate={async ({ customerIds, assignmentType }) => {
             try {
               return await evaluateMutation.mutateAsync({
@@ -268,6 +288,9 @@ export default function SegmentDetailPage() {
             } catch (error) {
               throw new Error(getApiErrorMessage(error));
             }
+          }}
+          onEvaluateAll={async (assignmentType) => {
+            await evaluateAllMutation.mutateAsync(assignmentType);
           }}
         />
       ) : null}
