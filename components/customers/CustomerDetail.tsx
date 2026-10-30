@@ -16,7 +16,10 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  BrainCircuit,
+  Sparkles,
 } from "lucide-react";
+import { Customer360Tab } from "./Customer360Tab";
 
 import { getApiErrorMessage } from "@/services/api-client";
 import { getCustomer } from "@/services/customer.service";
@@ -144,23 +147,27 @@ function SegmentMembershipCard({
 
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = React.useState<"360" | "overview">("360");
 
   return (
-    <div className="space-y-4">
-      <Button type="button" variant="ghost" onClick={() => router.push("/customers")}>
-        <ArrowLeft />
-        Danh sách khách hàng
-      </Button>
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button type="button" variant="ghost" onClick={() => router.push("/customers")}>
+          <ArrowLeft />
+          Danh sách khách hàng
+        </Button>
+      </div>
 
+      {/* Top Customer Summary Card */}
       <Card>
-        <CardContent className="space-y-5 p-5">
+        <CardContent className="space-y-4 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-xl font-bold text-[#17221c]">
                 {customer.name}
               </h2>
-              <p className="mt-1 break-all font-mono text-xs text-gray-500">
-                {customer.id}
+              <p className="mt-0.5 break-all font-mono text-xs text-gray-500">
+                {customer.companyName ? `${customer.companyName} • ` : ""}ID: {customer.id}
               </p>
             </div>
 
@@ -169,123 +176,175 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                 {customer.status ?? "CHƯA GÁN TRẠNG THÁI"}
               </Badge>
               <Badge tone="info">
-                <Layers />
+                <Layers className="size-3.5" />
                 {customer.segmentCount} segment
               </Badge>
             </div>
           </div>
 
-          <div className="grid gap-4 border-t border-[#edf0ee] pt-4 sm:grid-cols-2">
+          <div className="grid gap-3 border-t border-[#edf0ee] pt-3 text-xs sm:grid-cols-2 md:grid-cols-4">
             <Row icon={Mail} label="Email" value={customer.email} />
             <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
+            <Row icon={Building2} label="Công ty" value={customer.companyName ?? "—"} />
             <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
-            <Row
-              icon={Building2}
-              label="Công ty"
-              value={customer.companyName ?? "—"}
-            />
-            <Row
-              icon={Globe}
-              label="Website"
-              value={
-                customer.companyWebsite ? (
-                  <a
-                    href={customer.companyWebsite}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    {customer.companyWebsite}
-                  </a>
-                ) : (
-                  "—"
-                )
-              }
-            />
-            <Row
-              icon={Users}
-              label="Quy mô công ty"
-              value={customer.companySize ?? "—"}
-            />
-            <Row icon={Users} label="Ngành nghề" value={customer.industry ?? "—"} />
-            <Row
-              icon={UserRound}
-              label="Người tạo"
-              value={customer.creator?.name ?? customer.createdBy}
-            />
           </div>
-
-          {customer.notes ? (
-            <div className="border-t border-[#edf0ee] pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Ghi chú
-              </p>
-              <p className="mt-1 text-sm break-words text-[#17221c]">
-                {customer.notes}
-              </p>
-            </div>
-          ) : null}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="space-y-3 p-5">
-          <h3 className="font-bold text-[#17221c]">Lead đã chuyển đổi</h3>
+      {/* Interactive Tabs Navigation (Consistent Enterprise UI) */}
+      <div
+        role="tablist"
+        aria-label="Customer Intelligence Tabs"
+        className="flex flex-wrap items-center gap-1.5 border-b border-[#e2e8e4] pb-px text-sm"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "360"}
+          data-testid="tab-customer-360"
+          onClick={() => setActiveTab("360")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "360"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <BrainCircuit className="size-4" />
+          AI Customer 360 (WF05)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
 
-          {customer.convertedLeads?.length ? (
-            <ul className="space-y-2">
-              {customer.convertedLeads.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e2e8e4] bg-[#f6f8f7] px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-[#17221c]">
-                      {[item.firstName, item.lastName].filter(Boolean).join(" ")}
-                    </p>
-                    <p className="break-all text-xs text-gray-500">
-                      {item.email} · Lead ID {item.id.slice(0, 8)}
-                    </p>
-                  </div>
-                  <Badge tone="neutral">{item.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Khách hàng này không liên kết với lead nào.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "overview"}
+          data-testid="tab-customer-overview"
+          onClick={() => setActiveTab("overview")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "overview"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <UserRound className="size-4" />
+          Hồ sơ chi tiết & Phân khúc
+        </button>
+      </div>
 
-      <div className="space-y-3">
-        <h3 className="font-bold text-[#17221c]">
-          Segment đang thuộc ({customer.segmentCount})
-        </h3>
+      {/* Tab Panels */}
+      {activeTab === "360" && (
+        <section aria-label="AI Customer 360 Panel">
+          <Customer360Tab customerId={customer.id} />
+        </section>
+      )}
 
-        {customer.customerSegments?.length ? (
-          <ul className="space-y-3">
-            {customer.customerSegments.map((membership) => (
-              <li key={membership.segmentId}>
-                <SegmentMembershipCard membership={membership} />
-              </li>
-            ))}
-          </ul>
-        ) : (
+      {activeTab === "overview" && (
+        <section aria-label="Customer Profile and Segments Panel" className="space-y-6">
           <Card>
-            <CardContent className="px-5 py-8 text-center">
-              <p className="text-sm text-gray-500">
-                Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự
-                động.
-              </p>
-              <Button asChild variant="outline" className="mt-3">
-                <Link href="/segments">Mở Segments</Link>
-              </Button>
+            <CardContent className="space-y-5 p-5">
+              <h3 className="font-bold text-[#17221c]">Thông tin tổ chức & Liên hệ chi tiết</h3>
+              <div className="grid gap-4 border-t border-[#edf0ee] pt-4 sm:grid-cols-2">
+                <Row icon={Mail} label="Email" value={customer.email} />
+                <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
+                <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
+                <Row icon={Building2} label="Công ty" value={customer.companyName ?? "—"} />
+                <Row
+                  icon={Globe}
+                  label="Website"
+                  value={
+                    customer.companyWebsite ? (
+                      <a
+                        href={customer.companyWebsite}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline underline-offset-2 text-[#173b2b]"
+                      >
+                        {customer.companyWebsite}
+                      </a>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
+                <Row icon={Users} label="Quy mô công ty" value={customer.companySize ? `${customer.companySize} nhân viên` : "—"} />
+                <Row icon={Users} label="Ngành nghề" value={customer.industry ?? "—"} />
+                <Row icon={UserRound} label="Người tạo" value={customer.creator?.name ?? customer.createdBy} />
+              </div>
+
+              {customer.notes ? (
+                <div className="border-t border-[#edf0ee] pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Ghi chú
+                  </p>
+                  <p className="mt-1 text-sm break-words text-[#17221c]">
+                    {customer.notes}
+                  </p>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
-        )}
-      </div>
+
+          <Card>
+            <CardContent className="space-y-3 p-5">
+              <h3 className="font-bold text-[#17221c]">Lead đã chuyển đổi</h3>
+
+              {customer.convertedLeads?.length ? (
+                <ul className="space-y-2">
+                  {customer.convertedLeads.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e2e8e4] bg-[#f6f8f7] px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-[#17221c]">
+                          {[item.firstName, item.lastName].filter(Boolean).join(" ")}
+                        </p>
+                        <p className="break-all text-xs text-gray-500">
+                          {item.email} · Lead ID {item.id.slice(0, 8)}
+                        </p>
+                      </div>
+                      <Badge tone="neutral">{item.status}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Khách hàng này không liên kết với lead nào.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            <h3 className="font-bold text-[#17221c]">
+              Segment đang thuộc ({customer.segmentCount})
+            </h3>
+
+            {customer.customerSegments?.length ? (
+              <ul className="space-y-3">
+                {customer.customerSegments.map((membership) => (
+                  <li key={membership.segmentId}>
+                    <SegmentMembershipCard membership={membership} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Card>
+                <CardContent className="px-5 py-8 text-center">
+                  <p className="text-sm text-gray-500">
+                    Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự động.
+                  </p>
+                  <Button asChild variant="outline" className="mt-3">
+                    <Link href="/segments">Mở Segments</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
