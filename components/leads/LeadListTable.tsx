@@ -68,7 +68,7 @@ export function LeadListTable({
       // Search text
       if (search.trim()) {
         const query = search.toLowerCase();
-        const fullName = `${lead.firstName} ${lead.lastName}`.toLowerCase();
+        const fullName = `${lead.firstName || ""} ${lead.lastName || ""}`.trim().toLowerCase();
         const company = (lead.companyName || "").toLowerCase();
         const email = (lead.email || "").toLowerCase();
         const industry = (lead.industry || "").toLowerCase();
