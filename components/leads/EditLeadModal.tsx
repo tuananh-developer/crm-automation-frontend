@@ -96,6 +96,10 @@ function EditLeadForm({
       errs.firstName = "First name is required";
     }
 
+    if (!formData.lastName?.trim()) {
+      errs.lastName = "Last name is required";
+    }
+
     if (!formData.email?.trim()) {
       errs.email = "Email address is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -243,7 +247,7 @@ function EditLeadForm({
 
             <div className="space-y-1.5">
               <Label htmlFor="editLastName" className="text-xs font-semibold text-gray-700">
-                Last Name
+                Last Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="editLastName"
@@ -251,7 +255,11 @@ function EditLeadForm({
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
+                className={errors.lastName ? "border-red-500" : ""}
               />
+              {errors.lastName && (
+                <span className="text-[11px] text-red-600">{errors.lastName}</span>
+              )}
             </div>
           </div>
 
