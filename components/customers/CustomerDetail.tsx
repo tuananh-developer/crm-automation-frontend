@@ -16,7 +16,9 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  FileText,
 } from "lucide-react";
+import { CustomerConversationsTab } from "./CustomerConversationsTab";
 
 import { getApiErrorMessage } from "@/services/api-client";
 import { getCustomer } from "@/services/customer.service";
@@ -144,23 +146,27 @@ function SegmentMembershipCard({
 
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = React.useState<"conversations" | "overview">("conversations");
 
   return (
-    <div className="space-y-4">
-      <Button type="button" variant="ghost" onClick={() => router.push("/customers")}>
-        <ArrowLeft />
-        Danh sách khách hàng
-      </Button>
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button type="button" variant="ghost" onClick={() => router.push("/customers")}>
+          <ArrowLeft />
+          Danh sách khách hàng
+        </Button>
+      </div>
 
+      {/* Top Customer Summary Card */}
       <Card>
-        <CardContent className="space-y-5 p-5">
+        <CardContent className="space-y-4 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-xl font-bold text-[#17221c]">
                 {customer.name}
               </h2>
-              <p className="mt-1 break-all font-mono text-xs text-gray-500">
-                {customer.id}
+              <p className="mt-0.5 break-all font-mono text-xs text-gray-500">
+                {customer.companyName ? `${customer.companyName} • ` : ""}ID: {customer.id}
               </p>
             </div>
 
@@ -169,16 +175,79 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                 {customer.status ?? "CHƯA GÁN TRẠNG THÁI"}
               </Badge>
               <Badge tone="info">
-                <Layers />
+                <Layers className="size-3.5" />
                 {customer.segmentCount} segment
               </Badge>
             </div>
           </div>
 
-          <div className="grid gap-4 border-t border-[#edf0ee] pt-4 sm:grid-cols-2">
+          <div className="grid gap-3 border-t border-[#edf0ee] pt-3 text-xs sm:grid-cols-2 md:grid-cols-4">
             <Row icon={Mail} label="Email" value={customer.email} />
             <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
+            <Row icon={Building2} label="Công ty" value={customer.companyName ?? "—"} />
             <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Interactive Tabs Navigation */}
+      <div
+        role="tablist"
+        aria-label="Customer Intelligence Tabs"
+        className="flex flex-wrap items-center gap-1.5 border-b border-[#e2e8e4] pb-px text-sm"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "conversations"}
+          data-testid="tab-customer-conversations"
+          onClick={() => setActiveTab("conversations")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "conversations"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <FileText className="size-4" />
+          Biên bản hội thoại AI (WF09)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "overview"}
+          data-testid="tab-customer-overview"
+          onClick={() => setActiveTab("overview")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "overview"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <UserRound className="size-4" />
+          Hồ sơ chi tiết & Phân khúc
+        </button>
+      </div>
+
+      {/* Tab Panels */}
+      {activeTab === "conversations" && (
+        <section aria-label="Customer Conversations Panel">
+          <CustomerConversationsTab customerId={customer.id} />
+        </section>
+      )}
+
+      {activeTab === "overview" && (
+        <section aria-label="Customer Profile and Segments Panel" className="space-y-6">
+          <Card>
+            <CardContent className="space-y-5 p-5">
+              <h3 className="font-bold text-[#17221c]">Thông tin tổ chức & Liên hệ chi tiết</h3>
+              <div className="grid gap-4 border-t border-[#edf0ee] pt-4 sm:grid-cols-2">
+                <Row icon={Mail} label="Email" value={customer.email} />
+                <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
+                <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
             <Row
               icon={Building2}
               label="Công ty"
@@ -286,6 +355,8 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
           </Card>
         )}
       </div>
+      </section>
+      )}
     </div>
   );
 }
