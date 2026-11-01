@@ -10,30 +10,20 @@ import {
   SegmentForm,
   type SegmentFormSubmitValues,
 } from "@/components/segments/SegmentForm";
-import { useWorkspaceUser } from "@/components/notifications/useWorkspaceUser";
 
 export default function CreateSegmentPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = React.useState<string | null>(null);
-  const { activeUser, users, isLoading: usersLoading } = useWorkspaceUser();
 
   const createMutation = useMutation({
-    mutationFn: (values: SegmentFormSubmitValues) => {
-      if (!activeUser) {
-        throw new Error(
-          "Chưa có tài khoản workspace. Không thể tạo segment vì backend yêu cầu createdBy.",
-        );
-      }
-
-      return createSegment({
-        createdBy: activeUser.id,
+    mutationFn: (values: SegmentFormSubmitValues) =>
+      createSegment({
         name: values.name,
         description: values.description,
         criteria: values.criteria,
         isActive: values.isActive,
-      });
-    },
+      }),
     onSuccess: async (segment) => {
       await queryClient.invalidateQueries({ queryKey: ["segments"] });
       router.push("/segments");
@@ -52,25 +42,10 @@ export default function CreateSegmentPage() {
         </p>
       </div>
 
-      {usersLoading ? (
-        <p className="text-sm text-gray-500">Đang tải tài khoản workspace…</p>
-      ) : !activeUser ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Không tìm thấy tài khoản workspace nào. Backend yêu cầu `createdBy` là
-          UUID của user hợp lệ (GET /users), nên cần có ít nhất một user.
-        </p>
-      ) : (
-        <p className="text-xs text-gray-500">
-          Segment sẽ được tạo bởi{" "}
-          <span className="font-semibold text-[#17221c]">{activeUser.name}</span>{" "}
-          ({users.length} tài khoản trong workspace).
-        </p>
-      )}
-
       <SegmentForm
         mode="create"
         serverError={serverError}
-        isSubmitting={createMutation.isPending || !activeUser}
+        isSubmitting={createMutation.isPending}
         onSubmit={(values) => {
           setServerError(null);
           createMutation.mutate(values);

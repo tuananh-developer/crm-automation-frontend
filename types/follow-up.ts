@@ -140,14 +140,12 @@ export interface CreateSequenceDto {
   name: string;
   description?: string;
   status?: SequenceStatus;
-  createdBy?: string;
 }
 
 export interface UpdateSequenceDto {
   name?: string;
   description?: string;
   status?: SequenceStatus;
-  updatedBy?: string;
 }
 
 export interface CreateStepDto {
@@ -177,7 +175,6 @@ export interface UpdateStepDto {
 export interface EnrollLeadPayload {
   leadId: string;
   sequenceId: string;
-  assignedBy?: string;
 }
 
 export interface CancelEnrollmentPayload {

@@ -51,7 +51,7 @@ type Notice = { tone: "success" | "danger"; message: string };
 
 type ReviewTaskDrawerProps = {
   taskId: string;
-  reviewers: ReviewReviewer[];
+  reviewers: Pick<ReviewReviewer, "id" | "name" | "role">[];
   claiming: boolean;
   onClaim: (task: ReviewTask, reviewerId: string) => void;
   onClose: () => void;

@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { leadService } from "@/services/lead.service";
 import { getWorkspaceUsers } from "@/services/user.service";
 import type { CreateLeadDto, Lead } from "@/types/lead";
-import type { WorkspaceUser } from "@/types/user";
+import type { WorkspaceAssignee } from "@/types/user";
 
 export interface CreateLeadModalProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ function CreateLeadForm({
   onClose: () => void;
   onSuccess?: (lead: Lead) => void;
   sources: { id: string; name: string }[];
-  users: WorkspaceUser[];
+  users: WorkspaceAssignee[];
   isSourcesLoading: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -494,7 +494,7 @@ function CreateLeadForm({
                   <option value="">Unassigned</option>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name || u.email} ({u.role || "MEMBER"})
+                      {u.name} ({u.role})
                     </option>
                   ))}
                 </Select>

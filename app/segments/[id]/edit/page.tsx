@@ -12,7 +12,6 @@ import {
   type SegmentFormSubmitValues,
 } from "@/components/segments/SegmentForm";
 import { ErrorState, LoadingState } from "@/components/segments/States";
-import { useWorkspaceUser } from "@/components/notifications/useWorkspaceUser";
 
 export default function EditSegmentPage() {
   const params = useParams<{ id: string }>();
@@ -20,7 +19,6 @@ export default function EditSegmentPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = React.useState<string | null>(null);
-  const { activeUser } = useWorkspaceUser();
 
   const segmentQuery = useQuery({
     queryKey: ["segments", segmentId],
@@ -31,8 +29,6 @@ export default function EditSegmentPage() {
   const updateMutation = useMutation({
     mutationFn: (values: SegmentFormSubmitValues) =>
       updateSegment(segmentId, {
-        // The API records `updatedBy` from createdBy when it is provided.
-        ...(activeUser ? { createdBy: activeUser.id } : {}),
         name: values.name,
         description: values.description,
         criteria: values.criteria,

@@ -11,16 +11,14 @@ import type { ReviewReviewer, ReviewTask } from "@/types/review";
 type ClaimReviewTaskButtonProps = {
   task: ReviewTask;
   /** Reviewers discovered from the API (`assignee` relations). */
-  reviewers: ReviewReviewer[];
+  reviewers: Pick<ReviewReviewer, "id" | "name" | "role">[];
   pending: boolean;
   onClaim: (task: ReviewTask, reviewerId: string) => void;
 };
 
 /**
- * Claim (assign) a review task.
- * Backend: PATCH /review-tasks/:id/assign { reviewerId } - there is no
- * "current user" concept in the API, so the reviewer is picked explicitly
- * from the users the API already exposes through `assignee`.
+ * Sales may claim an owned Lead's task for themselves. Admin may assign any
+ * active Sales reviewer through the assignee directory.
  */
 export function ClaimReviewTaskButton({
   task,
@@ -35,8 +33,7 @@ export function ClaimReviewTaskButton({
   if (reviewers.length === 0) {
     return (
       <p className="text-xs text-gray-500">
-        Chưa có reviewer nào trong danh sách. Backend chưa có API lấy danh sách
-        user, nên hãy phân công qua tài khoản quản trị.
+        Chưa có reviewer phù hợp để nhận task này.
       </p>
     );
   }

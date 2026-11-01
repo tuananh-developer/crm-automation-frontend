@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { leadService } from "@/services/lead.service";
 import { getWorkspaceUsers } from "@/services/user.service";
 import type { Lead, LeadStatus, UpdateLeadDto } from "@/types/lead";
-import type { WorkspaceUser } from "@/types/user";
+import type { WorkspaceAssignee } from "@/types/user";
 
 export interface EditLeadModalProps {
   lead: Lead | null;
@@ -45,7 +45,7 @@ function EditLeadForm({
   lead: Lead;
   onClose: () => void;
   onSuccess?: (updatedLead: Lead) => void;
-  users: WorkspaceUser[];
+  users: WorkspaceAssignee[];
 }) {
   const queryClient = useQueryClient();
 
@@ -215,7 +215,7 @@ function EditLeadForm({
                 <option value="">Unassigned</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.name || u.email}
+                    {u.name}
                   </option>
                 ))}
               </Select>

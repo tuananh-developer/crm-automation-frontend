@@ -10,10 +10,8 @@ import {
   Loader2,
   Lock,
   Mail,
-  Shield,
   Sparkles,
   User,
-  UserCheck,
   UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -28,7 +26,6 @@ export default function RegisterPage() {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [role, setRole] = React.useState<"ADMIN" | "SALES">("SALES");
   const [showPassword, setShowPassword] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -64,7 +61,6 @@ export default function RegisterPage() {
         name: name.trim(),
         email: email.trim(),
         password,
-        role,
       });
       router.replace("/");
     } catch (err) {
@@ -199,48 +195,10 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Vai trò (Role)
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRole("SALES")}
-                  className={`flex items-center gap-2 rounded-xl border p-2.5 text-left transition-all ${
-                    role === "SALES"
-                      ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-2xs"
-                      : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <UserCheck className="size-4 text-emerald-700" />
-                  <div className="text-xs">
-                    <div>Sales Rep</div>
-                    <div className="text-[10px] text-gray-400 font-normal">
-                      Nhân viên bán hàng
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRole("ADMIN")}
-                  className={`flex items-center gap-2 rounded-xl border p-2.5 text-left transition-all ${
-                    role === "ADMIN"
-                      ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-2xs"
-                      : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <Shield className="size-4 text-emerald-700" />
-                  <div className="text-xs">
-                    <div>Admin</div>
-                    <div className="text-[10px] text-gray-400 font-normal">
-                      Quản trị toàn diện
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
+            <p className="rounded-xl bg-emerald-50 px-3 py-2.5 text-xs leading-relaxed text-emerald-900">
+              Tài khoản đăng ký mới được cấp vai trò Sales. Quyền quản trị do
+              quản trị viên hệ thống cấp riêng.
+            </p>
 
             <Button
               type="submit"

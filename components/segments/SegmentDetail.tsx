@@ -28,6 +28,7 @@ import {
 } from "./segment-utils";
 import { ASSIGNMENT_TYPE_LABELS } from "@/types/segment";
 import type { Segment } from "@/types/segment";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 type SegmentDetailProps = {
   segment: Segment;
@@ -65,6 +66,8 @@ export function SegmentDetail({
   onDelete,
   onEvaluate,
 }: SegmentDetailProps) {
+  const { user } = useAuth();
+  const canDelete = user?.role === "ADMIN";
   const assignmentType = getSegmentAssignmentType(segment.criteria);
 
   return (
@@ -112,7 +115,7 @@ export function SegmentDetail({
               Evaluate Customer
             </Button>
 
-            <Button
+            {canDelete ? <Button
               type="button"
               variant="destructive"
               size="sm"
@@ -121,7 +124,7 @@ export function SegmentDetail({
             >
               <Trash2 />
               Delete
-            </Button>
+            </Button> : null}
           </div>
         </CardHeader>
 

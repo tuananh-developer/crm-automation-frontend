@@ -26,6 +26,7 @@ import {
   getSegmentAssignmentType,
 } from "./segment-utils";
 import type { Segment, SegmentListMeta } from "@/types/segment";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 type SegmentTableProps = {
   segments: Segment[];
@@ -64,6 +65,8 @@ export function SegmentTable({
   pendingId,
   onRetry,
 }: SegmentTableProps) {
+  const { user } = useAuth();
+  const canDelete = user?.role === "ADMIN";
   const totalPages = meta?.totalPages ?? 1;
   const total = meta?.total ?? segments.length;
 
@@ -212,7 +215,7 @@ export function SegmentTable({
                                 <Power />
                               )}
                             </Button>
-                            <Button
+                            {canDelete ? <Button
                               variant="ghost"
                               size="icon-sm"
                               disabled={isPending}
@@ -220,7 +223,7 @@ export function SegmentTable({
                               onClick={() => onDelete(segment)}
                             >
                               <Trash2 className="text-red-500" />
-                            </Button>
+                            </Button> : null}
                           </div>
                         </td>
                       </tr>
@@ -285,14 +288,14 @@ export function SegmentTable({
                       >
                         {segment.isActive ? <PowerOff /> : <Power />}
                       </Button>
-                      <Button
+                      {canDelete ? <Button
                         variant="ghost"
                         size="icon-sm"
                         aria-label={`Delete ${segment.name}`}
                         onClick={() => onDelete(segment)}
                       >
                         <Trash2 className="text-red-500" />
-                      </Button>
+                      </Button> : null}
                     </div>
                   </div>
                 </li>
