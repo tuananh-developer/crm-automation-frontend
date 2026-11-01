@@ -1,4 +1,5 @@
 "use client";
+/* Hallmark · v2.0.0 · redesign: component · scope: app · genre: modern-minimal · theme: Cobalt · signature: qualification review panel */
 
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +15,6 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { leadService } from "@/services/lead.service";
 import type { Lead, QualificationStatus } from "@/types/lead";
@@ -25,36 +25,10 @@ export interface AiQualificationCardProps {
 }
 
 function getStatusBadge(status?: QualificationStatus) {
-  switch (status) {
-    case "QUALIFIED":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 shadow-2xs">
-          <CheckCircle2 className="size-3.5 text-emerald-600" />
-          AI Qualified
-        </span>
-      );
-    case "UNQUALIFIED":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 shadow-2xs">
-          <XCircle className="size-3.5 text-rose-600" />
-          Unqualified
-        </span>
-      );
-    case "NEEDS_REVIEW":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200 shadow-2xs">
-          <AlertTriangle className="size-3.5 text-amber-600" />
-          Needs Human Review
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500 border border-gray-200">
-          <HelpCircle className="size-3.5" />
-          Not Evaluated
-        </span>
-      );
-  }
+  if (status === "QUALIFIED") return <span className="wf-state wf-state--success"><CheckCircle2 size={14} /> Qualified</span>;
+  if (status === "UNQUALIFIED") return <span className="wf-state wf-state--danger"><XCircle size={14} /> Unqualified</span>;
+  if (status === "NEEDS_REVIEW") return <span className="wf-state wf-state--warning"><AlertTriangle size={14} /> Needs review</span>;
+  return <span className="wf-state wf-state--info"><HelpCircle size={14} /> Not evaluated</span>;
 }
 
 export function AiQualificationCard({
@@ -63,18 +37,42 @@ export function AiQualificationCard({
 }: AiQualificationCardProps) {
   const queryClient = useQueryClient();
   const [showHistory, setShowHistory] = React.useState(false);
+  const [pendingWorkflowRunId, setPendingWorkflowRunId] = React.useState<string | null>(null);
+  const [pendingStartedAt, setPendingStartedAt] = React.useState<number | null>(null);
+  const [pollingExpired, setPollingExpired] = React.useState(false);
 
   // Fetch latest qualification
   const {
     data: qualification,
     isLoading: isQualLoading,
+    error: qualificationError,
+    refetch: refetchQualification,
   } = useQuery({
     queryKey: ["lead-qualification", lead.id],
     queryFn: () => leadService.getLatestQualification(lead.id),
+    refetchInterval: (query) => {
+      if (!pendingWorkflowRunId || !pendingStartedAt) return false;
+      if (query.state.data?.workflowRunId === pendingWorkflowRunId) return false;
+      return Date.now() - pendingStartedAt < 180_000 ? 3000 : false;
+    },
   });
 
+  React.useEffect(() => {
+    if (!pendingWorkflowRunId || !pendingStartedAt) return;
+    const timeout = window.setTimeout(() => setPollingExpired(true), 180_000);
+    return () => window.clearTimeout(timeout);
+  }, [pendingWorkflowRunId, pendingStartedAt]);
+
+  React.useEffect(() => {
+    if (pendingWorkflowRunId && qualification?.workflowRunId === pendingWorkflowRunId) {
+      setPendingWorkflowRunId(null);
+      setPendingStartedAt(null);
+      setPollingExpired(false);
+    }
+  }, [pendingWorkflowRunId, qualification?.workflowRunId]);
+
   // Fetch qualification history
-  const { data: history = [] } = useQuery({
+  const { data: history = [], isLoading: historyLoading, error: historyError, refetch: refetchHistory } = useQuery({
     queryKey: ["lead-qualification-history", lead.id],
     queryFn: () => leadService.getQualificationHistory(lead.id),
     enabled: showHistory,
@@ -83,7 +81,10 @@ export function AiQualificationCard({
   // Trigger qualification mutation
   const triggerMutation = useMutation({
     mutationFn: () => leadService.triggerQualification(lead.id),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      setPollingExpired(false);
+      setPendingWorkflowRunId(result.workflowRunId);
+      setPendingStartedAt(Date.now());
       queryClient.invalidateQueries({
         queryKey: ["lead-qualification", lead.id],
       });
@@ -100,223 +101,34 @@ export function AiQualificationCard({
       : null;
 
   return (
-    <Card className="border border-emerald-100/90 bg-white shadow-xs overflow-hidden">
-      {/* Header */}
-      <CardHeader className="border-b border-[#edf0ee] bg-gradient-to-r from-emerald-50/40 via-teal-50/20 to-white px-6 py-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-xs">
-              <Bot className="size-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-sm font-bold text-gray-900">
-                  AI Lead Qualification
-                </CardTitle>
-                <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
-                  Active ML Engine
-                </span>
-              </div>
-              <p className="text-[11px] text-gray-500">
-                Automated intent assessment, conversion probability &amp; routing
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => triggerMutation.mutate()}
-              disabled={triggerMutation.isPending || isQualLoading}
-              className="h-8 gap-1.5 text-xs font-semibold text-emerald-800 border-emerald-300 hover:bg-emerald-50"
-            >
-              {triggerMutation.isPending ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  Assessing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="size-3.5 text-emerald-600" />
-                  Run AI Assessment
-                </>
-              )}
-            </Button>
-          </div>
+    <section className="wf-panel wf-qualification" aria-labelledby="wf01-qualification-title">
+      <div className="wf-panel__head">
+        <div>
+          <h2 id="wf01-qualification-title" className="wf-panel__title flex items-center gap-2"><Bot size={17} /> AI Lead Qualification</h2>
+          <p className="wf-panel__hint">Assess lead intent and route uncertain results for human review.</p>
         </div>
-      </CardHeader>
-
-      <CardContent className="p-6 space-y-5">
-        {isQualLoading ? (
-          <div className="py-8 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
-            <Loader2 className="size-4 animate-spin text-emerald-600" />
-            Evaluating qualification state...
+        <Button type="button" variant="outline" size="sm" onClick={() => triggerMutation.mutate()} disabled={triggerMutation.isPending || isQualLoading}>
+          {triggerMutation.isPending ? <><Loader2 className="size-4 animate-spin" /> Submitting…</> : <><Sparkles className="size-4" /> Run assessment</>}
+        </Button>
+      </div>
+      <div className="wf-panel__body">
+        {pendingWorkflowRunId && <div className="wf-callout wf-callout--info" role="status">
+          {pollingExpired ? <Clock size={16} /> : <Loader2 size={16} className="animate-spin" />}
+          <div className="min-w-0 flex-1"><strong>{pollingExpired ? "Qualification is taking longer than expected" : "Qualification is processing"}</strong><p className="wf-subtle mt-1">{pollingExpired ? "Automatic polling stopped after three minutes. Refresh the result manually or inspect the workflow execution." : "The latest result is checked every three seconds for up to three minutes."} WorkflowRun: <span className="wf-mono">{pendingWorkflowRunId}</span></p>{pollingExpired && <button type="button" className="wf-inline-link mt-2" onClick={() => void refetchQualification()}>Refresh result</button>}</div>
+        </div>}
+        {triggerMutation.error && <div role="alert" className="wf-callout wf-callout--danger"><XCircle size={15} /><p>{triggerMutation.error instanceof Error ? triggerMutation.error.message : "Could not start the qualification workflow."}</p></div>}
+        {qualificationError && <div role="alert" className="wf-callout wf-callout--danger"><XCircle size={15} /><p>Could not load qualification result. <button type="button" className="wf-inline-link" onClick={() => void refetchQualification()}>Retry</button></p></div>}
+        {isQualLoading ? <div className="wf-loading"><Loader2 size={16} className="animate-spin" /> Loading qualification result…</div> : !qualification ? <div className="wf-empty"><Bot size={22} /><strong>No qualification run recorded</strong><p>Run an assessment to evaluate firmographics, role and intent signals for this lead.</p><Button type="button" size="sm" onClick={() => triggerMutation.mutate()} disabled={triggerMutation.isPending}>Evaluate lead</Button></div> : <div className="wf-stack">
+          <div className="wf-qualification__metrics">
+            <div className="wf-qualification__metric"><span className="wf-field-label">Decision outcome</span><div className="mt-2">{getStatusBadge(qualification.status)}</div>{qualification.intent && <p className="wf-subtle mt-2">Detected intent: <strong>{qualification.intent}</strong></p>}</div>
+            <div className="wf-qualification__metric"><div className="flex items-center justify-between gap-2"><span className="wf-field-label">Confidence</span><strong className="text-lg tabular-nums">{confidencePercentage !== null ? `${confidencePercentage}%` : "Not available"}</strong></div>{confidencePercentage !== null && <><div className="wf-progress mt-3"><div className="wf-progress__fill" style={{ width: `${Math.max(0, Math.min(100, confidencePercentage))}%` }} /></div><p className="wf-field-help mt-2">Auto-qualification threshold: 80%. Lower confidence is routed for review according to backend policy.</p></>}</div>
           </div>
-        ) : !qualification ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/60 p-6 text-center space-y-3">
-            <div className="mx-auto flex size-10 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
-              <Bot className="size-5" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-xs font-bold text-gray-800">
-                No Qualification Run Recorded Yet
-              </h4>
-              <p className="text-[11px] text-gray-500 max-w-sm mx-auto">
-                Trigger the AI Qualification engine to analyze company firmographics,
-                lead title, and intent signals to determine if this lead meets the sales-ready threshold.
-              </p>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => triggerMutation.mutate()}
-              disabled={triggerMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
-            >
-              <Sparkles className="size-3.5 mr-1" />
-              Evaluate Lead Now
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Status & Confidence Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Box 1: Status & Intent */}
-              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  Decision Outcome
-                </span>
-                <div className="flex items-center gap-2">
-                  {getStatusBadge(qualification.status)}
-                </div>
-                {qualification.intent && (
-                  <div className="pt-1 text-xs">
-                    <span className="text-gray-500">Detected Intent: </span>
-                    <span className="font-semibold text-gray-800">
-                      {qualification.intent}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Box 2: Confidence Bar */}
-              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                    Confidence Level
-                  </span>
-                  <span className="font-bold text-gray-900">
-                    {confidencePercentage !== null ? `${confidencePercentage}%` : "N/A"}
-                  </span>
-                </div>
-                {confidencePercentage !== null && (
-                  <div className="space-y-1">
-                    <div className="h-2.5 w-full rounded-full bg-gray-200 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          confidencePercentage >= 80
-                            ? "bg-emerald-500"
-                            : confidencePercentage >= 60
-                            ? "bg-amber-500"
-                            : "bg-rose-500"
-                        }`}
-                        style={{ width: `${confidencePercentage}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-gray-500 block text-right">
-                      Threshold for Auto-Qualify: ≥ 80%
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* AI Reasoning Text */}
-            {qualification.reason && (
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/20 p-4 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
-                  <Sparkles className="size-3.5 text-emerald-600" />
-                  <span>Explainable AI Qualification Reasoning</span>
-                </div>
-                <p className="text-xs text-gray-700 leading-relaxed italic">
-                  &ldquo;{qualification.reason}&rdquo;
-                </p>
-              </div>
-            )}
-
-            {/* Model & Runtime Metadata */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-3 text-[11px] text-gray-500">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <Cpu className="size-3 text-gray-400" />
-                  Provider:{" "}
-                  <strong className="text-gray-700">
-                    {qualification.modelProvider || "Google Gemini"}
-                  </strong>
-                </span>
-                {qualification.modelVersion && (
-                  <span>
-                    Version:{" "}
-                    <strong className="text-gray-700">
-                      {qualification.modelVersion}
-                    </strong>
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 text-gray-400">
-                  <Clock className="size-3" />
-                  {new Date(qualification.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="font-semibold text-emerald-700 hover:text-emerald-800 text-xs flex items-center gap-0.5"
-                >
-                  {showHistory ? "Hide History" : "View History"}
-                  <ArrowRight className="size-3" />
-                </button>
-              </div>
-            </div>
-
-            {/* History Accordion */}
-            {showHistory && (
-              <div className="border-t border-gray-100 pt-3 space-y-2 animate-in fade-in duration-200">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  Past Qualification Assessments ({history.length})
-                </span>
-                {history.length === 0 ? (
-                  <p className="text-xs text-gray-400 italic">No previous runs.</p>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {history.map((h) => (
-                      <div
-                        key={h.id}
-                        className="rounded-lg border border-gray-100 bg-gray-50/50 p-2.5 flex items-center justify-between text-xs"
-                      >
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(h.status)}
-                          <span className="text-gray-600 font-medium truncate max-w-xs">
-                            {h.reason || h.intent || "Routine qualification"}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-gray-400 shrink-0">
-                          {new Date(h.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {qualification.reason && <section className="wf-result-block"><h3 className="wf-result-heading">Qualification rationale</h3><p className="wf-result-copy">{qualification.reason}</p></section>}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--wf-rule)] pt-3"><div className="flex flex-wrap gap-x-4 gap-y-2"><span className="wf-subtle flex items-center gap-1"><Cpu size={13} /> Provider: <strong>{qualification.modelProvider || "Not reported"}</strong></span>{qualification.modelVersion && <span className="wf-subtle">Model: <strong>{qualification.modelVersion}</strong></span>}<span className="wf-subtle flex items-center gap-1"><Clock size={13} /> {new Date(qualification.createdAt).toLocaleString()}</span></div><button type="button" className="wf-inline-link" aria-expanded={showHistory} onClick={() => setShowHistory((current) => !current)}>{showHistory ? "Hide history" : "View history"} <ArrowRight size={13} className="inline" /></button></div>
+          {showHistory && <section className="wf-result-block"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="wf-result-heading">Previous assessments ({history.length})</h3><button type="button" className="wf-inline-link" onClick={() => void refetchHistory()} disabled={historyLoading}>Refresh history</button></div>{historyLoading ? <div className="wf-loading"><Loader2 size={15} className="animate-spin" /> Loading history…</div> : historyError ? <div role="alert" className="wf-callout wf-callout--danger mt-3"><AlertTriangle size={15} /><p>Could not load assessment history. <button type="button" className="wf-inline-link" onClick={() => void refetchHistory()}>Retry</button></p></div> : history.length === 0 ? <p className="wf-subtle mt-2">No previous assessments were returned.</p> : <div className="wf-list mt-2">{history.map((item) => <div key={item.id} className="wf-list__item"><div className="min-w-0"><div>{getStatusBadge(item.status)}</div><p className="wf-list__item-description">{item.reason || item.intent || "No rationale returned"}</p></div><time className="wf-subtle shrink-0">{new Date(item.createdAt).toLocaleDateString()}</time></div>)}</div>}</section>}
+        </div>}
+      </div>
+    </section>
   );
+
 }

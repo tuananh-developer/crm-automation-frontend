@@ -38,7 +38,7 @@ export interface DataCleaningSummary {
 
 export interface DataCleaningScanResponse {
   workflowRunId: string;
-  status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
+  status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'PARTIAL' | 'FAILED' | 'CANCELLED';
   startedAt?: string;
   finishedAt?: string;
   inputPayload?: Record<string, unknown>;
@@ -80,10 +80,8 @@ export interface CreateScanRequest {
     search?: string;
     limit?: number;
   };
-  userId?: string;
 }
 
 export interface ApplyCleaningRequest {
   acceptedFindingIds: string[];
-  userId?: string;
 }

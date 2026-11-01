@@ -1,4 +1,4 @@
-import * as React from "react";
+/* Hallmark · v2.0.0 · component · scope: app · theme: Cobalt · scan lifecycle state */
 import { AlertCircle, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
 
 interface ScanStatusBadgeProps {
@@ -6,47 +6,10 @@ interface ScanStatusBadgeProps {
 }
 
 export function ScanStatusBadge({ status }: ScanStatusBadgeProps) {
-  switch (status) {
-    case "PENDING":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
-          <Clock className="size-3 text-amber-600" />
-          Pending Ingestion
-        </span>
-      );
-    case "RUNNING":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-200">
-          <Loader2 className="size-3 text-blue-600 animate-spin" />
-          Scanning Pipeline
-        </span>
-      );
-    case "SUCCESS":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
-          <CheckCircle2 className="size-3 text-emerald-600" />
-          Scan Completed
-        </span>
-      );
-    case "PARTIAL":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-800 border border-yellow-200">
-          <AlertCircle className="size-3 text-yellow-600" />
-          Partially Completed
-        </span>
-      );
-    case "FAILED":
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 border border-rose-200">
-          <XCircle className="size-3 text-rose-600" />
-          Scan Failed
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700 border border-gray-200">
-          {status}
-        </span>
-      );
-  }
+  if (status === "PENDING") return <span className="wf-state wf-state--warning"><Clock size={14} /> Pending</span>;
+  if (status === "RUNNING") return <span className="wf-state wf-state--info"><Loader2 size={14} className="animate-spin" /> Scanning</span>;
+  if (status === "SUCCESS") return <span className="wf-state wf-state--success"><CheckCircle2 size={14} /> Completed</span>;
+  if (status === "PARTIAL") return <span className="wf-state wf-state--warning"><AlertCircle size={14} /> Partially completed</span>;
+  if (status === "FAILED" || status === "CANCELLED") return <span className="wf-state wf-state--danger"><XCircle size={14} /> {status === "FAILED" ? "Failed" : "Cancelled"}</span>;
+  return <span className="wf-state wf-state--info">{status}</span>;
 }
