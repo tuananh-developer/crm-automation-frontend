@@ -98,7 +98,7 @@ export default function DashboardPage() {
 
   const hotLeads = Object.values(scoresMap).filter((s) => {
     const num = Number(s.score);
-    return s.label === "HOT" || num >= 70;
+    return num >= 75;
   }).length;
 
   const pendingReviews = reviewTasks.filter((t) => t.status === "PENDING").length;
@@ -145,11 +145,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              E2E Pipeline Online
-            </span>
-
             <Button
               variant="outline"
               size="sm"
@@ -227,6 +222,16 @@ export default function DashboardPage() {
                 <Link href="/data-cleaning">
                   <Sparkles className="size-3.5 mr-1.5 text-emerald-300" />
                   Data Cleaning Agent
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
+              >
+                <Link href="/workflows">
+                  <Sparkles className="size-3.5 mr-1.5" />
+                  Workflow Center
                 </Link>
               </Button>
             </div>

@@ -20,12 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { getApiErrorMessage } from "@/services/api-client";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   getNotifications,
   getUnreadNotificationCount,
   markAllNotificationsRead,
   markNotificationRead,
 } from "@/services/notification.service";
+import { listManagedUsers } from "@/services/user.service";
 import { useWorkspaceUser } from "./useWorkspaceUser";
 import type { AppNotification } from "@/types/notification";
 
@@ -97,8 +99,13 @@ export function NotificationBell() {
 
   const [open, setOpen] = React.useState(false);
   const [notice, setNotice] = React.useState<Notice | null>(null);
-  const { users, activeUser, selectUser, isLoading: usersLoading } =
-    useWorkspaceUser();
+  const { user: authUser } = useAuth();
+  const { activeUser, selectUser } = useWorkspaceUser();
+  const adminUsersQuery = useQuery({
+    queryKey: ["admin-notification-users"],
+    queryFn: listManagedUsers,
+    enabled: open && authUser?.role === "ADMIN",
+  });
 
   const userId = activeUser?.id ?? null;
 
@@ -289,21 +296,28 @@ export function NotificationBell() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Select
-                className="h-9 text-xs"
-                aria-label="Chọn tài khoản xem thông báo"
-                value={activeUser?.id ?? ""}
-                disabled={usersLoading}
-                onChange={(event) => selectUser(event.target.value)}
-              >
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} · {user.email}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            {authUser?.role === "ADMIN" ? (
+              <div className="flex items-center gap-2">
+                <Select
+                  className="h-9 text-xs"
+                  aria-label="Chọn tài khoản xem thông báo"
+                  value={activeUser?.id ?? authUser.id}
+                  disabled={adminUsersQuery.isLoading}
+                  onChange={(event) => selectUser(event.target.value)}
+                >
+                  {(adminUsersQuery.data ?? []).map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} · {user.email}
+                    </option>
+                  ))}
+                </Select>
+                {adminUsersQuery.isError ? (
+                  <span role="alert" className="text-xs text-red-700">
+                    Không tải được danh sách người dùng.
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           {notice ? (

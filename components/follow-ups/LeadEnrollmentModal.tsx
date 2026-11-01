@@ -125,7 +125,6 @@ export function LeadEnrollmentModal({
       const res = await enrollMutation.mutateAsync({
         leadId: lead.id,
         sequenceId: effectiveSequenceId,
-        assignedBy: (lead as { ownerId?: string }).ownerId,
       });
       setCreatedEnrollmentId(res.id);
       onSuccess?.();

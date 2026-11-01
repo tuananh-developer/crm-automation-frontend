@@ -115,6 +115,16 @@ export function UserNav() {
               <User className="size-3" />
               <span>Tài khoản hệ thống</span>
             </div>
+            {isAdmin && (
+              <Link
+                href="/admin/users"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-emerald-800 hover:bg-emerald-50"
+              >
+                <Shield className="size-3.5" />
+                <span>Quản lý người dùng</span>
+              </Link>
+            )}
           </div>
 
           <div className="border-t border-gray-100 pt-1">

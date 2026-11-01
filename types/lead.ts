@@ -171,10 +171,6 @@ export interface TriggerQualificationDto {
   metadata?: Record<string, unknown>;
 }
 
-export interface ConvertLeadDto {
-  userId: string;
-}
-
 export interface ConvertLeadResult {
   lead: Lead;
   customer: {

@@ -1,7 +1,6 @@
 import axios from "axios";
 import { apiClient } from "@/services/api-client";
 import type {
-  ConvertLeadDto,
   ConvertLeadResult,
   CreateLeadDto,
   CreateLeadSourceDto,
@@ -195,7 +194,7 @@ export const leadService = {
    */
   async getEnrollmentsByLeadId(leadId: string): Promise<LeadFollowUpEnrollment[]> {
     const { data } = await apiClient.get<LeadFollowUpEnrollment[]>(
-      `/follow-ups/enrollments/by-lead/${leadId}`,
+      `/follow-up/leads/${leadId}/enrollments`,
     );
     return data ?? [];
   },
@@ -204,17 +203,8 @@ export const leadService = {
    * Get active follow-up enrollment for a lead (UC06)
    */
   async getActiveEnrollmentByLeadId(leadId: string): Promise<LeadFollowUpEnrollment | null> {
-    try {
-      const { data } = await apiClient.get<LeadFollowUpEnrollment | null>(
-        `/follow-ups/enrollments/by-lead/${leadId}/active`,
-      );
-      return data ?? null;
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response?.status === 404) {
-        return null;
-      }
-      throw err;
-    }
+    const enrollments = await this.getEnrollmentsByLeadId(leadId);
+    return enrollments.find((enrollment) => enrollment.status === "ACTIVE") ?? null;
   },
 
   /**
@@ -240,7 +230,7 @@ export const leadService = {
   async triggerQualification(
     leadId: string,
     dto?: TriggerQualificationDto,
-  ): Promise<{ message: string; runId?: string }> {
+  ): Promise<{ message: string; workflowRunId: string; leadId: string }> {
     const { data } = await apiClient.post(
       `/lead-intelligence/qualify/${leadId}`,
       dto ?? {},
@@ -253,11 +243,9 @@ export const leadService = {
    */
   async convertLead(
     id: string,
-    dto: ConvertLeadDto,
   ): Promise<ConvertLeadResult> {
     const { data } = await apiClient.post<ConvertLeadResult>(
       `/leads/${id}/convert`,
-      dto,
     );
     return data;
   },

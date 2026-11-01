@@ -46,7 +46,7 @@ type ReviewInboxProps = {
 export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
   const queryClient = useQueryClient();
 
-  const { activeUser } = useWorkspaceUser();
+  const { activeUser, users } = useWorkspaceUser();
 
   const [statusFilter, setStatusFilter] = React.useState<
     "" | ReviewStatus
@@ -94,7 +94,15 @@ export function ReviewInbox({ taskId, onTaskIdChange }: ReviewInboxProps) {
   });
 
   const tasks = React.useMemo(() => query.data ?? [], [query.data]);
-  const reviewers = React.useMemo(() => collectReviewers(tasks), [tasks]);
+  const reviewers = React.useMemo(
+    () =>
+      activeUser?.role === "ADMIN"
+        ? users.filter((user) => user.role === "SALES")
+        : activeUser?.role === "SALES"
+          ? [activeUser]
+          : collectReviewers(tasks),
+    [activeUser, users, tasks],
+  );
 
   const visibleTasks = React.useMemo(() => {
     const currentUserId = activeUser?.id ?? null;

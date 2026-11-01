@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Giao diện Web Ứng dụng Quản trị và Tự động hóa CRM thông minh</b><br>
-  Xây dựng trên nền tảng <b>Next.js 15+ (App Router)</b>, <b>React 19</b>, <b>TailwindCSS v4</b>, <b>Radix UI / Shadcn</b> và <b>TanStack React Query</b>.
+  Xây dựng trên nền tảng <b>Next.js 16 (App Router)</b>, <b>React 19</b>, <b>TailwindCSS v4</b>, <b>Radix UI / Shadcn</b> và <b>TanStack React Query</b>.
 </p>
 
 ---
@@ -66,6 +66,11 @@
   - Họ tên bị dính ký tự lạ, khoảng trắng thừa hoặc lỗi viết hoa.
 - Báo cáo phân tích bất thường trực quan và nút **Áp dụng chuẩn hóa** (Apply Fixes) một chạm.
 
+### 7. 🛡️ Quản trị người dùng (`/admin/users`)
+- Chỉ tài khoản **Admin** được tạo, xem, cập nhật vai trò/trạng thái và vô hiệu hóa tài khoản.
+- Sales chỉ nhận danh sách định danh tối thiểu (ID, tên, vai trò) cho các trường gán người phụ trách.
+- Backend là nơi thực thi quyền; giao diện chỉ hiển thị chức năng phù hợp với vai trò.
+
 ---
 
 ## 📁 4. Cấu trúc thư mục
@@ -109,10 +114,10 @@ pnpm install
 Tạo file `.env.local` tại thư mục gốc frontend:
 ```env
 # Địa chỉ URL của Backend NestJS
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1
 
 # Hoặc Backend nội bộ khi gọi SSR
-BACKEND_INTERNAL_URL=http://localhost:3000/api
+BACKEND_INTERNAL_URL=http://localhost:3000/api/v1
 ```
 
 ### Bước 3: Khởi động Development Server

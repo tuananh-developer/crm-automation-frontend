@@ -145,8 +145,6 @@ export interface SegmentCustomerListResponse {
 }
 
 export interface SegmentPayload {
-  /** Required by CreateSegmentDto: the user creating the segment. */
-  createdBy: string;
   name: string;
   description?: string | null;
   criteria: SegmentCriteria;

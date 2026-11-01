@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   UserCheck,
   Building2,
@@ -16,12 +16,8 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { leadService } from "@/services/lead.service";
-import { getWorkspaceUsers } from "@/services/user.service";
 import type { ConvertLeadResult, Lead } from "@/types/lead";
-import type { WorkspaceUser } from "@/types/user";
 
 export interface ConvertLeadModalProps {
   lead: Lead;
@@ -34,32 +30,21 @@ function ConvertLeadDialog({
   lead,
   onClose,
   onSuccess,
-  users,
-  isUsersLoading,
 }: {
   lead: Lead;
   onClose: () => void;
   onSuccess?: (result: ConvertLeadResult) => void;
-  users: WorkspaceUser[];
-  isUsersLoading: boolean;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [selectedUserId, setSelectedUserId] = React.useState<string>(
-    () => lead.ownerId || users[0]?.id || "",
-  );
   const [conversionResult, setConversionResult] =
     React.useState<ConvertLeadResult | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   // Conversion Mutation
   const convertMutation = useMutation({
-    mutationFn: () => {
-      const activeUserId = selectedUserId || lead.ownerId || users[0]?.id;
-      if (!activeUserId) throw new Error("Please select an operating user.");
-      return leadService.convertLead(lead.id, { userId: activeUserId });
-    },
+    mutationFn: () => leadService.convertLead(lead.id),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead", lead.id] });
@@ -208,29 +193,9 @@ function ConvertLeadDialog({
               </p>
             </div>
 
-            {/* Operating User Selection */}
-            <div className="space-y-1.5">
-              <Label htmlFor="convertingUser" className="text-xs font-semibold text-gray-700">
-                Converting User / Responsible Rep <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                id="convertingUser"
-                value={selectedUserId || users[0]?.id || ""}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-              >
-                {isUsersLoading ? (
-                  <option value="">Loading workspace users...</option>
-                ) : users.length === 0 ? (
-                  <option value="">No users found</option>
-                ) : (
-                  users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name || u.email} ({u.role || "SALES"})
-                    </option>
-                  ))
-                )}
-              </Select>
-            </div>
+            <p className="text-xs text-gray-500">
+              This conversion will be attributed to your signed-in account.
+            </p>
 
             {/* Actions */}
             <div className="border-t border-gray-100 pt-4 flex items-center justify-end gap-3">
@@ -248,7 +213,7 @@ function ConvertLeadDialog({
                 type="button"
                 size="sm"
                 onClick={() => convertMutation.mutate()}
-                disabled={convertMutation.isPending || (!selectedUserId && users.length === 0)}
+                disabled={convertMutation.isPending}
                 className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm gap-1.5"
               >
                 {convertMutation.isPending ? (
@@ -277,13 +242,6 @@ export function ConvertLeadModal({
   onClose,
   onSuccess,
 }: ConvertLeadModalProps) {
-  // Fetch workspace sales users
-  const { data: users = [], isLoading: isUsersLoading } = useQuery({
-    queryKey: ["workspace-users"],
-    queryFn: () => getWorkspaceUsers(),
-    enabled: isOpen,
-  });
-
   if (!isOpen) return null;
 
   return (
@@ -292,8 +250,6 @@ export function ConvertLeadModal({
         lead={lead}
         onClose={onClose}
         onSuccess={onSuccess}
-        users={users}
-        isUsersLoading={isUsersLoading}
       />
     </div>
   );
