@@ -1,6 +1,11 @@
 export type FeedbackSentiment = 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
 export type FeedbackUrgency = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-export type FeedbackStatus = 'NEW' | 'PROCESSED' | 'ESCALATED' | 'RESOLVED';
+export type FeedbackStatus =
+  | 'NEW'
+  | 'PROCESSED'
+  | 'ESCALATED'
+  | 'RESOLVED'
+  | 'FAILED';
 
 export interface CustomerFeedbackItem {
   id: string;
@@ -12,9 +17,10 @@ export interface CustomerFeedbackItem {
   category?: string | null;
   urgency?: FeedbackUrgency | null;
   status: FeedbackStatus;
+  errorMessage?: string | null;
   receivedAt: string;
   createdAt: string;
-  rawAIOutput?: Record<string, any> | null;
+  rawAIOutput?: Record<string, unknown> | null;
 }
 
 export interface CreateFeedbackPayload {
@@ -23,4 +29,3 @@ export interface CreateFeedbackPayload {
   content: string;
   rating?: number;
 }
-

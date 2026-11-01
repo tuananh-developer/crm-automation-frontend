@@ -4,8 +4,6 @@ import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
   Clock,
   Loader2,
   MessageSquare,
@@ -13,7 +11,6 @@ import {
   RefreshCw,
   Send,
   ShieldAlert,
-  Sparkles,
   Star,
 } from "lucide-react";
 
@@ -43,13 +40,17 @@ export function CustomerFeedbackTab({ customerId }: CustomerFeedbackTabProps) {
   const {
     data: feedbackList = [],
     isLoading,
-    isError,
-    error,
     refetch,
     isFetching,
   } = useQuery({
     queryKey: ["customer-feedback", customerId],
     queryFn: () => getCustomerFeedback(customerId),
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const hasPending =
+        Array.isArray(data) && data.some((item) => item.status === "NEW");
+      return hasPending ? 3000 : false;
+    },
   });
 
   const submitMutation = useMutation({
@@ -301,6 +302,21 @@ function FeedbackItemCard({ item }: { item: CustomerFeedbackItem }) {
                 ĐÃ LEO THANG (ESCALATED)
               </Badge>
             )}
+
+            {/* Processing / Status Badges */}
+            {item.status === "NEW" && (
+              <Badge tone="warning" className="animate-pulse gap-1 font-medium">
+                <Loader2 className="size-3 animate-spin" />
+                Đang phân loại AI...
+              </Badge>
+            )}
+
+            {item.status === "FAILED" && (
+              <Badge tone="danger" className="gap-1 font-medium">
+                <AlertCircle className="size-3" />
+                Phân loại thất bại
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -321,6 +337,12 @@ function FeedbackItemCard({ item }: { item: CustomerFeedbackItem }) {
         <p className="text-xs leading-relaxed text-[#17221c] whitespace-pre-wrap">
           {item.content}
         </p>
+
+        {item.errorMessage && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+            <strong>Lỗi:</strong> {item.errorMessage}
+          </div>
+        )}
 
         <div className="flex items-center justify-between border-t border-[#edf0ee] pt-2 text-[11px] text-gray-500">
           <span>Kênh: <strong className="text-gray-700">{item.source}</strong></span>
