@@ -2,6 +2,7 @@
 /* Hallmark · v2.0.0 · redesign: full · scope: app · genre: modern-minimal · theme: Cobalt · signature: data quality review queue */
 
 import * as React from "react";
+import "../workflows/workflows.css";
 import { AlertCircle, Clock3, Loader2, RefreshCw, ShieldCheck, Users } from "lucide-react";
 import { WorkflowChrome, WorkflowPageHeading } from "@/components/workflows/WorkflowChrome";
 import { ScopeSelector } from "@/components/data-cleaning/ScopeSelector";
@@ -27,7 +28,6 @@ export default function DataCleaningPage() {
     if (!activeWorkflowRunId) return;
     let isMounted = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    setIsPolling(true);
 
     const fetchStatus = async () => {
       try {
@@ -63,6 +63,7 @@ export default function DataCleaningPage() {
     setScanData(null);
     try {
       const response = await dataCleaningService.startScan(request);
+      setIsPolling(true);
       setActiveWorkflowRunId(response.workflowRunId);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
