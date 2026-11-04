@@ -306,7 +306,7 @@ export function LeadListTable({
                             href={`/leads/${lead.id}`}
                             className="font-bold text-gray-900 group-hover:text-emerald-700 transition-colors"
                           >
-                            {lead.firstName} {lead.lastName}
+                            {[lead.firstName, lead.lastName].filter(Boolean).join(" ")}
                           </Link>
                           <span className="text-[11px] text-gray-500">
                             {lead.jobTitle || "Business Lead"}
