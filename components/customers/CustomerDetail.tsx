@@ -17,9 +17,12 @@ import {
   UserRound,
   Users,
   BrainCircuit,
-  Sparkles,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 import { Customer360Tab } from "./Customer360Tab";
+import { CustomerConversationsTab } from "./CustomerConversationsTab";
+import { CustomerFeedbackTab } from "./CustomerFeedbackTab";
 
 import { getApiErrorMessage } from "@/services/api-client";
 import { getCustomer } from "@/services/customer.service";
@@ -145,9 +148,11 @@ function SegmentMembershipCard({
   );
 }
 
+export type CustomerDetailTab = "360" | "conversations" | "feedback" | "overview";
+
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState<"360" | "overview">("360");
+  const [activeTab, setActiveTab] = React.useState<CustomerDetailTab>("360");
 
   return (
     <div className="space-y-6">
@@ -219,6 +224,44 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
         <button
           type="button"
           role="tab"
+          aria-selected={activeTab === "conversations"}
+          data-testid="tab-customer-conversations"
+          onClick={() => setActiveTab("conversations")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "conversations"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <FileText className="size-4" />
+          Biên bản hội thoại AI (WF09)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "feedback"}
+          data-testid="tab-customer-feedback"
+          onClick={() => setActiveTab("feedback")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "feedback"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <MessageSquare className="size-4" />
+          Ý kiến phản hồi & CSAT (WF14)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
           aria-selected={activeTab === "overview"}
           data-testid="tab-customer-overview"
           onClick={() => setActiveTab("overview")}
@@ -237,6 +280,18 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
       {activeTab === "360" && (
         <section aria-label="AI Customer 360 Panel">
           <Customer360Tab customerId={customer.id} />
+        </section>
+      )}
+
+      {activeTab === "conversations" && (
+        <section aria-label="Customer Conversations Panel">
+          <CustomerConversationsTab customerId={customer.id} />
+        </section>
+      )}
+
+      {activeTab === "feedback" && (
+        <section aria-label="Customer Feedback Panel">
+          <CustomerFeedbackTab customerId={customer.id} />
         </section>
       )}
 

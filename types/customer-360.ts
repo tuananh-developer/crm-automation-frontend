@@ -70,14 +70,20 @@ export interface FollowUpSummary {
   }>;
 }
 
+export type SourceCoverageStatus =
+  | 'AVAILABLE'
+  | 'EMPTY'
+  | 'NOT_CONNECTED'
+  | 'UNAVAILABLE';
+
 export interface SourceCoverageMap {
-  crmProfile: 'AVAILABLE' | 'NOT_CONNECTED';
-  interactions: 'AVAILABLE' | 'NOT_CONNECTED';
-  leadIntelligence: 'AVAILABLE' | 'NOT_CONNECTED';
-  followUps: 'AVAILABLE' | 'NOT_CONNECTED';
-  segments: 'AVAILABLE' | 'NOT_CONNECTED';
-  customerIssues: 'AVAILABLE' | 'NOT_CONNECTED';
-  customerFeedback: 'AVAILABLE' | 'NOT_CONNECTED';
+  crmProfile: SourceCoverageStatus;
+  interactions: SourceCoverageStatus;
+  leadIntelligence: SourceCoverageStatus;
+  followUps: SourceCoverageStatus;
+  segments: SourceCoverageStatus;
+  customerIssues: SourceCoverageStatus;
+  customerFeedback: SourceCoverageStatus;
 }
 
 export interface Customer360AiSummary {
@@ -111,6 +117,7 @@ export interface Customer360Response {
     status: string;
     startedAt?: string | null;
     completedAt?: string | null;
+    errorMessage?: string | null;
   } | null;
 }
 

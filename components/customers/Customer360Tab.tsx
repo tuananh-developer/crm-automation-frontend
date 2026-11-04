@@ -7,11 +7,8 @@ import {
   AlertTriangle,
   Bot,
   BrainCircuit,
-  Calendar,
   CheckCircle2,
   Clock,
-  ExternalLink,
-  Layers,
   Lightbulb,
   Loader2,
   PhoneCall,
@@ -20,7 +17,6 @@ import {
   Sparkles,
   TrendingUp,
   UserCheck,
-  XCircle,
 } from "lucide-react";
 
 import { getCustomer360, triggerCustomer360 } from "@/services/customer.service";
@@ -29,6 +25,50 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDateTime } from "@/components/segments/segment-utils";
+import type { SourceCoverageStatus } from "@/types/customer-360";
+
+import type { BadgeTone } from "@/components/ui/badge";
+
+interface CoverageMeta {
+  tone: BadgeTone;
+  label: string;
+  tooltip?: string;
+}
+
+function getSourceCoverageMeta(status?: SourceCoverageStatus | string): CoverageMeta {
+  switch (status) {
+    case "AVAILABLE":
+      return {
+        tone: "success",
+        label: "Có dữ liệu",
+        tooltip: "Nguồn dữ liệu đã kết nối và có bản ghi được nạp",
+      };
+    case "EMPTY":
+      return {
+        tone: "neutral",
+        label: "Chưa có dữ liệu",
+        tooltip: "Nguồn dữ liệu đã kết nối nhưng hiện tại chưa có bản ghi",
+      };
+    case "NOT_CONNECTED":
+      return {
+        tone: "warning",
+        label: "Chưa kết nối",
+        tooltip: "Hệ thống hoặc module bên ngoài chưa tích hợp",
+      };
+    case "UNAVAILABLE":
+      return {
+        tone: "danger",
+        label: "Không khả dụng",
+        tooltip: "Không thể kết nối dịch vụ trong lần quét gần nhất",
+      };
+    default:
+      return {
+        tone: "neutral",
+        label: "Chưa có dữ liệu",
+        tooltip: "Trạng thái không xác định",
+      };
+  }
+}
 
 interface Customer360TabProps {
   customerId: string;
@@ -54,10 +94,22 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     },
   });
 
+  const [triggerError, setTriggerError] = React.useState<string | null>(null);
+
   const triggerMutation = useMutation({
     mutationFn: () => triggerCustomer360(customerId),
+    onMutate: () => {
+      setTriggerError(null);
+    },
     onSuccess: () => {
+      setTriggerError(null);
       queryClient.invalidateQueries({ queryKey: ["customer-360", customerId] });
+    },
+    onError: (err: unknown) => {
+      const msg =
+        getApiErrorMessage(err) ||
+        "Không thể kích hoạt quy trình AI Customer 360. Vui lòng kiểm tra kết nối và thử lại.";
+      setTriggerError(msg);
     },
   });
 
@@ -97,11 +149,8 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
   }
 
   const {
-    customer,
     convertedLeads,
     interactions,
-    intelligence,
-    followUps,
     sourceCoverage,
     aiSummary,
     latestWorkflowRun,
@@ -162,6 +211,57 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
           </Button>
         </div>
       </div>
+
+      {/* Trigger or Run Failure Alert Banner */}
+      {(triggerError || (latestWorkflowRun?.status === "FAILED" && !aiSummary)) && (
+        <div
+          data-testid="customer-360-trigger-error"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50/70 p-4 text-sm text-red-900"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-red-600" />
+            <div>
+              <p className="font-semibold text-red-900">
+                {triggerError
+                  ? "Kích hoạt phân tích thất bại"
+                  : "Quy trình phân tích Customer 360 gặp sự cố"}
+              </p>
+              <p className="mt-0.5 text-xs text-red-700">
+                {triggerError ||
+                  latestWorkflowRun?.errorMessage ||
+                  "Dịch vụ n8n hoặc AI synthesis không thể hoàn thành tổng hợp dữ liệu. Vui lòng thử lại."}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTriggerError(null);
+                triggerMutation.mutate();
+              }}
+              disabled={isAnalyzing}
+              className="border-red-300 bg-white text-red-800 hover:bg-red-50 hover:text-red-900"
+            >
+              <RefreshCw className={`size-3.5 ${triggerMutation.isPending ? "animate-spin" : ""}`} />
+              Thử lại ngay
+            </Button>
+            {triggerError && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setTriggerError(null)}
+                className="text-xs text-red-600 hover:text-red-800"
+              >
+                Đóng
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* AI 360 Executive Summary Card */}
       {aiSummary ? (
@@ -296,54 +396,96 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Hồ sơ CRM</span>
-              <Badge tone={sourceCoverage?.crmProfile === "AVAILABLE" ? "success" : "neutral"}>
-                {sourceCoverage?.crmProfile || "AVAILABLE"}
-              </Badge>
-            </div>
+            {/* 1. CRM Profile */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.crmProfile);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Hồ sơ CRM</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Lịch sử tương tác</span>
-              <Badge tone={sourceCoverage?.interactions === "AVAILABLE" ? "success" : "neutral"}>
-                {interactions.length > 0 ? "AVAILABLE" : "CHƯA CÓ"}
-              </Badge>
-            </div>
+            {/* 2. Interactions */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.interactions);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Lịch sử tương tác</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Trí tuệ nhân tạo Lead</span>
-              <Badge tone={sourceCoverage?.leadIntelligence === "AVAILABLE" ? "success" : "neutral"}>
-                {sourceCoverage?.leadIntelligence || "AVAILABLE"}
-              </Badge>
-            </div>
+            {/* 3. Lead Intelligence */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.leadIntelligence);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Trí tuệ nhân tạo Lead</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Kịch bản chăm sóc</span>
-              <Badge tone={sourceCoverage?.followUps === "AVAILABLE" ? "success" : "neutral"}>
-                {sourceCoverage?.followUps || "AVAILABLE"}
-              </Badge>
-            </div>
+            {/* 4. Follow-up sequences */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.followUps);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Kịch bản chăm sóc</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Phân khúc khách hàng</span>
-              <Badge tone={sourceCoverage?.segments === "AVAILABLE" ? "success" : "neutral"}>
-                {sourceCoverage?.segments || "AVAILABLE"}
-              </Badge>
-            </div>
+            {/* 5. Customer Segments */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.segments);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Phân khúc khách hàng</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-amber-200/80 bg-amber-50/20 p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Ticket / Vấn đề hỗ trợ</span>
-              <Badge tone="warning" title="Hệ thống Helpdesk bên ngoài chưa kết nối ở v1">
-                {sourceCoverage?.customerIssues || "NOT_CONNECTED"}
-              </Badge>
-            </div>
+            {/* 6. Support Tickets */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.customerIssues);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-amber-200/80 bg-amber-50/20 p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Ticket / Vấn đề hỗ trợ</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
 
-            <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
-              <span className="text-gray-700 font-medium">Ý kiến phản hồi (Feedback)</span>
-              <Badge tone={sourceCoverage?.customerFeedback === "AVAILABLE" ? "success" : "neutral"}>
-                {sourceCoverage?.customerFeedback || "NOT_CONNECTED"}
-              </Badge>
-            </div>
+            {/* 7. Feedback */}
+            {(() => {
+              const meta = getSourceCoverageMeta(sourceCoverage?.customerFeedback);
+              return (
+                <div className="flex items-center justify-between rounded-lg border border-[#e2e8e4] p-2.5 text-xs">
+                  <span className="text-gray-700 font-medium">Ý kiến phản hồi (Feedback)</span>
+                  <Badge tone={meta.tone} title={meta.tooltip}>
+                    {meta.label}
+                  </Badge>
+                </div>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
