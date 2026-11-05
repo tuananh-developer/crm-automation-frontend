@@ -16,8 +16,12 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  BrainCircuit,
+  FileText,
   MessageSquare,
 } from "lucide-react";
+import { Customer360Tab } from "./Customer360Tab";
+import { CustomerConversationsTab } from "./CustomerConversationsTab";
 import { CustomerFeedbackTab } from "./CustomerFeedbackTab";
 
 import { getApiErrorMessage } from "@/services/api-client";
@@ -144,9 +148,11 @@ function SegmentMembershipCard({
   );
 }
 
+export type CustomerDetailTab = "360" | "conversations" | "feedback" | "overview";
+
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState<"feedback" | "overview">("feedback");
+  const [activeTab, setActiveTab] = React.useState<CustomerDetailTab>("360");
 
   return (
     <div className="space-y-6">
@@ -190,12 +196,50 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
         </CardContent>
       </Card>
 
-      {/* Interactive Tabs Navigation */}
+      {/* Interactive Tabs Navigation (Consistent Enterprise UI) */}
       <div
         role="tablist"
         aria-label="Customer Intelligence Tabs"
         className="flex flex-wrap items-center gap-1.5 border-b border-[#e2e8e4] pb-px text-sm"
       >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "360"}
+          data-testid="tab-customer-360"
+          onClick={() => setActiveTab("360")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "360"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <BrainCircuit className="size-4" />
+          AI Customer 360 (WF05)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "conversations"}
+          data-testid="tab-customer-conversations"
+          onClick={() => setActiveTab("conversations")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "conversations"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <FileText className="size-4" />
+          Biên bản hội thoại AI (WF09)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
         <button
           type="button"
           role="tab"
@@ -233,6 +277,18 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
       </div>
 
       {/* Tab Panels */}
+      {activeTab === "360" && (
+        <section aria-label="AI Customer 360 Panel">
+          <Customer360Tab customerId={customer.id} />
+        </section>
+      )}
+
+      {activeTab === "conversations" && (
+        <section aria-label="Customer Conversations Panel">
+          <CustomerConversationsTab customerId={customer.id} />
+        </section>
+      )}
+
       {activeTab === "feedback" && (
         <section aria-label="Customer Feedback Panel">
           <CustomerFeedbackTab customerId={customer.id} />
@@ -248,11 +304,7 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                 <Row icon={Mail} label="Email" value={customer.email} />
                 <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
                 <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
-                <Row
-                  icon={Building2}
-                  label="Công ty"
-                  value={customer.companyName ?? "—"}
-                />
+                <Row icon={Building2} label="Công ty" value={customer.companyName ?? "—"} />
                 <Row
                   icon={Globe}
                   label="Website"
@@ -262,7 +314,7 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                         href={customer.companyWebsite}
                         target="_blank"
                         rel="noreferrer"
-                        className="underline underline-offset-2"
+                        className="underline underline-offset-2 text-[#173b2b]"
                       >
                         {customer.companyWebsite}
                       </a>
@@ -271,17 +323,9 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                     )
                   }
                 />
-                <Row
-                  icon={Users}
-                  label="Quy mô công ty"
-                  value={customer.companySize ?? "—"}
-                />
+                <Row icon={Users} label="Quy mô công ty" value={customer.companySize ? `${customer.companySize} nhân viên` : "—"} />
                 <Row icon={Users} label="Ngành nghề" value={customer.industry ?? "—"} />
-                <Row
-                  icon={UserRound}
-                  label="Người tạo"
-                  value={customer.creator?.name ?? customer.createdBy}
-                />
+                <Row icon={UserRound} label="Người tạo" value={customer.creator?.name ?? customer.createdBy} />
               </div>
 
               {customer.notes ? (
@@ -345,8 +389,7 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
               <Card>
                 <CardContent className="px-5 py-8 text-center">
                   <p className="text-sm text-gray-500">
-                    Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự
-                    động.
+                    Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự động.
                   </p>
                   <Button asChild variant="outline" className="mt-3">
                     <Link href="/segments">Mở Segments</Link>
