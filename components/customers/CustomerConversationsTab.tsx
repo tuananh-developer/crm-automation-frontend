@@ -1,24 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  Calendar,
-  CheckCircle2,
+  Check,
   CheckSquare,
   Clock,
   FileText,
-  Lightbulb,
   ListTodo,
   Loader2,
   MessageSquare,
   Plus,
   RefreshCw,
-  Send,
   ShieldCheck,
   Sparkles,
   Square,
-  User,
+  TriangleAlert,
+  X,
 } from "lucide-react";
 
 import {
@@ -30,11 +28,14 @@ import { getApiErrorMessage } from "@/services/api-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/components/segments/segment-utils";
-import type { ActionItem, ConversationTranscriptItem } from "@/types/conversation";
+import type {
+  ActionItem,
+  ActionItemApprovalState,
+  ConversationTranscriptItem,
+} from "@/types/conversation";
 
 interface CustomerConversationsTabProps {
   customerId: string;
@@ -43,21 +44,25 @@ interface CustomerConversationsTabProps {
 export function CustomerConversationsTab({
   customerId,
 }: CustomerConversationsTabProps) {
-  const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [sourceType, setSourceType] = React.useState("CALL");
   const [content, setContent] = React.useState("");
-  const [lastTranscriptId, setLastTranscriptId] = React.useState<string | null>(null);
+  const [lastTranscriptId, setLastTranscriptId] = React.useState<string | null>(
+    null,
+  );
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   // Poll latest transcript summary if created
   const {
     data: transcriptData,
     isLoading: isFetchingSummary,
+    isError: isSummaryError,
+    error: summaryError,
     refetch,
   } = useQuery({
     queryKey: ["conversation-summary", lastTranscriptId],
-    queryFn: () => (lastTranscriptId ? getTranscriptSummary(lastTranscriptId) : null),
+    queryFn: () =>
+      lastTranscriptId ? getTranscriptSummary(lastTranscriptId) : null,
     enabled: Boolean(lastTranscriptId),
     refetchInterval: (query) => {
       const status = query.state.data?.processingStatus;
@@ -105,7 +110,8 @@ export function CustomerConversationsTab({
             </Badge>
           </div>
           <p className="mt-0.5 text-xs text-gray-500">
-            Nạp nội dung cuộc gọi hoặc họp bán hàng để AI tạo bản tóm tắt điều hành và danh sách nhiệm vụ cần làm.
+            Nạp nội dung cuộc gọi hoặc họp bán hàng để AI tạo bản tóm tắt điều
+            hành và danh sách nhiệm vụ cần làm.
           </p>
         </div>
 
@@ -126,13 +132,20 @@ export function CustomerConversationsTab({
       <div className="flex items-center gap-2.5 rounded-lg border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-emerald-900">
         <ShieldCheck className="size-4 shrink-0 text-emerald-600" />
         <span>
-          <strong>Chính sách Bảo mật & Quyền riêng tư (Topic 12):</strong> Toàn bộ email, số điện thoại và số tài khoản sẽ tự động được khử định danh (PII Redaction) trên máy chủ NestJS trước khi chuyển tiếp cho mô hình AI Gemini.
+          <strong>Chính sách Bảo mật & Quyền riêng tư (Topic 12):</strong> Toàn
+          bộ email, số điện thoại, chuỗi thẻ 16 chữ số, mã IBAN và số tài khoản
+          có nhãn (STK / Account No.) sẽ tự động được khử định danh (PII
+          Redaction) trên máy chủ NestJS trước khi chuyển tiếp cho mô hình AI
+          Gemini.
         </span>
       </div>
 
       {/* Ingest Form */}
       {isFormOpen && (
-        <Card data-testid="transcript-form-card" className="border-emerald-200 bg-emerald-50/20">
+        <Card
+          data-testid="transcript-form-card"
+          className="border-emerald-200 bg-emerald-50/20"
+        >
           <CardContent className="p-5">
             <form onSubmit={handleSubmit} className="space-y-4">
               <h4 className="text-sm font-bold text-[#17221c]">
@@ -140,13 +153,19 @@ export function CustomerConversationsTab({
               </h4>
 
               {submitError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                <div
+                  role="alert"
+                  className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700"
+                >
                   {submitError}
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="source-type" className="text-xs font-semibold text-gray-600">
+                <Label
+                  htmlFor="source-type"
+                  className="text-xs font-semibold text-gray-600"
+                >
                   Kênh tương tác
                 </Label>
                 <select
@@ -156,14 +175,21 @@ export function CustomerConversationsTab({
                   className="h-8 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs font-medium text-gray-800 focus:border-[#173b2b] focus:outline-none"
                 >
                   <option value="CALL">Cuộc gọi điện thoại (Phone Call)</option>
-                  <option value="MEETING">Cuộc họp trực tiếp / Google Meet (Sales Meeting)</option>
+                  <option value="MEETING">
+                    Cuộc họp trực tiếp / Google Meet (Sales Meeting)
+                  </option>
                   <option value="EMAIL">Trao đổi qua Email</option>
-                  <option value="CHAT">Tin nhắn trò chuyện (Chat / Zalo / Slack)</option>
+                  <option value="CHAT">
+                    Tin nhắn trò chuyện (Chat / Zalo / Slack)
+                  </option>
                 </select>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="transcript-content" className="text-xs font-semibold text-gray-600">
+                <Label
+                  htmlFor="transcript-content"
+                  className="text-xs font-semibold text-gray-600"
+                >
                   Văn bản hội thoại
                 </Label>
                 <Textarea
@@ -172,7 +198,7 @@ export function CustomerConversationsTab({
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Dán nội dung trao đổi hoặc biên bản cuộc họp vào đây (VD: Khách hàng trao đổi về việc nâng gói Enterprise 50 user vào tháng tới...)"
-                  className="text-xs bg-white font-mono"
+                  className="bg-white font-mono text-xs"
                   required
                 />
               </div>
@@ -213,11 +239,42 @@ export function CustomerConversationsTab({
 
       {/* Latest Transcript Summary Result */}
       {transcriptData ? (
-        <TranscriptDetailCard data={transcriptData} onActionItemUpdated={() => refetch()} />
+        <TranscriptDetailCard
+          data={transcriptData}
+          onActionItemUpdated={() => refetch()}
+          onReopenForm={() => setIsFormOpen(true)}
+        />
       ) : lastTranscriptId && isFetchingSummary ? (
         <Card className="p-8 text-center text-gray-500">
           <Loader2 className="mx-auto size-7 animate-spin text-[#173b2b]" />
-          <p className="mt-2 text-xs font-medium">AI đang tóm lược cuộc hội thoại và trích xuất Action Items...</p>
+          <p className="mt-2 text-xs font-medium">
+            AI đang tóm lược cuộc hội thoại và trích xuất Action Items...
+          </p>
+        </Card>
+      ) : lastTranscriptId && isSummaryError ? (
+        <Card
+          role="alert"
+          data-testid="transcript-summary-error-card"
+          className="border-red-200 bg-red-50/60 p-6 text-center"
+        >
+          <TriangleAlert className="mx-auto size-7 text-red-600" />
+          <p className="mt-2 text-xs font-bold text-red-900">
+            Không thể tải kết quả tóm lược hội thoại
+          </p>
+          <p className="mt-1 text-xs text-red-700">
+            {getApiErrorMessage(summaryError)}
+          </p>
+          <div className="mt-3 flex justify-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+            >
+              <RefreshCw className="size-3.5" />
+              Thử tải lại
+            </Button>
+          </div>
         </Card>
       ) : (
         <Card className="border-dashed border-gray-300 bg-gray-50/50 p-6 text-center">
@@ -226,7 +283,8 @@ export function CustomerConversationsTab({
             Chưa có biên bản hội thoại nào được nạp gần đây.
           </p>
           <p className="text-[11px] text-gray-400">
-            Bấm nút &quot;Ghi nhận hội thoại mới&quot; để AI phân tích và tự động tạo việc cần làm (Action Items).
+            Bấm nút &quot;Ghi nhận hội thoại mới&quot; để AI phân tích và tự
+            động tạo việc cần làm (Action Items).
           </p>
         </Card>
       )}
@@ -237,21 +295,29 @@ export function CustomerConversationsTab({
 function TranscriptDetailCard({
   data,
   onActionItemUpdated,
+  onReopenForm,
 }: {
   data: ConversationTranscriptItem;
   onActionItemUpdated: () => void;
+  onReopenForm: () => void;
 }) {
   const isDone = data.processingStatus === "COMPLETED";
-  const isPending = data.processingStatus === "PENDING" || data.processingStatus === "PROCESSING";
+  const isFailed = data.processingStatus === "FAILED";
+  const isPending =
+    data.processingStatus === "PENDING" ||
+    data.processingStatus === "PROCESSING";
   const summary = data.summary;
 
   return (
-    <Card data-testid="transcript-result-card" className="border-[#173b2b]/20 shadow-sm">
-      <div className="bg-[#f4f7f5] px-5 py-3 border-b border-[#e2e8e4]">
+    <Card
+      data-testid="transcript-result-card"
+      className="border-[#173b2b]/20 shadow-sm"
+    >
+      <div className="border-b border-[#e2e8e4] bg-[#f4f7f5] px-5 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-[#173b2b]" />
-            <span className="font-bold text-sm text-[#17221c]">
+            <span className="text-sm font-bold text-[#17221c]">
               Kết quả Tóm lược Hội thoại ({data.sourceType})
             </span>
             <Badge tone={isDone ? "success" : isPending ? "info" : "danger"}>
@@ -265,8 +331,8 @@ function TranscriptDetailCard({
                 summary.sentiment === "POSITIVE"
                   ? "success"
                   : summary.sentiment === "NEGATIVE"
-                  ? "danger"
-                  : "neutral"
+                    ? "danger"
+                    : "neutral"
               }
             >
               Cảm xúc: {summary.sentiment}
@@ -279,8 +345,8 @@ function TranscriptDetailCard({
         {summary ? (
           <>
             {/* Executive Summary */}
-            <div className="rounded-lg bg-[#fafbfa] p-4 border border-[#edf0ee]">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+            <div className="rounded-lg border border-[#edf0ee] bg-[#fafbfa] p-4">
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
                 Tóm lược điều hành
               </p>
               <p className="text-xs leading-relaxed text-[#17221c]">
@@ -296,13 +362,13 @@ function TranscriptDetailCard({
             {/* Key Points */}
             {summary.keyPoints && summary.keyPoints.length > 0 && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">
                   Điểm nhấn trọng tâm (Key Takeaways)
                 </p>
                 <ul className="space-y-1 text-xs text-gray-700">
                   {summary.keyPoints.map((point, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-[#173b2b] font-bold">•</span>
+                      <span className="font-bold text-[#173b2b]">•</span>
                       <span>{point}</span>
                     </li>
                   ))}
@@ -313,11 +379,18 @@ function TranscriptDetailCard({
             {/* Action Items Checklist */}
             {summary.actionItems && summary.actionItems.length > 0 && (
               <div className="border-t border-[#edf0ee] pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <ListTodo className="size-4 text-[#173b2b]" />
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                    Nhiệm vụ trích xuất (Action Items - {summary.actionItems.length})
-                  </p>
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ListTodo className="size-4 text-[#173b2b]" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                      Nhiệm vụ trích xuất (Action Items -{" "}
+                      {summary.actionItems.length})
+                    </p>
+                  </div>
+                  <span className="text-[11px] text-gray-500">
+                    Cần phê duyệt (Approve) đề xuất của AI trước khi đánh dấu
+                    hoàn thành
+                  </span>
                 </div>
 
                 <div className="space-y-2">
@@ -332,19 +405,69 @@ function TranscriptDetailCard({
               </div>
             )}
           </>
+        ) : isFailed ? (
+          <div
+            role="alert"
+            data-testid="transcript-processing-failed"
+            className="rounded-lg border border-red-200 bg-red-50/70 p-4 text-xs text-red-900"
+          >
+            <div className="flex items-start gap-2.5">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-red-600" />
+              <div className="space-y-2">
+                <p className="font-bold">
+                  Quá trình AI phân tích hội thoại thất bại (FAILED)
+                </p>
+                <p className="text-red-700">
+                  {data.errorMessage ||
+                    "Tiến trình tóm lược AI gặp sự cố hoặc quá thời gian chờ. Vui lòng thử kiểm tra lại trạng thái hoặc gửi lại biên bản hội thoại."}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={onActionItemUpdated}
+                  >
+                    <RefreshCw className="size-3.5" />
+                    Thử kiểm tra lại
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={onReopenForm}
+                  >
+                    Ghi nhận lại hội thoại
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
-          <p className="text-xs italic text-gray-500">Đang chờ AI phản hồi...</p>
+          <p className="text-xs italic text-gray-500">
+            Đang chờ AI phản hồi...
+          </p>
         )}
 
         {/* Redacted Preview */}
         <div className="border-t border-[#edf0ee] pt-3 text-[11px] text-gray-400">
-          <span className="font-semibold text-gray-500">Văn bản đã qua khử PII: </span>
-          <span className="italic font-mono">{data.redactedContent.slice(0, 150)}...</span>
+          <span className="font-semibold text-gray-500">
+            Văn bản đã qua khử PII:{" "}
+          </span>
+          <span className="font-mono italic">
+            {data.redactedContent.slice(0, 150)}...
+          </span>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+const APPROVAL_STATE_LABELS: Record<ActionItemApprovalState, string> = {
+  PROPOSED: "Đề xuất AI (PROPOSED)",
+  APPROVED: "Đã duyệt (APPROVED)",
+  REJECTED: "Đã từ chối (REJECTED)",
+};
 
 function ActionItemRow({
   item,
@@ -354,15 +477,52 @@ function ActionItemRow({
   onUpdated: () => void;
 }) {
   const [isUpdating, setIsUpdating] = React.useState(false);
+  const [updateError, setUpdateError] = React.useState<string | null>(null);
+
+  const approvalState: ActionItemApprovalState =
+    item.approvalState ?? "PROPOSED";
+  const isApproved = approvalState === "APPROVED";
+  const isRejected = approvalState === "REJECTED";
+  const isProposed = approvalState === "PROPOSED";
   const isDone = item.status === "COMPLETED";
 
-  const toggleStatus = async () => {
+  const handleApprovalDecision = async (
+    nextApprovalState: "APPROVED" | "REJECTED",
+  ) => {
     setIsUpdating(true);
+    setUpdateError(null);
+    try {
+      await updateActionItem(item.id, {
+        approvalState: nextApprovalState,
+        ...(nextApprovalState === "REJECTED" ? { status: "CANCELLED" } : {}),
+      });
+      onUpdated();
+    } catch (err) {
+      setUpdateError(getApiErrorMessage(err));
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const toggleStatus = async () => {
+    if (!isApproved) {
+      setUpdateError(
+        isRejected
+          ? "Không thể hoàn thành nhiệm vụ đã bị từ chối (REJECTED)."
+          : "Nhiệm vụ đề xuất bởi AI (PROPOSED) cần được phê duyệt (Approve) trước khi đánh dấu hoàn thành.",
+      );
+      return;
+    }
+
+    setIsUpdating(true);
+    setUpdateError(null);
     try {
       await updateActionItem(item.id, {
         status: isDone ? "PENDING" : "COMPLETED",
       });
       onUpdated();
+    } catch (err) {
+      setUpdateError(getApiErrorMessage(err));
     } finally {
       setIsUpdating(false);
     }
@@ -371,38 +531,107 @@ function ActionItemRow({
   return (
     <div
       data-testid={`action-item-${item.id}`}
-      className="flex items-center justify-between gap-3 rounded-lg border border-[#e2e8e4] p-3 text-xs bg-white"
+      className="space-y-2 rounded-lg border border-[#e2e8e4] bg-white p-3 text-xs"
     >
-      <div className="flex items-center gap-2.5 min-w-0">
-        <button
-          type="button"
-          onClick={toggleStatus}
-          disabled={isUpdating}
-          className="text-[#173b2b] hover:opacity-80 disabled:opacity-50"
-        >
-          {isDone ? (
-            <CheckSquare className="size-4 text-emerald-600" />
-          ) : (
-            <Square className="size-4 text-gray-400" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <button
+            type="button"
+            data-testid={`btn-toggle-action-item-${item.id}`}
+            onClick={toggleStatus}
+            disabled={isUpdating || !isApproved}
+            title={
+              isApproved
+                ? "Đánh dấu hoàn thành / chưa hoàn thành"
+                : "Cần phê duyệt (Approve) nhiệm vụ trước khi hoàn thành"
+            }
+            className="text-[#173b2b] hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isDone ? (
+              <CheckSquare className="size-4 text-emerald-600" />
+            ) : (
+              <Square className="size-4 text-gray-400" />
+            )}
+          </button>
+          <span
+            className={`font-medium ${
+              isDone || isRejected
+                ? "text-gray-400 line-through"
+                : "text-[#17221c]"
+            }`}
+          >
+            {item.title}
+          </span>
+        </div>
+
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Badge
+            tone={
+              isApproved ? "success" : isRejected ? "danger" : "warning"
+            }
+            className="text-[10px]"
+          >
+            {APPROVAL_STATE_LABELS[approvalState] ?? approvalState}
+          </Badge>
+
+          <Badge tone={isDone ? "success" : "neutral"} className="text-[10px]">
+            {item.status}
+          </Badge>
+
+          {isProposed && (
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                data-testid={`btn-approve-action-item-${item.id}`}
+                disabled={isUpdating}
+                onClick={() => handleApprovalDecision("APPROVED")}
+                className="h-6 border-emerald-300 bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-800 hover:bg-emerald-100"
+              >
+                <Check className="size-3" />
+                Phê duyệt
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                data-testid={`btn-reject-action-item-${item.id}`}
+                disabled={isUpdating}
+                onClick={() => handleApprovalDecision("REJECTED")}
+                className="h-6 border-red-200 bg-red-50 px-2 text-[11px] font-semibold text-red-700 hover:bg-red-100"
+              >
+                <X className="size-3" />
+                Từ chối
+              </Button>
+            </div>
           )}
-        </button>
-        <span className={`font-medium ${isDone ? "line-through text-gray-400" : "text-[#17221c]"}`}>
-          {item.title}
-        </span>
+
+          {item.dueAt && (
+            <span className="flex items-center gap-1 text-[10px] text-gray-400">
+              <Clock className="size-3" />
+              Hạn: {formatDateTime(item.dueAt)}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <Badge tone={isDone ? "success" : "neutral"} className="text-[10px]">
-          {item.status}
-        </Badge>
-        {item.dueAt && (
-          <span className="text-[10px] text-gray-400 flex items-center gap-1">
-            <Clock className="size-3" />
-            Hạn: {formatDateTime(item.dueAt)}
-          </span>
-        )}
-      </div>
+      {updateError && (
+        <div
+          role="alert"
+          data-testid={`action-item-error-${item.id}`}
+          className="flex items-center justify-between gap-2 rounded-md border border-red-200 bg-red-50 px-2.5 py-1.5 text-[11px] text-red-700"
+        >
+          <span>{updateError}</span>
+          <button
+            type="button"
+            onClick={() => setUpdateError(null)}
+            className="font-semibold underline hover:no-underline"
+          >
+            Đóng
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-

@@ -29,6 +29,7 @@ export interface ConversationTranscriptItem {
   redactedContent: string;
   sourceType: string;
   summary: ConversationSummaryData | null;
+  errorMessage?: string | null;
 }
 
 export interface CreateTranscriptPayload {

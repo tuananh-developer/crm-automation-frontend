@@ -16,9 +16,13 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  BrainCircuit,
   FileText,
+  MessageSquare,
 } from "lucide-react";
+import { Customer360Tab } from "./Customer360Tab";
 import { CustomerConversationsTab } from "./CustomerConversationsTab";
+import { CustomerFeedbackTab } from "./CustomerFeedbackTab";
 
 import { getApiErrorMessage } from "@/services/api-client";
 import { getCustomer } from "@/services/customer.service";
@@ -144,9 +148,11 @@ function SegmentMembershipCard({
   );
 }
 
+export type CustomerDetailTab = "360" | "conversations" | "feedback" | "overview";
+
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState<"conversations" | "overview">("conversations");
+  const [activeTab, setActiveTab] = React.useState<CustomerDetailTab>("360");
 
   return (
     <div className="space-y-6">
@@ -190,12 +196,31 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
         </CardContent>
       </Card>
 
-      {/* Interactive Tabs Navigation */}
+      {/* Interactive Tabs Navigation (Consistent Enterprise UI) */}
       <div
         role="tablist"
         aria-label="Customer Intelligence Tabs"
         className="flex flex-wrap items-center gap-1.5 border-b border-[#e2e8e4] pb-px text-sm"
       >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "360"}
+          data-testid="tab-customer-360"
+          onClick={() => setActiveTab("360")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "360"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <BrainCircuit className="size-4" />
+          AI Customer 360 (WF05)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
         <button
           type="button"
           role="tab"
@@ -210,6 +235,25 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
         >
           <FileText className="size-4" />
           Biên bản hội thoại AI (WF09)
+          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
+            AI
+          </span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "feedback"}
+          data-testid="tab-customer-feedback"
+          onClick={() => setActiveTab("feedback")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-bold transition-colors ${
+            activeTab === "feedback"
+              ? "border-[#173b2b] text-[#173b2b]"
+              : "border-transparent text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          <MessageSquare className="size-4" />
+          Ý kiến phản hồi & CSAT (WF14)
           <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] text-emerald-800">
             AI
           </span>
@@ -233,9 +277,21 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
       </div>
 
       {/* Tab Panels */}
+      {activeTab === "360" && (
+        <section aria-label="AI Customer 360 Panel">
+          <Customer360Tab customerId={customer.id} />
+        </section>
+      )}
+
       {activeTab === "conversations" && (
         <section aria-label="Customer Conversations Panel">
           <CustomerConversationsTab customerId={customer.id} />
+        </section>
+      )}
+
+      {activeTab === "feedback" && (
+        <section aria-label="Customer Feedback Panel">
+          <CustomerFeedbackTab customerId={customer.id} />
         </section>
       )}
 
@@ -248,114 +304,101 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
                 <Row icon={Mail} label="Email" value={customer.email} />
                 <Row icon={Phone} label="Điện thoại" value={customer.phone ?? "—"} />
                 <Row icon={UserRound} label="Chức danh" value={customer.jobTitle ?? "—"} />
-            <Row
-              icon={Building2}
-              label="Công ty"
-              value={customer.companyName ?? "—"}
-            />
-            <Row
-              icon={Globe}
-              label="Website"
-              value={
-                customer.companyWebsite ? (
-                  <a
-                    href={customer.companyWebsite}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    {customer.companyWebsite}
-                  </a>
-                ) : (
-                  "—"
-                )
-              }
-            />
-            <Row
-              icon={Users}
-              label="Quy mô công ty"
-              value={customer.companySize ?? "—"}
-            />
-            <Row icon={Users} label="Ngành nghề" value={customer.industry ?? "—"} />
-            <Row
-              icon={UserRound}
-              label="Người tạo"
-              value={customer.creator?.name ?? customer.createdBy}
-            />
-          </div>
+                <Row icon={Building2} label="Công ty" value={customer.companyName ?? "—"} />
+                <Row
+                  icon={Globe}
+                  label="Website"
+                  value={
+                    customer.companyWebsite ? (
+                      <a
+                        href={customer.companyWebsite}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline underline-offset-2 text-[#173b2b]"
+                      >
+                        {customer.companyWebsite}
+                      </a>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
+                <Row icon={Users} label="Quy mô công ty" value={customer.companySize ? `${customer.companySize} nhân viên` : "—"} />
+                <Row icon={Users} label="Ngành nghề" value={customer.industry ?? "—"} />
+                <Row icon={UserRound} label="Người tạo" value={customer.creator?.name ?? customer.createdBy} />
+              </div>
 
-          {customer.notes ? (
-            <div className="border-t border-[#edf0ee] pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Ghi chú
-              </p>
-              <p className="mt-1 text-sm break-words text-[#17221c]">
-                {customer.notes}
-              </p>
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-3 p-5">
-          <h3 className="font-bold text-[#17221c]">Lead đã chuyển đổi</h3>
-
-          {customer.convertedLeads?.length ? (
-            <ul className="space-y-2">
-              {customer.convertedLeads.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e2e8e4] bg-[#f6f8f7] px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-[#17221c]">
-                      {[item.firstName, item.lastName].filter(Boolean).join(" ")}
-                    </p>
-                    <p className="break-all text-xs text-gray-500">
-                      {item.email} · Lead ID {item.id.slice(0, 8)}
-                    </p>
-                  </div>
-                  <Badge tone="neutral">{item.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Khách hàng này không liên kết với lead nào.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-[#17221c]">
-          Segment đang thuộc ({customer.segmentCount})
-        </h3>
-
-        {customer.customerSegments?.length ? (
-          <ul className="space-y-3">
-            {customer.customerSegments.map((membership) => (
-              <li key={membership.segmentId}>
-                <SegmentMembershipCard membership={membership} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Card>
-            <CardContent className="px-5 py-8 text-center">
-              <p className="text-sm text-gray-500">
-                Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự
-                động.
-              </p>
-              <Button asChild variant="outline" className="mt-3">
-                <Link href="/segments">Mở Segments</Link>
-              </Button>
+              {customer.notes ? (
+                <div className="border-t border-[#edf0ee] pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Ghi chú
+                  </p>
+                  <p className="mt-1 text-sm break-words text-[#17221c]">
+                    {customer.notes}
+                  </p>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
-        )}
-      </div>
-      </section>
+
+          <Card>
+            <CardContent className="space-y-3 p-5">
+              <h3 className="font-bold text-[#17221c]">Lead đã chuyển đổi</h3>
+
+              {customer.convertedLeads?.length ? (
+                <ul className="space-y-2">
+                  {customer.convertedLeads.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#e2e8e4] bg-[#f6f8f7] px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-[#17221c]">
+                          {[item.firstName, item.lastName].filter(Boolean).join(" ")}
+                        </p>
+                        <p className="break-all text-xs text-gray-500">
+                          {item.email} · Lead ID {item.id.slice(0, 8)}
+                        </p>
+                      </div>
+                      <Badge tone="neutral">{item.status}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Khách hàng này không liên kết với lead nào.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            <h3 className="font-bold text-[#17221c]">
+              Segment đang thuộc ({customer.segmentCount})
+            </h3>
+
+            {customer.customerSegments?.length ? (
+              <ul className="space-y-3">
+                {customer.customerSegments.map((membership) => (
+                  <li key={membership.segmentId}>
+                    <SegmentMembershipCard membership={membership} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Card>
+                <CardContent className="px-5 py-8 text-center">
+                  <p className="text-sm text-gray-500">
+                    Khách hàng chưa thuộc segment nào. Chạy một segment để gán tự động.
+                  </p>
+                  <Button asChild variant="outline" className="mt-3">
+                    <Link href="/segments">Mở Segments</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
       )}
     </div>
   );
