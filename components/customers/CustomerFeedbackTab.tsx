@@ -40,7 +40,7 @@ function isFeedbackStuck(
   if (item.status !== "NEW") return false;
   if (pollingTimedOut) return true;
   const timestamp = new Date(item.createdAt || item.receivedAt).getTime();
-  if (Number.isNaN(timestamp)) return false;
+  if (Number.isNaN(timestamp)) return pollingTimedOut;
   return Date.now() - timestamp > STUCK_THRESHOLD_MS;
 }
 
@@ -92,7 +92,7 @@ export function CustomerFeedbackTab({ customerId }: CustomerFeedbackTabProps) {
       }
 
       if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
-        setIsPollingTimedOut(true);
+        setTimeout(() => setIsPollingTimedOut(true), 0);
         return false;
       }
 

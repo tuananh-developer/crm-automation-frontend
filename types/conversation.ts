@@ -30,6 +30,7 @@ export interface ConversationTranscriptItem {
   sourceType: string;
   summary: ConversationSummaryData | null;
   errorMessage?: string | null;
+  createdAt?: string;
 }
 
 export interface CreateTranscriptPayload {
