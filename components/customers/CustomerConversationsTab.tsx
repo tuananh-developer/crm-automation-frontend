@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  AlertCircle,
   Check,
   CheckSquare,
   Clock,
@@ -37,6 +38,30 @@ import type {
   ConversationTranscriptItem,
 } from "@/types/conversation";
 
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLL_ATTEMPTS = 20; // 60s max automatic polling budget
+const STUCK_THRESHOLD_MS = 60_000; // 60s before transcript processing is considered stuck
+
+function checkTranscriptStuck(
+  transcript: ConversationTranscriptItem | null | undefined,
+  pollingTimedOut: boolean,
+  lastTranscriptId: string | null,
+): boolean {
+  if (lastTranscriptId && pollingTimedOut && !transcript) return true;
+  if (!transcript) return false;
+  if (
+    transcript.processingStatus !== "PENDING" &&
+    transcript.processingStatus !== "PROCESSING"
+  ) {
+    return false;
+  }
+  if (pollingTimedOut) return true;
+  if (!transcript.createdAt) return false;
+  const timestamp = new Date(transcript.createdAt).getTime();
+  if (Number.isNaN(timestamp)) return pollingTimedOut;
+  return Date.now() - timestamp > STUCK_THRESHOLD_MS;
+}
+
 interface CustomerConversationsTabProps {
   customerId: string;
 }
@@ -51,6 +76,8 @@ export function CustomerConversationsTab({
     null,
   );
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(false);
+  const pollAttemptsRef = React.useRef(0);
 
   // Poll latest transcript summary if created
   const {
@@ -59,16 +86,39 @@ export function CustomerConversationsTab({
     isError: isSummaryError,
     error: summaryError,
     refetch,
+    isFetching,
   } = useQuery({
     queryKey: ["conversation-summary", lastTranscriptId],
     queryFn: () =>
       lastTranscriptId ? getTranscriptSummary(lastTranscriptId) : null,
     enabled: Boolean(lastTranscriptId),
     refetchInterval: (query) => {
+      if (query.state.status === "error") {
+        return false;
+      }
       const status = query.state.data?.processingStatus;
-      return status === "PENDING" || status === "PROCESSING" ? 3000 : false;
+      const isPending = status === "PENDING" || status === "PROCESSING";
+
+      if (!isPending) {
+        pollAttemptsRef.current = 0;
+        return false;
+      }
+
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        setTimeout(() => setIsPollingTimedOut(true), 0);
+        return false;
+      }
+
+      pollAttemptsRef.current += 1;
+      return POLL_INTERVAL_MS;
     },
   });
+
+  const handleManualRefresh = () => {
+    pollAttemptsRef.current = 0;
+    setIsPollingTimedOut(false);
+    void refetch();
+  };
 
   const submitMutation = useMutation({
     mutationFn: () =>
@@ -81,6 +131,8 @@ export function CustomerConversationsTab({
       setContent("");
       setIsFormOpen(false);
       setSubmitError(null);
+      pollAttemptsRef.current = 0;
+      setIsPollingTimedOut(false);
       setLastTranscriptId(data.transcriptId);
     },
     onError: (err) => {
@@ -94,6 +146,12 @@ export function CustomerConversationsTab({
     setSubmitError(null);
     submitMutation.mutate();
   };
+
+  const isTranscriptStuck = checkTranscriptStuck(
+    transcriptData,
+    isPollingTimedOut,
+    lastTranscriptId,
+  );
 
   return (
     <div data-testid="customer-conversations-container" className="space-y-6">
@@ -125,8 +183,56 @@ export function CustomerConversationsTab({
             <Plus className="size-4" />
             {isFormOpen ? "Đóng form" : "Ghi nhận hội thoại mới"}
           </Button>
+
+          {lastTranscriptId && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleManualRefresh}
+              disabled={isFetching || isFetchingSummary}
+              title="Làm mới"
+            >
+              <RefreshCw
+                className={`size-4 ${
+                  isFetching || isFetchingSummary ? "animate-spin" : ""
+                }`}
+              />
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Stuck / Timed-out Summary Polling Notice */}
+      {isTranscriptStuck && (
+        <div
+          role="status"
+          data-testid="transcript-polling-timeout-banner"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"
+        >
+          <div className="flex items-center gap-2">
+            <TriangleAlert className="size-4 shrink-0 text-amber-600" />
+            <span>
+              Tiến trình AI tóm lược hội thoại đang xử lý lâu hơn dự kiến. Đã tạm
+              dừng tự động làm mới để tránh quá tải.
+            </span>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleManualRefresh}
+            disabled={isFetching || isFetchingSummary}
+          >
+            <RefreshCw
+              className={`size-3.5 ${
+                isFetching || isFetchingSummary ? "animate-spin" : ""
+              }`}
+            />
+            Kiểm tra lại ngay
+          </Button>
+        </div>
+      )}
 
       {/* PII Redaction Compliance Note */}
       <div className="flex items-center gap-2.5 rounded-lg border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-emerald-900">
@@ -241,8 +347,10 @@ export function CustomerConversationsTab({
       {transcriptData ? (
         <TranscriptDetailCard
           data={transcriptData}
+          isStuck={isTranscriptStuck}
           onActionItemUpdated={() => refetch()}
           onReopenForm={() => setIsFormOpen(true)}
+          onManualRetry={handleManualRefresh}
         />
       ) : lastTranscriptId && isFetchingSummary ? (
         <Card className="p-8 text-center text-gray-500">
@@ -269,7 +377,7 @@ export function CustomerConversationsTab({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => refetch()}
+              onClick={handleManualRefresh}
             >
               <RefreshCw className="size-3.5" />
               Thử tải lại
@@ -294,12 +402,16 @@ export function CustomerConversationsTab({
 
 function TranscriptDetailCard({
   data,
+  isStuck,
   onActionItemUpdated,
   onReopenForm,
+  onManualRetry,
 }: {
   data: ConversationTranscriptItem;
+  isStuck?: boolean;
   onActionItemUpdated: () => void;
   onReopenForm: () => void;
+  onManualRetry?: () => void;
 }) {
   const isDone = data.processingStatus === "COMPLETED";
   const isFailed = data.processingStatus === "FAILED";
@@ -320,9 +432,25 @@ function TranscriptDetailCard({
             <span className="text-sm font-bold text-[#17221c]">
               Kết quả Tóm lược Hội thoại ({data.sourceType})
             </span>
-            <Badge tone={isDone ? "success" : isPending ? "info" : "danger"}>
-              {data.processingStatus}
-            </Badge>
+            {isDone ? (
+              <Badge tone="success">{data.processingStatus}</Badge>
+            ) : isPending && !isStuck ? (
+              <Badge tone="info" className="animate-pulse gap-1 font-medium">
+                <Loader2 className="size-3 animate-spin" />
+                {data.processingStatus}
+              </Badge>
+            ) : isPending && isStuck ? (
+              <Badge
+                tone="warning"
+                data-testid="transcript-stuck-badge"
+                className="gap-1 font-medium"
+              >
+                <AlertCircle className="size-3" />
+                Quá thời gian chờ AI (Stuck)
+              </Badge>
+            ) : (
+              <Badge tone="danger">{data.processingStatus}</Badge>
+            )}
           </div>
 
           {summary?.sentiment && (
@@ -441,6 +569,34 @@ function TranscriptDetailCard({
                   </Button>
                 </div>
               </div>
+            </div>
+          </div>
+        ) : isPending && isStuck ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
+            <span>
+              Tiến trình tóm lược AI chưa phản hồi sau thời gian chờ. Bạn có thể
+              bấm kiểm tra lại trạng thái hoặc ghi nhận lại hội thoại.
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={onManualRetry}
+                className="h-7 px-2.5 text-xs"
+              >
+                <RefreshCw className="size-3" />
+                Kiểm tra lại
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={onReopenForm}
+                className="h-7 px-2.5 text-xs"
+              >
+                Ghi nhận lại
+              </Button>
             </div>
           </div>
         ) : (

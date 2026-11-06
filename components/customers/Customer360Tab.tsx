@@ -70,12 +70,17 @@ function getSourceCoverageMeta(status?: SourceCoverageStatus | string): Coverage
   }
 }
 
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLL_ATTEMPTS = 20; // 60s max budget
+
 interface Customer360TabProps {
   customerId: string;
 }
 
 export function Customer360Tab({ customerId }: Customer360TabProps) {
   const queryClient = useQueryClient();
+  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(false);
+  const pollAttemptsRef = React.useRef(0);
 
   const {
     data: data360,
@@ -88,11 +93,31 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     queryKey: ["customer-360", customerId],
     queryFn: () => getCustomer360(customerId),
     refetchInterval: (query) => {
+      if (query.state.status === "error") {
+        return false;
+      }
       // Auto-poll if a workflow run is actively PENDING
       const runStatus = query.state.data?.latestWorkflowRun?.status;
-      return runStatus === "PENDING" ? 3000 : false;
+      if (runStatus !== "PENDING") {
+        pollAttemptsRef.current = 0;
+        return false;
+      }
+
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        setTimeout(() => setIsPollingTimedOut(true), 0);
+        return false;
+      }
+
+      pollAttemptsRef.current += 1;
+      return POLL_INTERVAL_MS;
     },
   });
+
+  const handleManualRefresh = () => {
+    pollAttemptsRef.current = 0;
+    setIsPollingTimedOut(false);
+    void refetch();
+  };
 
   const [triggerError, setTriggerError] = React.useState<string | null>(null);
 
@@ -103,6 +128,8 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     },
     onSuccess: () => {
       setTriggerError(null);
+      pollAttemptsRef.current = 0;
+      setIsPollingTimedOut(false);
       queryClient.invalidateQueries({ queryKey: ["customer-360", customerId] });
     },
     onError: (err: unknown) => {
@@ -203,7 +230,7 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => refetch()}
+            onClick={handleManualRefresh}
             disabled={isFetching}
             title="Tải lại dữ liệu"
           >
@@ -211,6 +238,35 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
           </Button>
         </div>
       </div>
+
+      {/* Stuck / Timed-out 360 Polling Notice */}
+      {isPollingTimedOut && latestWorkflowRun?.status === "PENDING" && (
+        <div
+          role="status"
+          data-testid="customer-360-polling-timeout-banner"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-4 shrink-0 text-amber-600" />
+            <span>
+              Tiến trình AI Customer 360 đang xử lý lâu hơn dự kiến. Đã tạm
+              dừng tự động làm mới để tránh quá tải.
+            </span>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleManualRefresh}
+            disabled={isFetching}
+          >
+            <RefreshCw
+              className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
+            />
+            Kiểm tra lại ngay
+          </Button>
+        </div>
+      )}
 
       {/* Trigger or Run Failure Alert Banner */}
       {(triggerError || (latestWorkflowRun?.status === "FAILED" && !aiSummary)) && (
