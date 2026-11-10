@@ -142,7 +142,7 @@ function EditLeadForm({
           </div>
           <div>
             <h3 className="text-base font-bold text-gray-900">
-              Edit Lead: {lead.firstName} {lead.lastName}
+              Edit Lead: {[lead.firstName, lead.lastName].filter(Boolean).join(" ")}
             </h3>
             <p className="text-xs text-gray-500">
               Update status, owner assignment, and verified firmographics
@@ -247,6 +247,7 @@ function EditLeadForm({
               </Label>
               <Input
                 id="editLastName"
+                placeholder="e.g. Doe"
                 value={formData.lastName || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
