@@ -27,6 +27,15 @@ export function ApplyConfirmationModal({
   selectedFindings,
   isApplying,
 }: ApplyConfirmationModalProps) {
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+
+  React.useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (isOpen && !dialog.open) dialog.showModal();
+    if (!isOpen && dialog.open) dialog.close();
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const totalCount = selectedFindings.length;
@@ -40,7 +49,21 @@ export function ApplyConfirmationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in-20">
+    <dialog
+      ref={dialogRef}
+      data-dc-modal
+      aria-labelledby="data-cleaning-confirm-title"
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!isApplying) onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget && !isApplying) onClose();
+      }}
+      onClose={() => {
+        if (isOpen) onClose();
+      }}
+    >
       <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-gray-100 space-y-5 animate-in zoom-in-95">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-gray-100 pb-3">
@@ -160,6 +183,6 @@ export function ApplyConfirmationModal({
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

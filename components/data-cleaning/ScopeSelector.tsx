@@ -35,7 +35,7 @@ export function ScopeSelector({ onStartScan, isLoading }: ScopeSelectorProps) {
   };
 
   return (
-    <Card className="border border-emerald-100/80 bg-white shadow-xs">
+    <Card data-dc-scope className="border border-emerald-100/80 bg-white shadow-xs">
       <CardHeader className="pb-3 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -57,7 +57,10 @@ export function ScopeSelector({ onStartScan, isLoading }: ScopeSelectorProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Option 1: ALL */}
-            <div
+            <button
+              type="button"
+              data-scope-option
+              aria-pressed={scope === "ALL"}
               onClick={() => setScope("ALL")}
               className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-start gap-3 ${
                 scope === "ALL"
@@ -85,10 +88,13 @@ export function ScopeSelector({ onStartScan, isLoading }: ScopeSelectorProps) {
                   Scan the entire lead database. Recommended for monthly quality audits and deduplication.
                 </p>
               </div>
-            </div>
+            </button>
 
             {/* Option 2: FILTER */}
-            <div
+            <button
+              type="button"
+              data-scope-option
+              aria-pressed={scope === "FILTER"}
               onClick={() => setScope("FILTER")}
               className={`cursor-pointer rounded-xl border p-3.5 transition-all flex items-start gap-3 ${
                 scope === "FILTER"
@@ -116,7 +122,7 @@ export function ScopeSelector({ onStartScan, isLoading }: ScopeSelectorProps) {
                   Focus scan on specific pipeline stages, search keywords, or smaller lead batches.
                 </p>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Filter options if FILTER selected */}

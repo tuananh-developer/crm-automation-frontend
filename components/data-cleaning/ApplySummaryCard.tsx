@@ -9,7 +9,7 @@ interface ApplySummaryCardProps {
 
 export function ApplySummaryCard({ response, onDismiss }: ApplySummaryCardProps) {
   return (
-    <Card className="border border-emerald-200 bg-white shadow-md animate-in fade-in-50">
+    <Card data-dc-summary className="border border-emerald-200 bg-white shadow-md animate-in fade-in-50">
       <CardHeader className="pb-3 border-b border-gray-100 flex flex-row items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">

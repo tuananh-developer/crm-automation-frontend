@@ -131,7 +131,7 @@ export function FindingsTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-dc-findings>
       {/* Filtering Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200/80 shadow-xs">
         <div className="flex flex-wrap items-center gap-2 text-xs">
