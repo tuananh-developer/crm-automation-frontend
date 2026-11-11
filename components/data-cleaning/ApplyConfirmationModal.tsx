@@ -72,7 +72,7 @@ export function ApplyConfirmationModal({
               <ShieldCheck className="size-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900">
+              <h3 id="data-cleaning-confirm-title" className="text-base font-bold text-gray-900">
                 Confirm Data Cleaning Execution
               </h3>
               <p className="text-xs text-gray-500">

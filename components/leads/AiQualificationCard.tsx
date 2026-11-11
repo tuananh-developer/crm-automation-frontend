@@ -105,9 +105,12 @@ export function AiQualificationCard({
     },
   });
 
+  const rawConfidence = Number(qualification?.confidence);
   const confidencePercentage =
-    qualification?.confidence !== null && qualification?.confidence !== undefined
-      ? Math.round(Number(qualification.confidence) * 100)
+    qualification?.confidence !== null &&
+    qualification?.confidence !== undefined &&
+    Number.isFinite(rawConfidence)
+      ? Math.round(rawConfidence * 100)
       : null;
   const confidenceWidth =
     confidencePercentage === null

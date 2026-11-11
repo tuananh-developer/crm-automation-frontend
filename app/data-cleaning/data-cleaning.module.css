@@ -729,7 +729,8 @@
 }
 
 .page :global([data-dc-status="FAILED"]),
-.page :global([data-dc-status="CANCELLED"]) {
+.page :global([data-dc-status="CANCELLED"]),
+.page :global([data-dc-status="PARTIAL"]) {
   border-color: color-mix(in oklab, var(--wf08-red) 32%, var(--wf08-rule));
   background: var(--wf08-red-soft);
   color: var(--wf08-red);
@@ -831,23 +832,7 @@
   outline-offset: 2px;
 }
 
-.page :global([data-dc-modal] button:last-child) {
-  min-height: 2.75rem;
-  border-radius: var(--wf08-control-radius);
-  background: var(--wf08-amber);
-  color: var(--wf08-paper);
-  font-family: var(--wf08-font);
-  font-weight: 600;
-}
 
-.page :global([data-dc-modal] button:last-child:hover) {
-  background: var(--wf08-ink);
-}
-
-.page :global([data-dc-modal] button:disabled) {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
 
 @media (max-width: 60rem) {
   .headerInner {
