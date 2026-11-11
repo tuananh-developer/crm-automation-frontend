@@ -73,6 +73,11 @@ export default function DataCleaningPage() {
   }, [activeWorkflowRunId]);
 
   const handleStartScan = async (req: CreateScanRequest) => {
+    // Stop displaying and polling the previous run before accepting a new run ID.
+    // Otherwise old finding IDs can be submitted against the newly selected run.
+    setActiveWorkflowRunId(null);
+    setScanData(null);
+    setIsPolling(false);
     setIsStartingScan(true);
     setErrorMessage(null);
     setApplyResult(null);
