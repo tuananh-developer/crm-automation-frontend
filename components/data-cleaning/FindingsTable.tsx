@@ -14,14 +14,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { DataCleaningFinding, IssueType, Severity } from "@/types/data-cleaning";
+import type { DataCleaningFinding, IssueType, Severity, DataCleaningScanResponse } from "@/types/data-cleaning";
 
 interface FindingsTableProps {
   findings: DataCleaningFinding[];
+  scanStatus: DataCleaningScanResponse["status"];
   selectedIds: string[];
   onToggleSelect: (id: string) => void;
-  onSelectAllSafe: () => void;
-  onSelectAll: () => void;
+  onSelectAllSafe: (visibleIds: string[]) => void;
+  onSelectAll: (visibleIds: string[]) => void;
   onClearSelection: () => void;
   onOpenApplyModal: () => void;
   isApplying: boolean;
@@ -29,6 +30,7 @@ interface FindingsTableProps {
 
 export function FindingsTable({
   findings,
+  scanStatus,
   selectedIds,
   onToggleSelect,
   onSelectAllSafe,
@@ -54,9 +56,18 @@ export function FindingsTable({
     });
   }, [findings, dismissedIds, severityFilter, issueTypeFilter, safeOnly]);
 
-  const safeCount = findings.filter((f) => f.safeToApply && !dismissedIds.has(f.id)).length;
+  const hasProposedValue = (finding: DataCleaningFinding) =>
+    finding.proposedValue !== null && finding.proposedValue !== undefined;
+  const selectableVisibleIds = visibleFindings
+    .filter(hasProposedValue)
+    .map((finding) => finding.id);
+  const safeVisibleIds = visibleFindings
+    .filter((finding) => finding.safeToApply && hasProposedValue(finding))
+    .map((finding) => finding.id);
+  const safeCount = safeVisibleIds.length;
 
   const handleDismiss = (id: string) => {
+    if (selectedIds.includes(id)) onToggleSelect(id);
     setDismissedIds((prev) => new Set(prev).add(id));
   };
 
@@ -113,17 +124,20 @@ export function FindingsTable({
   };
 
   if (!findings || findings.length === 0) {
+    const isComplete = scanStatus === "SUCCESS";
     return (
-      <Card className="border border-emerald-200 bg-emerald-50/20 shadow-xs">
+      <Card className={isComplete ? "border border-emerald-200 bg-emerald-50/20 shadow-xs" : "border border-amber-200 bg-amber-50/20 shadow-xs"}>
         <CardContent className="p-8 text-center space-y-2">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800">
-            <CheckCircle2 className="size-6" />
+          <div className={isComplete ? "mx-auto flex size-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800" : "mx-auto flex size-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-800"}>
+            {isComplete ? <CheckCircle2 className="size-6" /> : <AlertTriangle className="size-6" />}
           </div>
           <h3 className="text-sm font-bold text-gray-900">
-            Pipeline Clean — No Quality Issues Detected
+            {isComplete ? "Pipeline Clean — No Quality Issues Detected" : "No findings returned for this partial scan"}
           </h3>
           <p className="text-xs text-gray-500 max-w-md mx-auto">
-            All scanned lead records satisfy email validation, URL formats, phone standards, and uniqueness criteria.
+            {isComplete
+              ? "All scanned lead records satisfy the checks completed by this workflow."
+              : "The workflow did not complete the full scan. This result is not evidence that the entire selected dataset is clean."}
           </p>
         </CardContent>
       </Card>
@@ -186,7 +200,7 @@ export function FindingsTable({
           <Button
             variant="outline"
             size="sm"
-            onClick={onSelectAllSafe}
+            onClick={() => onSelectAllSafe(safeVisibleIds)}
             className="h-8 text-xs border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-semibold"
           >
             <ShieldCheck className="size-3.5 mr-1" />
@@ -196,7 +210,7 @@ export function FindingsTable({
           <Button
             variant="outline"
             size="sm"
-            onClick={onSelectAll}
+            onClick={() => onSelectAll(selectableVisibleIds)}
             className="h-8 text-xs text-gray-700 hover:bg-gray-100"
           >
             Select All ({visibleFindings.length})
@@ -224,11 +238,12 @@ export function FindingsTable({
                 <input
                   type="checkbox"
                   checked={
-                    visibleFindings.length > 0 &&
-                    visibleFindings.every((f) => selectedIds.includes(f.id))
+                    selectableVisibleIds.length > 0 &&
+                    selectableVisibleIds.every((id) => selectedIds.includes(id))
                   }
+                  disabled={selectableVisibleIds.length === 0}
                   onChange={(e) => {
-                    if (e.target.checked) onSelectAll();
+                    if (e.target.checked) onSelectAll(selectableVisibleIds);
                     else onClearSelection();
                   }}
                   className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
