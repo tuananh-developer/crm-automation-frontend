@@ -21,6 +21,9 @@
   --wf08-mono: var(--font-geist-mono), ui-monospace, monospace;
   --wf08-radius: 10px;
   --wf08-control-radius: 6px;
+  --dur-micro: 90ms;
+  --dur-short: 160ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
 }
 
 :global(html),
@@ -81,7 +84,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  transition: background-color 120ms ease-out, color 120ms ease-out;
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
 }
 
 .backButton:hover,
@@ -483,17 +486,36 @@
   color: var(--wf08-ink-2);
   text-align: left;
   cursor: pointer;
-  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
 }
 
 .page :global([data-dc-scope] [data-scope-option]:hover) {
   background: var(--wf08-panel);
 }
 
-.page :global([data-dc-scope] [data-scope-option][aria-checked="true"]) {
+.page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
   border-color: var(--wf08-amber);
   background: var(--wf08-amber-soft);
   color: var(--wf08-ink);
+}
+
+.page :global([data-dc-scope] [data-scope-option] > div:first-child) {
+  border-color: var(--wf08-rule) !important;
+  background: var(--wf08-paper) !important;
+  color: var(--wf08-muted);
+}
+
+.page :global([data-dc-scope] [data-scope-option][aria-pressed="true"] > div:first-child) {
+  border-color: var(--wf08-amber) !important;
+  background: var(--wf08-amber) !important;
+}
+
+.page :global([data-dc-scope] [data-scope-option] > div:first-child span) {
+  background: var(--wf08-paper) !important;
+}
+
+.page :global([data-dc-scope] [data-scope-option] svg) {
+  color: var(--wf08-blue) !important;
 }
 
 .page :global([data-dc-scope] [data-scope-option]:focus-visible) {
@@ -538,7 +560,7 @@
   font-family: var(--wf08-font);
   font-size: 0.875rem !important;
   font-weight: 600 !important;
-  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
 }
 
 .page :global([data-dc-scope] button[type="submit"]:hover) {

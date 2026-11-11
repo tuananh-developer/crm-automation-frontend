@@ -318,7 +318,7 @@ export default function DataCleaningPage() {
           </section>
         )}
 
-        {scanData && scanData.status !== "PENDING" && scanData.status !== "RUNNING" && (
+        {scanData && scanData.status !== "PENDING" && scanData.status !== "RUNNING" && scanData.status !== "FAILED" && scanData.status !== "CANCELLED" && (
           <section className={styles.findingsSection}>
             <div className={styles.sectionHeading}>
               <div>

@@ -21,6 +21,9 @@
   --wf01-mono: var(--font-geist-mono), ui-monospace, monospace;
   --wf01-radius: 10px;
   --wf01-control-radius: 6px;
+  --dur-micro: 90ms;
+  --dur-short: 160ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
 }
 
 :global(html),
@@ -110,7 +113,7 @@
   font-family: var(--wf01-font);
   font-size: 0.875rem;
   font-weight: 600;
-  transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 100ms ease-out;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
 }
 
 .runButton svg,
@@ -371,7 +374,7 @@
 .historyToggle svg {
   width: 0.95rem;
   height: 0.95rem;
-  transition: transform 120ms ease-out;
+  transition: transform var(--dur-short) var(--ease-out);
 }
 
 .chevronOpen {
