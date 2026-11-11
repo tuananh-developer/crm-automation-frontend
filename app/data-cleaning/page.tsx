@@ -33,6 +33,7 @@ export default function DataCleaningPage() {
   const [scanData, setScanData] = React.useState<DataCleaningScanResponse | null>(null);
   const [isStartingScan, setIsStartingScan] = React.useState(false);
   const [isPolling, setIsPolling] = React.useState(false);
+  const [pollingRevision, setPollingRevision] = React.useState(0);
   const [selectedFindingIds, setSelectedFindingIds] = React.useState<string[]>([]);
   const [isApplyModalOpen, setIsApplyModalOpen] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
@@ -70,7 +71,7 @@ export default function DataCleaningPage() {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [activeWorkflowRunId]);
+  }, [activeWorkflowRunId, pollingRevision]);
 
   const handleStartScan = async (req: CreateScanRequest) => {
     // Stop displaying and polling the previous run before accepting a new run ID.
@@ -85,6 +86,7 @@ export default function DataCleaningPage() {
 
     try {
       const res = await dataCleaningService.startScan(req);
+      setIsPolling(true);
       setActiveWorkflowRunId(res.workflowRunId);
     } catch (err) {
       setErrorMessage(getApiErrorMessage(err));
@@ -99,6 +101,12 @@ export default function DataCleaningPage() {
       const data = await dataCleaningService.getScan(activeWorkflowRunId);
       setScanData(data);
       setErrorMessage(null);
+      if (data.status === "PENDING" || data.status === "RUNNING") {
+        setIsPolling(true);
+        setPollingRevision((revision) => revision + 1);
+      } else {
+        setIsPolling(false);
+      }
     } catch (err) {
       setErrorMessage(getApiErrorMessage(err));
     }
@@ -110,20 +118,12 @@ export default function DataCleaningPage() {
     );
   };
 
-  const handleSelectAllSafe = () => {
-    if (!scanData?.findings) return;
-    const safeIds = scanData.findings
-      .filter((finding) => finding.safeToApply && !!finding.proposedValue)
-      .map((finding) => finding.id);
-    setSelectedFindingIds(safeIds);
+  const handleSelectAllSafe = (visibleIds: string[]) => {
+    setSelectedFindingIds(visibleIds);
   };
 
-  const handleSelectAll = () => {
-    if (!scanData?.findings) return;
-    const allIds = scanData.findings
-      .filter((finding) => !!finding.proposedValue)
-      .map((finding) => finding.id);
-    setSelectedFindingIds(allIds);
+  const handleSelectAll = (visibleIds: string[]) => {
+    setSelectedFindingIds(visibleIds);
   };
 
   const handleClearSelection = () => {
@@ -338,6 +338,8 @@ export default function DataCleaningPage() {
             </div>
 
             <FindingsTable
+              key={activeWorkflowRunId ?? scanData.workflowRunId}
+              scanStatus={scanData.status}
               findings={findings}
               selectedIds={selectedFindingIds}
               onToggleSelect={handleToggleSelect}
