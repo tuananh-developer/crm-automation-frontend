@@ -170,7 +170,7 @@ export default function NextBestActionsPage() {
                   </div>
                   <div>
                     <span className={styles.meta}>Current status</span>
-                    <p className={styles.rowTitle}>{acceptedRun.status}</p>
+                    <p className={styles.rowTitle}>{acceptedRun.status.toLowerCase().replaceAll("_", " ")}</p>
                   </div>
                 </div>
               ) : (
@@ -214,7 +214,7 @@ export default function NextBestActionsPage() {
                 <div className={styles.resultTopline}>
                   <div>
                     <span className={styles.meta}>Recommendation / {recommendation.entityType}</span>
-                    <h3 className={styles.sectionTitle}>{recommendation.status.replaceAll("_", " ")}</h3>
+                    <h3 className={styles.sectionTitle}>{recommendation.status.toLowerCase().replaceAll("_", " ")}</h3>
                   </div>
                   <span className={recommendation.requiresHumanApproval ? styles.statusAmber : styles.statusGreen}>
                     {recommendation.requiresHumanApproval ? "Human approval required" : "No approval gate"}
@@ -224,7 +224,7 @@ export default function NextBestActionsPage() {
                   <article className={styles.recommendationCard} key={item.actionCode}>
                     <div className={styles.recommendationHeader}>
                       <div>
-                        <span className={styles.meta}>RANK {item.rank}</span>
+                        <span className={styles.meta}>Rank {item.rank}</span>
                         <h4 className={styles.rowTitle}>{actionNames[item.actionCode] ?? item.actionCode.replaceAll("_", " ").toLowerCase()}</h4>
                       </div>
                       <span className={styles.statusBlue}>{Math.round(item.confidence * 100)}% confidence</span>
@@ -237,7 +237,7 @@ export default function NextBestActionsPage() {
                     </div>
                   </article>
                 ))}
-                <p className={styles.meta}>RUN {recommendation.workflowRunId} / {new Date(recommendation.createdAt).toLocaleString()}</p>
+                <p className={styles.meta}>Run {recommendation.workflowRunId} / {new Date(recommendation.createdAt).toLocaleString()}</p>
               </div>
             )}
           </div>
