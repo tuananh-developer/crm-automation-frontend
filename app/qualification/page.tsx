@@ -41,14 +41,13 @@ export default function QualificationPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <div className={styles.kicker}>T12 · WF01 / Lead intelligence</div>
             <h1 className={styles.screenTitle}>Qualification desk.</h1>
             <p className={styles.screenDescription}>
               Choose a lead, run the qualification workflow, then review the model decision, confidence, and reasoning before the pipeline moves.
             </p>
           </div>
           <div className={styles.headMetric}>
-            <span className={styles.meta}>CURRENT SCOPE</span>
+            <span className={styles.meta}>Current scope</span>
             <strong>{leadsQuery.isLoading ? "—" : leadsQuery.data?.meta?.total ?? leads.length}</strong>
             <span>lead records</span>
           </div>
