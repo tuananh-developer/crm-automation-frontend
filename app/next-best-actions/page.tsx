@@ -87,7 +87,7 @@ export default function NextBestActionsPage() {
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Choose the next move.</h1>
             <p className={styles.screenDescription}>
-              Ask the workflow to rank evidence-backed actions for one Lead or Customer. Recommendations stay advisory; the backend enforces the approval boundary.
+              Request ranked actions grounded in evidence, with approval kept explicit.
             </p>
           </div>
           <div className={styles.headMetric}>
