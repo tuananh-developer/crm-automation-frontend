@@ -43,7 +43,7 @@ export default function QualificationPage() {
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Qualification desk.</h1>
             <p className={styles.screenDescription}>
-              Choose a lead, run the qualification workflow, then review the model decision, confidence, and reasoning before the pipeline moves.
+              Choose a lead, review its evidence, and decide whether it qualifies.
             </p>
           </div>
           <div className={styles.headMetric}>
