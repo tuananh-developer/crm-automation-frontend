@@ -91,7 +91,7 @@ export default function SalesMeetingsPage() {
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Bring the meeting into focus.</h1>
             <p className={styles.screenDescription}>
-              Submit a transcript with its Lead or Customer context. The backend redacts the transcript before it is persisted and dispatched for analysis.
+              Turn meeting transcripts into redacted summaries and reviewable commitments.
             </p>
           </div>
           <div className={styles.headMetric}>
