@@ -2076,3 +2076,31 @@
     animation: none;
   }
 }
+
+
+.skipLink {
+  position: fixed;
+  top: 0.8rem;
+  left: calc(var(--desk-sidebar-width) + 0.8rem);
+  z-index: 300;
+  transform: translateY(calc(-100% - 1rem));
+  border-radius: 0.65rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--desk-green);
+  color: white;
+  font: 600 0.84rem/1.2 var(--desk-font);
+  text-decoration: none;
+  transition: transform 120ms ease;
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--desk-rail-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 76rem) {
+  .skipLink {
+    left: 0.8rem;
+  }
+}
