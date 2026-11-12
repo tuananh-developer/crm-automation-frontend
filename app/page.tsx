@@ -92,7 +92,7 @@ export default function DashboardPage() {
           <div className={styles.dashboardHeroCopy}>
             <h1 className={styles.screenTitle}>See the signal.<br />Move the pipeline.</h1>
             <p className={styles.screenDescription}>
-              Five owned workflows, one operating desk. Start with a real record, follow its evidence, and keep every consequential action reviewable.
+              Five workflows, one reviewable operating desk. Move each record with evidence and human review.
             </p>
             <div className={styles.heroActions}>
               <Link className={styles.primaryButton} href="/leads">
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                         <h3 className={styles.rowTitle}>{leadName(lead)}</h3>
                         <p className={styles.rowDescription}>{lead.companyName || "Company not provided"} / {lead.email}</p>
                       </div>
-                      <span className={styles.status}>{lead.status.replaceAll("_", " ")}</span>
+                      <span className={styles.status}>{lead.status.toLowerCase().replaceAll("_", " ")}</span>
                     </Link>
                   ))}
                 </div>
