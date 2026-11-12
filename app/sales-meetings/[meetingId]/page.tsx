@@ -74,11 +74,11 @@ export default function SalesMeetingDetailPage() {
           <>
             <section className={styles.meetingOverview}>
               <div>
-                <span className={styles.meta}>MEETING / {meeting.id}</span>
+                <span className={styles.meta}>Meeting / {meeting.id}</span>
                 <h2>{meeting.meetingPurpose || "Sales meeting"}</h2>
                 <p>{meeting.leadId ? `Lead ${meeting.leadId}` : `Customer ${meeting.customerId}`}</p>
               </div>
-              <span className={`${styles.status} ${statusClass(meeting.status)}`}>{meeting.status}</span>
+              <span className={`${styles.status} ${statusClass(meeting.status)}`}>{meeting.status.toLowerCase().replaceAll("_", " ")}</span>
             </section>
 
             <section className={styles.statStrip} aria-label="Meeting processing status">
@@ -199,7 +199,7 @@ export default function SalesMeetingDetailPage() {
                             <h3>{item.title}</h3>
                             <p>{item.description || "No additional description returned."}</p>
                           </div>
-                          <span className={`${styles.status} ${statusClass(item.status)}`}>{item.status.replaceAll("_", " ")}</span>
+                          <span className={`${styles.status} ${statusClass(item.status)}`}>{item.status.toLowerCase().replaceAll("_", " ")}</span>
                         </div>
                         {item.evidence && <blockquote>{item.evidence}</blockquote>}
                         <div className={styles.actionItemMeta}>
