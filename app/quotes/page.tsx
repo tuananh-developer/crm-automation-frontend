@@ -145,7 +145,6 @@ export default function QuotesPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <div className={styles.kicker}>T12 · WF12 / Commercial workflow</div>
             <h1 className={styles.screenTitle}>Shape the proposal.</h1>
             <p className={styles.screenDescription}>
               Select catalog items and quantities, add the commercial context, and let the backend calculate the quote. AI drafts the proposal; Admin approval remains a separate decision.
