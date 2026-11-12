@@ -38,7 +38,7 @@ export function WorkspaceHeader() {
           </span>
           <span className={styles.brandCopy}>
             <strong>Signal Desk</strong>
-            <span>CRM · Revenue operations</span>
+            <span>CRM / Revenue operations</span>
           </span>
         </Link>
 
