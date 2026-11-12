@@ -84,12 +84,12 @@ export default function QuotesPage() {
     if (entityType === "Lead") {
       return (leadsQuery.data?.data ?? []).map((lead) => ({
         id: lead.id,
-        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} · ${lead.companyName || lead.email}`,
+        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} / ${lead.companyName || lead.email}`,
       }));
     }
     return (customersQuery.data?.data ?? []).map((customer) => ({
       id: customer.id,
-      label: `${customer.name} · ${customer.companyName || customer.email}`,
+      label: `${customer.name} / ${customer.companyName || customer.email}`,
     }));
   }, [entityType, leadsQuery.data?.data, customersQuery.data?.data]);
 
@@ -201,7 +201,7 @@ export default function QuotesPage() {
                               <input type="checkbox" checked={quantity > 0} disabled={differentCurrency} onChange={() => updateQuantity(item, quantity > 0 ? "0" : "1")} />
                               <span>
                                 <strong>{item.name}</strong>
-                                <small>{item.sku} · {item.currency}</small>
+                                <small>{item.sku} / {item.currency}</small>
                               </span>
                             </label>
                             <div className={styles.catalogPrice}>
@@ -263,7 +263,7 @@ export default function QuotesPage() {
                     <button className={(selectedQuoteId === quote.id || activeQuote?.id === quote.id) ? styles.quoteRowActive : styles.quoteRow} type="button" key={quote.id} onClick={() => setSelectedQuoteId(quote.id)}>
                       <span className={styles.rowMain}>
                         <strong className={styles.rowTitle}>{quote.title || "Untitled proposal"}</strong>
-                        <small className={styles.rowDescription}>{quote.currency} · {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : "Date unavailable"}</small>
+                        <small className={styles.rowDescription}>{quote.currency} / {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : "Date unavailable"}</small>
                       </span>
                       <span className={quoteStatusClass(quote.status)}>{quote.status.replaceAll("_", " ")}</span>
                     </button>
