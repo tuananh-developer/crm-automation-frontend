@@ -1,3 +1,5 @@
+/* Hallmark · shape: CRM app screens · genre: modern-minimal · theme: Console (paper) · scope: T12-WF01/WF08/WF10/WF11/WF12 · navigation: shared Signal Desk · signature: evidence ledger and human decisions · states: loading, empty, error, accepted, processing, completed, failed, confirmed, rejected · v1 */
+ /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · weakest: E, workflow actions are grouped around their actual records rather than trend decoration. */
 :global(:root) {
   --desk-paper: oklch(98% 0.006 85);
   --desk-panel: oklch(96.5% 0.008 82);
@@ -31,8 +33,7 @@
   top: 0;
   z-index: 50;
   border-bottom: 1px solid var(--desk-rule);
-  background: color-mix(in oklab, var(--desk-paper) 96%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--desk-paper);
 }
 
 .topbarInner {
@@ -262,9 +263,9 @@
 
 .meta {
   color: var(--desk-muted);
-  font-family: var(--desk-mono);
+  font-family: var(--desk-font);
   font-size: 0.73rem;
-  font-variant-numeric: tabular-nums;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
@@ -770,7 +771,6 @@
 }
 
 
-/* Hallmark · app screen additions · theme: Console (paper) · signal-first layout, no ornamental metrics */
 .dashboardHero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
