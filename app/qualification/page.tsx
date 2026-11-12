@@ -114,7 +114,7 @@ export default function QualificationPage() {
                   <div>
                     <span className={styles.meta}>SELECTED RECORD</span>
                     <h2>{displayName(selectedLead)}</h2>
-                    <p>{selectedLead.companyName || "Company not provided"} · {selectedLead.email}</p>
+                    <p>{selectedLead.companyName || "Company not provided"} / {selectedLead.email}</p>
                   </div>
                   <LeadStatusBadge status={selectedLead.status} />
                 </div>
