@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileText, Plus, Scale, ShieldCheck } from "lucide-react";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
@@ -70,17 +70,11 @@ export default function QuotesPage() {
     ? visibleQuotes.find((quote) => quote.workflowRunId === activeRunId) ?? null
     : null;
 
-  useEffect(() => {
-    if (activeQuote) {
-      setSelectedQuoteId(activeQuote.id);
-      setActiveRunId(null);
-    }
-  }, [activeQuote]);
-
+  const displayedQuoteId = activeQuote?.id ?? selectedQuoteId;
   const detailQuery = useQuery({
-    queryKey: ["quote", selectedQuoteId],
-    queryFn: () => t12WorkflowService.getQuote(selectedQuoteId!),
-    enabled: Boolean(selectedQuoteId),
+    queryKey: ["quote", displayedQuoteId],
+    queryFn: () => t12WorkflowService.getQuote(displayedQuoteId!),
+    enabled: Boolean(displayedQuoteId),
   });
 
   const entityOptions = useMemo(() => {
@@ -227,7 +221,7 @@ export default function QuotesPage() {
                   <textarea className={styles.textArea} value={requirements} onChange={(event) => setRequirements(event.target.value)} maxLength={10000} placeholder="Describe the customer context, solution scope, constraints, or outcomes the proposal should address." />
                   <span className={styles.fieldHelp}>{requirements.length.toLocaleString()} / 10,000 characters</span>
                 </label>
-                {activeRunId && (
+                {activeRunId && !activeQuote && (
                   <div className={styles.infoPanel}>
                     <Scale size={17} />
                     <span>Waiting for the workflow to persist a quote for run <code className={styles.codeText}>{activeRunId}</code>. This page checks the quote list automatically.</span>
@@ -264,7 +258,7 @@ export default function QuotesPage() {
               ) : (
                 <div className={styles.rowList}>
                   {visibleQuotes.map((quote) => (
-                    <button className={selectedQuoteId === quote.id ? styles.quoteRowActive : styles.quoteRow} type="button" key={quote.id} onClick={() => setSelectedQuoteId(quote.id)}>
+                    <button className={(selectedQuoteId === quote.id || activeQuote?.id === quote.id) ? styles.quoteRowActive : styles.quoteRow} type="button" key={quote.id} onClick={() => setSelectedQuoteId(quote.id)}>
                       <span className={styles.rowMain}>
                         <strong className={styles.rowTitle}>{quote.title || "Untitled proposal"}</strong>
                         <small className={styles.rowDescription}>{quote.currency} · {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : "Date unavailable"}</small>
