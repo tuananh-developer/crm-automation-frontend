@@ -90,9 +90,9 @@ export default function DashboardPage() {
       <main className={styles.screen}>
         <section className={styles.dashboardHero}>
           <div className={styles.dashboardHeroCopy}>
-            <h1 className={styles.screenTitle}>See the signal.<br />Move the pipeline.</h1>
+            <h1 className={styles.screenTitle}>Revenue work, in one view.</h1>
             <p className={styles.screenDescription}>
-              Five workflows, one reviewable operating desk. Move each record with evidence and human review.
+              Review lead intelligence, workflow outcomes, and commercial decisions in one workspace.
             </p>
             <div className={styles.heroActions}>
               <Link className={styles.primaryButton} href="/leads">
@@ -148,7 +148,7 @@ export default function DashboardPage() {
             <h2 className={styles.sectionTitle}>Your workstreams</h2>
             <p className={styles.sectionDescription}>Launch the workflow that matches the decision in front of you.</p>
           </div>
-          <span className={styles.meta}>T12 / 01—05</span>
+          <span className={styles.meta}>Five owned workflows</span>
         </div>
 
         <section className={styles.workflowGrid} aria-label="Tuấn Anh owned workflows">
@@ -217,15 +217,15 @@ export default function DashboardPage() {
             <div className={styles.panelBody}>
               <div className={styles.principleList}>
                 <div>
-                  <span className={styles.principleMark}>01</span>
+                  <span className={styles.principleMark}>Evidence</span>
                   <div><strong>Evidence before action</strong><p>Recommendations and corrections expose their source before an operator decides.</p></div>
                 </div>
                 <div>
-                  <span className={styles.principleMark}>02</span>
+                  <span className={styles.principleMark}>Policy</span>
                   <div><strong>Backend owns policy</strong><p>Pricing, permissions, validation, idempotency, and final writes stay server-side.</p></div>
                 </div>
                 <div>
-                  <span className={styles.principleMark}>03</span>
+                  <span className={styles.principleMark}>People</span>
                   <div><strong>Human approval stays visible</strong><p>Uncertain or consequential actions are presented as decisions, not silent automation.</p></div>
                 </div>
               </div>
