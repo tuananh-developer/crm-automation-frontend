@@ -95,7 +95,7 @@ export default function SalesMeetingsPage() {
             </p>
           </div>
           <div className={styles.headMetric}>
-            <span className={styles.meta}>INPUT LIMIT</span>
+            <span className={styles.meta}>Input limit</span>
             <strong>150k</strong>
             <span>characters maximum</span>
           </div>
