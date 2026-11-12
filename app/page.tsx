@@ -90,7 +90,6 @@ export default function DashboardPage() {
       <main className={styles.screen}>
         <section className={styles.dashboardHero}>
           <div className={styles.dashboardHeroCopy}>
-            <div className={styles.kicker}>Revenue operations workspace</div>
             <h1 className={styles.screenTitle}>See the signal.<br />Move the pipeline.</h1>
             <p className={styles.screenDescription}>
               Five owned workflows, one operating desk. Start with a real record, follow its evidence, and keep every consequential action reviewable.
