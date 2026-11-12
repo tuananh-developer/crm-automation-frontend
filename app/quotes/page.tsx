@@ -9,7 +9,7 @@ import { leadService } from "@/services/lead.service";
 import { getCustomers } from "@/services/customer.service";
 import { getApiErrorMessage } from "@/services/api-client";
 import { createIdempotencyKey, t12WorkflowService } from "@/services/t12-workflow.service";
-import type { CatalogItem, QuoteRecord } from "@/types/t12-workflows";
+import type { CatalogItem } from "@/types/t12-workflows";
 import styles from "@/components/workspace/workspace.module.css";
 
 function money(value: string | number, currency: string) {
@@ -212,7 +212,7 @@ export default function QuotesPage() {
                               <strong>{money(item.unitPrice, item.currency)}</strong>
                               <label className={styles.quantityField}>
                                 <span>Qty</span>
-                                <input type="number" min={0} max={10000} step={1} value={quantity || ""} placeholder="0" onChange={(event) => updateQuantity(item, event.target.value)} />
+                                <input type="number" min={0} max={10000} step={1} value={quantity || ""} placeholder="0" onChange={(event) => updateQuantity(item, event.target.value)} disabled={differentCurrency} />
                               </label>
                             </div>
                           </div>
