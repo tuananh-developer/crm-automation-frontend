@@ -85,9 +85,9 @@ export default function NextBestActionsPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <h1 className={styles.screenTitle}>Choose the next move.</h1>
+            <h1 className={styles.screenTitle}>Find the next best action.</h1>
             <p className={styles.screenDescription}>
-              Request ranked actions grounded in evidence, with approval kept explicit.
+              Review recommendations against CRM evidence. Keep every consequential action under human control.
             </p>
           </div>
           <div className={styles.headMetric}>
