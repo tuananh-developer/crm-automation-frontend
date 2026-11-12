@@ -150,7 +150,7 @@ export default function QuotesPage() {
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Shape the proposal.</h1>
             <p className={styles.screenDescription}>
-              Select catalog items and quantities, add the commercial context, and let the backend calculate the quote. AI drafts the proposal; Admin approval remains a separate decision.
+              Draft proposals from catalog items; backend pricing stays authoritative.
             </p>
           </div>
           <div className={styles.headMetric}>
