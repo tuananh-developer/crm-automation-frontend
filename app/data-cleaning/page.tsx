@@ -7,9 +7,6 @@ import {
   AlertTriangle,
   Loader2,
   RefreshCw,
-  ShieldAlert,
-  ShieldCheck,
-  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
