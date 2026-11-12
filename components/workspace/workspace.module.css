@@ -1,5 +1,5 @@
 /* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (paper) · material: graphite paper · signature: evidence ledger and operator decisions · scope: T12-WF01/WF08/WF10/WF11/WF12 · redesign: full · nav: Signal Desk · states: loading/empty/error/accepted/processing/completed/failed/confirmed/rejected · version: 2.0.0 */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · weakest: E, the dashboard gives five assigned workstreams a single shared operating surface rather than synthetic trend widgets. */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, render review could not run here; kept real API states explicit and withheld visual-pass claims. */
 :global(:root) {
   --desk-paper: oklch(98% 0.006 85);
   --desk-panel: oklch(96.5% 0.008 82);
@@ -943,4 +943,14 @@
   .quoteTotals > div { border-right: 0; border-bottom: 1px solid var(--desk-rule); }
   .quoteTotals > div:last-child { border-bottom: 0; }
   .actionItemHeading { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink,
+  .workflowTile,
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton {
+    transition: none;
+  }
 }
