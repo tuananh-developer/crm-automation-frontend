@@ -57,7 +57,7 @@ export default function SalesMeetingDetailPage() {
   return (
     <>
       <WorkspaceHeader />
-      <main className={styles.screen}>
+      <main id="main-content" className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Meeting intelligence.</h1>
