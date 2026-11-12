@@ -145,7 +145,7 @@ export default function QuotesPage() {
   return (
     <>
       <WorkspaceHeader />
-      <main className={styles.screen}>
+      <main id="main-content" className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Shape the proposal.</h1>
