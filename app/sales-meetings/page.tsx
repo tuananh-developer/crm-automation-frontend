@@ -40,12 +40,12 @@ export default function SalesMeetingsPage() {
     if (entityType === "Lead") {
       return (leadsQuery.data?.data ?? []).map((lead) => ({
         id: lead.id,
-        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} · ${lead.companyName || lead.email}`,
+        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} / ${lead.companyName || lead.email}`,
       }));
     }
     return (customersQuery.data?.data ?? []).map((customer) => ({
       id: customer.id,
-      label: `${customer.name} · ${customer.companyName || customer.email}`,
+      label: `${customer.name} / ${customer.companyName || customer.email}`,
     }));
   }, [entityType, leadsQuery.data?.data, customersQuery.data?.data]);
 
@@ -185,7 +185,7 @@ export default function SalesMeetingsPage() {
             </div>
             <div className={styles.panelBody}>
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>Meeting transcript · required</span>
+                <span className={styles.fieldLabel}>Meeting transcript / required</span>
                 <textarea
                   className={styles.textArea}
                   value={transcript}
@@ -195,7 +195,7 @@ export default function SalesMeetingsPage() {
                   required
                   placeholder="Paste the transcript or meeting notes here. Include enough context for decisions, risks, and action items to be identified."
                 />
-                <span className={styles.fieldHelp}>{transcript.length.toLocaleString()} / 150,000 characters · minimum 20</span>
+                <span className={styles.fieldHelp}>{transcript.length.toLocaleString()} / 150,000 characters / minimum 20</span>
               </label>
               <div className={styles.formFooter}>
                 <span className={styles.fieldHelp}>No summary or action item is treated as confirmed until a participant reviews it.</span>
