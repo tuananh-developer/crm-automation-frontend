@@ -22,7 +22,7 @@ import styles from "@/components/workspace/workspace.module.css";
 
 const workstreams = [
   {
-    code: "T12 · WF01",
+    code: "T12 / WF01",
     title: "Lead qualification",
     description: "Evaluate sales readiness, inspect model confidence, and route uncertain records to human review.",
     href: "/qualification",
@@ -30,7 +30,7 @@ const workstreams = [
     state: "Lead intelligence",
   },
   {
-    code: "T12 · WF08",
+    code: "T12 / WF08",
     title: "Data cleaning",
     description: "Scan CRM records, compare proposed corrections, then approve only the changes worth writing back.",
     href: "/data-cleaning",
@@ -38,7 +38,7 @@ const workstreams = [
     state: "Quality control",
   },
   {
-    code: "T12 · WF10",
+    code: "T12 / WF10",
     title: "Next best action",
     description: "Request evidence-backed recommendations for a Lead or Customer. Approval stays with the operator.",
     href: "/next-best-actions",
@@ -46,7 +46,7 @@ const workstreams = [
     state: "Decision support",
   },
   {
-    code: "T12 · WF11",
+    code: "T12 / WF11",
     title: "Sales meetings",
     description: "Turn a meeting transcript into a redacted summary, decisions, risks, and confirmable action items.",
     href: "/sales-meetings",
@@ -54,7 +54,7 @@ const workstreams = [
     state: "Conversation intelligence",
   },
   {
-    code: "T12 · WF12",
+    code: "T12 / WF12",
     title: "Quote & proposal",
     description: "Build a quote from the active catalog. Backend pricing and the approval policy remain authoritative.",
     href: "/quotes",
@@ -139,7 +139,7 @@ export default function DashboardPage() {
         {(leadError || reviewError) && (
           <div className={styles.errorPanel} role="alert">
             <strong>Part of the workspace could not be loaded.</strong>
-            <span>{[leadError, reviewError].filter(Boolean).join(" · ")}</span>
+            <span>{[leadError, reviewError].filter(Boolean).join(" / ")}</span>
           </div>
         )}
 
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                     <Link className={styles.rowItemLink} href={`/leads/${lead.id}`} key={lead.id}>
                       <div className={styles.rowMain}>
                         <h3 className={styles.rowTitle}>{leadName(lead)}</h3>
-                        <p className={styles.rowDescription}>{lead.companyName || "Company not provided"} · {lead.email}</p>
+                        <p className={styles.rowDescription}>{lead.companyName || "Company not provided"} / {lead.email}</p>
                       </div>
                       <span className={styles.status}>{lead.status.replaceAll("_", " ")}</span>
                     </Link>
