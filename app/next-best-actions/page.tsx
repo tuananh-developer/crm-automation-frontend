@@ -82,7 +82,7 @@ export default function NextBestActionsPage() {
   return (
     <>
       <WorkspaceHeader />
-      <main id="main-content" className={styles.screen}>
+      <main id="main-content" tabIndex={-1} className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Find the next best action.</h1>
