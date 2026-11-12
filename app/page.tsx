@@ -87,7 +87,7 @@ export default function DashboardPage() {
   return (
     <>
       <WorkspaceHeader />
-      <main id="main-content" className={styles.screen}>
+      <main id="main-content" tabIndex={-1} className={styles.screen}>
         <section className={styles.dashboardHero}>
           <div className={styles.dashboardHeroCopy}>
             <h1 className={styles.screenTitle}>Revenue work, in one view.</h1>
