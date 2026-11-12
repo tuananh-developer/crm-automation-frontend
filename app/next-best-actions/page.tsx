@@ -46,12 +46,12 @@ export default function NextBestActionsPage() {
     if (entityType === "Lead") {
       return (leadsQuery.data?.data ?? []).map((lead) => ({
         id: lead.id,
-        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} · ${lead.companyName || lead.email}`,
+        label: `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")} / ${lead.companyName || lead.email}`,
       }));
     }
     return (customersQuery.data?.data ?? []).map((customer) => ({
       id: customer.id,
-      label: `${customer.name} · ${customer.companyName || customer.email}`,
+      label: `${customer.name} / ${customer.companyName || customer.email}`,
     }));
   }, [entityType, leadsQuery.data?.data, customersQuery.data?.data]);
 
@@ -237,7 +237,7 @@ export default function NextBestActionsPage() {
                     </div>
                   </article>
                 ))}
-                <p className={styles.meta}>RUN {recommendation.workflowRunId} · {new Date(recommendation.createdAt).toLocaleString()}</p>
+                <p className={styles.meta}>RUN {recommendation.workflowRunId} / {new Date(recommendation.createdAt).toLocaleString()}</p>
               </div>
             )}
           </div>
