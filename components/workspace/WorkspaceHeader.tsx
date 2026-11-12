@@ -45,7 +45,9 @@ export function WorkspaceHeader() {
   const pathname = usePathname();
 
   return (
-    <header className={styles.topbar}>
+    <>
+      <a href="#main-content" className={styles.skipLink}>Skip to content</a>
+      <header className={styles.topbar}>
       <div className={styles.topbarInner}>
         <Link href="/" className={styles.brand} aria-label="Signal Desk overview">
           <span className={styles.brandMark} aria-hidden="true">
@@ -88,6 +90,7 @@ export function WorkspaceHeader() {
           <UserNav />
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
