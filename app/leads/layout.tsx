@@ -11,7 +11,7 @@ export default function LeadsLayout({
   return (
     <>
       <WorkspaceHeader />
-      <main className={styles.screen}>{children}</main>
+      <main id="main-content" className={styles.screen}>{children}</main>
     </>
   );
 }
