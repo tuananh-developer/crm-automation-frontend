@@ -60,7 +60,6 @@ export default function SalesMeetingDetailPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <div className={styles.kicker}>T12 · WF11 / Meeting record</div>
             <h1 className={styles.screenTitle}>Meeting intelligence.</h1>
             <p className={styles.screenDescription}>Review the generated summary and decide which proposed actions should become commitments.</p>
           </div>
@@ -166,10 +165,10 @@ export default function SalesMeetingDetailPage() {
                 <div className={styles.panelBody}>
                   {detail.transcript ? (
                     <div className={styles.fieldStack}>
-                      <div><span className={styles.meta}>REDACTION MODE</span><p className={styles.rowTitle}>{detail.transcript.redactionMode}</p></div>
-                      <div><span className={styles.meta}>SOURCE</span><p className={styles.rowTitle}>{detail.transcript.sourceType}</p></div>
-                      <div><span className={styles.meta}>CONTENT HASH</span><p className={styles.codeText}>{detail.transcript.contentHash}</p></div>
-                      <div><span className={styles.meta}>PERSISTED</span><p className={styles.rowTitle}>{new Date(detail.transcript.createdAt).toLocaleString()}</p></div>
+                      <div><span className={styles.meta}>Redaction mode</span><p className={styles.rowTitle}>{detail.transcript.redactionMode}</p></div>
+                      <div><span className={styles.meta}>Source</span><p className={styles.rowTitle}>{detail.transcript.sourceType}</p></div>
+                      <div><span className={styles.meta}>Content hash</span><p className={styles.codeText}>{detail.transcript.contentHash}</p></div>
+                      <div><span className={styles.meta}>Persisted</span><p className={styles.rowTitle}>{new Date(detail.transcript.createdAt).toLocaleString()}</p></div>
                     </div>
                   ) : <p className={styles.fieldHelp}>Transcript metadata will appear when the backend has persisted the redacted transcript.</p>}
                 </div>
