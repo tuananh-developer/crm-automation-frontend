@@ -85,14 +85,13 @@ export default function NextBestActionsPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <div className={styles.kicker}>T12 · WF10 / Decision support</div>
             <h1 className={styles.screenTitle}>Choose the next move.</h1>
             <p className={styles.screenDescription}>
               Ask the workflow to rank evidence-backed actions for one Lead or Customer. Recommendations stay advisory; the backend enforces the approval boundary.
             </p>
           </div>
           <div className={styles.headMetric}>
-            <span className={styles.meta}>CONTROL MODEL</span>
+            <span className={styles.meta}>Control model</span>
             <strong>Human</strong>
             <span>approval remains explicit</span>
           </div>
@@ -166,11 +165,11 @@ export default function NextBestActionsPage() {
                     <span>The analysis request has been accepted. No recommendation is treated as approved by this step.</span>
                   </div>
                   <div>
-                    <span className={styles.meta}>WORKFLOW RUN ID</span>
+                    <span className={styles.meta}>Workflow run ID</span>
                     <p className={styles.codeText}>{acceptedRun.workflowRunId}</p>
                   </div>
                   <div>
-                    <span className={styles.meta}>CURRENT STATUS</span>
+                    <span className={styles.meta}>Current status</span>
                     <p className={styles.rowTitle}>{acceptedRun.status}</p>
                   </div>
                 </div>
@@ -214,7 +213,7 @@ export default function NextBestActionsPage() {
               <div className={styles.recommendationResult}>
                 <div className={styles.resultTopline}>
                   <div>
-                    <span className={styles.meta}>RECOMMENDATION / {recommendation.entityType}</span>
+                    <span className={styles.meta}>Recommendation / {recommendation.entityType}</span>
                     <h3 className={styles.sectionTitle}>{recommendation.status.replaceAll("_", " ")}</h3>
                   </div>
                   <span className={recommendation.requiresHumanApproval ? styles.statusAmber : styles.statusGreen}>
