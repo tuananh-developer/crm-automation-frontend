@@ -57,7 +57,10 @@ export default function QuotesPage() {
   const quotesQuery = useQuery({
     queryKey: ["quotes"],
     queryFn: t12WorkflowService.getQuotes,
-    refetchInterval: activeRunId ? 2500 : false,
+    refetchInterval: (query) =>
+      activeRunId && !(query.state.data ?? []).some((quote) => quote.workflowRunId === activeRunId)
+        ? 2500
+        : false,
   });
 
   const selectedCatalog = useMemo(
