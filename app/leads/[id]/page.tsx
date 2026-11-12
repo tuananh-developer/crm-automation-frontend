@@ -158,7 +158,7 @@ export default function LeadDetailPage() {
           </span>
           <span>/</span>
           <span className="text-gray-900 font-bold">
-            {lead.firstName} {lead.lastName}
+            {[lead.firstName, lead.lastName].filter(Boolean).join(" ")}
           </span>
         </div>
 
@@ -226,14 +226,14 @@ export default function LeadDetailPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4">
             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-xl font-black text-white shadow-sm">
-              {lead.firstName.charAt(0)}
-              {lead.lastName.charAt(0)}
+              {lead.firstName?.charAt(0) || ""}
+              {lead.lastName?.charAt(0) || ""}
             </div>
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="text-xl font-bold text-gray-900">
-                  {lead.firstName} {lead.lastName}
+                  {[lead.firstName, lead.lastName].filter(Boolean).join(" ")}
                 </h1>
                 <LeadStatusBadge status={lead.status} />
                 {numericScore !== null && (
