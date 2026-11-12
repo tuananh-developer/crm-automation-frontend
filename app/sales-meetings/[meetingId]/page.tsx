@@ -61,7 +61,7 @@ export default function SalesMeetingDetailPage() {
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
             <h1 className={styles.screenTitle}>Meeting intelligence.</h1>
-            <p className={styles.screenDescription}>Review the generated summary and decide which proposed actions should become commitments.</p>
+            <p className={styles.screenDescription}>Review the summary and decide which proposed actions become commitments.</p>
           </div>
           <Link href="/sales-meetings" className={styles.secondaryButton}><ArrowLeft size={15} /> New meeting</Link>
         </header>
