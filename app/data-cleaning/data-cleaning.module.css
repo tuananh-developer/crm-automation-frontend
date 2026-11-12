@@ -2,30 +2,29 @@
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R5 V4 · weakest: E, dense controls are grouped around the real scan and findings instead of decorative tiles */
 
 :global(:root) {
-  --wf08-paper: oklch(98% 0.006 85);
-  --wf08-panel: oklch(96.5% 0.008 82);
-  --wf08-well: oklch(93.5% 0.009 82);
-  --wf08-ink: oklch(19% 0.01 60);
-  --wf08-ink-2: oklch(34% 0.012 62);
-  --wf08-muted: oklch(49% 0.012 65);
-  --wf08-rule: oklch(84% 0.009 78);
-  --wf08-amber: oklch(54% 0.14 70);
-  --wf08-amber-soft: oklch(93% 0.035 78);
-  --wf08-blue: oklch(52% 0.14 250);
-  --wf08-blue-soft: oklch(93% 0.025 250);
-  --wf08-red: oklch(48% 0.16 25);
-  --wf08-red-soft: oklch(94% 0.025 25);
-  --wf08-green: oklch(43% 0.105 150);
-  --wf08-green-soft: oklch(94% 0.025 150);
-  --wf08-font: var(--font-geist-sans), "Geist", ui-sans-serif, sans-serif;
-  --wf08-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --wf08-radius: 10px;
-  --wf08-control-radius: 6px;
+  --wf08-paper: var(--desk-paper);
+  --wf08-panel: var(--desk-panel);
+  --wf08-well: var(--desk-well);
+  --wf08-ink: var(--desk-ink);
+  --wf08-ink-2: var(--desk-ink-2);
+  --wf08-muted: var(--desk-muted);
+  --wf08-rule: var(--desk-rule);
+  --wf08-amber: var(--desk-amber);
+  --wf08-amber-soft: var(--desk-amber-soft);
+  --wf08-blue: var(--desk-blue);
+  --wf08-blue-soft: var(--desk-blue-soft);
+  --wf08-red: var(--desk-red);
+  --wf08-red-soft: var(--desk-red-soft);
+  --wf08-green: var(--desk-green);
+  --wf08-green-soft: var(--desk-green-soft);
+  --wf08-font: var(--desk-font);
+  --wf08-mono: var(--desk-mono);
+  --wf08-radius: var(--desk-radius);
+  --wf08-control-radius: var(--desk-control-radius);
   --dur-micro: 90ms;
   --dur-short: 160ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
 }
-
 :global(html),
 :global(body) {
   overflow-x: clip;
@@ -404,11 +403,12 @@
   display: block;
   margin-top: 0.35rem;
   color: var(--wf08-ink);
-  font-family: var(--wf08-mono);
-  font-size: 1.75rem;
-  font-weight: 500;
+  font-family: var(--wf08-font);
+  font-size: 1.8rem;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
+  font-feature-settings: "tnum" 1;
   line-height: 1.1;
 }
 
@@ -494,8 +494,8 @@
 }
 
 .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
-  border-color: var(--wf08-amber);
-  background: var(--wf08-amber-soft);
+  border-color: var(--wf08-green);
+  background: var(--wf08-green-soft);
   color: var(--wf08-ink);
 }
 
@@ -506,8 +506,8 @@
 }
 
 .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"] > div:first-child) {
-  border-color: var(--wf08-amber) !important;
-  background: var(--wf08-amber) !important;
+  border-color: var(--wf08-green) !important;
+  background: var(--wf08-green) !important;
 }
 
 .page :global([data-dc-scope] [data-scope-option] > div:first-child span) {
@@ -553,10 +553,10 @@
 
 .page :global([data-dc-scope] button[type="submit"]) {
   min-height: 2.75rem;
-  border: 1px solid var(--wf08-amber) !important;
+  border: 1px solid var(--wf08-green) !important;
   border-radius: var(--wf08-control-radius) !important;
-  background: var(--wf08-amber) !important;
-  color: var(--wf08-paper) !important;
+  background: var(--wf08-green) !important;
+  color: white !important;
   font-family: var(--wf08-font);
   font-size: 0.875rem !important;
   font-weight: 600 !important;
@@ -564,8 +564,8 @@
 }
 
 .page :global([data-dc-scope] button[type="submit"]:hover) {
-  border-color: var(--wf08-ink) !important;
-  background: var(--wf08-ink) !important;
+  border-color: var(--desk-green-strong) !important;
+  background: var(--desk-green-strong) !important;
 }
 
 .page :global([data-dc-scope] button[type="submit"]:focus-visible) {
@@ -825,17 +825,17 @@
 
 .page :global(dialog[data-dc-modal] > div > div:last-child button:last-child) {
   min-height: 2.75rem;
-  border: 1px solid var(--wf08-amber);
+  border: 1px solid var(--wf08-green);
   border-radius: var(--wf08-control-radius);
-  background: var(--wf08-amber) !important;
-  color: var(--wf08-paper) !important;
+  background: var(--wf08-green) !important;
+  color: white !important;
   font-family: var(--wf08-font);
   font-weight: 600;
 }
 
 .page :global(dialog[data-dc-modal] > div > div:last-child button:last-child:hover) {
-  border-color: var(--wf08-ink);
-  background: var(--wf08-ink) !important;
+  border-color: var(--desk-green-strong);
+  background: var(--desk-green-strong) !important;
 }
 
 .page :global(dialog[data-dc-modal] button:disabled) {
@@ -928,5 +928,28 @@
   .spin {
     transition: none;
     animation: none;
+  }
+}
+
+
+/* Align WF08 with the shared Clearline operations shell */
+@media (min-width: 76.001rem) {
+  .main {
+    width: min(calc(100% - var(--desk-sidebar-width) - 4rem), 88rem);
+    margin-left: calc(var(--desk-sidebar-width) + max(2rem, (100% - var(--desk-sidebar-width) - 88rem) / 2));
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 76rem) {
+  .main {
+    width: min(100% - 3rem, 92rem);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  .main {
+    width: min(100% - 1.25rem, 88rem);
   }
 }
