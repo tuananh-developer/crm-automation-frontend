@@ -156,7 +156,7 @@ export default function DataCleaningPage() {
     <div className={styles.page} data-cleaning-workbench>
       <WorkspaceHeader />
 
-      <main className={styles.main}>
+      <main id="main-content" className={styles.main}>
         <section className={styles.intro}>
           <div>
             <h2>Find the noise in your CRM.</h2>
