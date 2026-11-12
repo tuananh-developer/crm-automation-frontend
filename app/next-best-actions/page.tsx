@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowUpRight, BrainCircuit, FileSearch, ShieldCheck } from "lucide-react";
+import { BrainCircuit, FileSearch, ShieldCheck } from "lucide-react";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { leadService } from "@/services/lead.service";
 import { getCustomers } from "@/services/customer.service";
