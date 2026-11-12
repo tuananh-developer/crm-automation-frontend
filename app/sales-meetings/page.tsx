@@ -89,7 +89,6 @@ export default function SalesMeetingsPage() {
       <main className={styles.screen}>
         <header className={styles.screenHead}>
           <div className={styles.screenHeadCopy}>
-            <div className={styles.kicker}>T12 · WF11 / Conversation intelligence</div>
             <h1 className={styles.screenTitle}>Bring the meeting into focus.</h1>
             <p className={styles.screenDescription}>
               Submit a transcript with its Lead or Customer context. The backend redacts the transcript before it is persisted and dispatched for analysis.
