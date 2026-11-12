@@ -154,7 +154,7 @@ export default function QuotesPage() {
             </p>
           </div>
           <div className={styles.headMetric}>
-            <span className={styles.meta}>PRICING AUTHORITY</span>
+            <span className={styles.meta}>Pricing authority</span>
             <strong>API</strong>
             <span>backend-calculated</span>
           </div>
@@ -265,7 +265,7 @@ export default function QuotesPage() {
                         <strong className={styles.rowTitle}>{quote.title || "Untitled proposal"}</strong>
                         <small className={styles.rowDescription}>{quote.currency} / {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : "Date unavailable"}</small>
                       </span>
-                      <span className={quoteStatusClass(quote.status)}>{quote.status.replaceAll("_", " ")}</span>
+                      <span className={quoteStatusClass(quote.status)}>{quote.status.toLowerCase().replaceAll("_", " ")}</span>
                     </button>
                   ))}
                 </div>
@@ -278,11 +278,11 @@ export default function QuotesPage() {
           <section className={styles.panel} style={{ marginTop: "1.2rem" }}>
             <div className={styles.panelHeader}>
               <div>
-                <span className={styles.meta}>QUOTE / {detail.id}</span>
+                <span className={styles.meta}>Quote / {detail.id}</span>
                 <h2 className={styles.panelTitle}>{detail.title}</h2>
                 <p className={styles.panelHint}>All amounts below are returned by the backend. No client-side pricing calculation is performed.</p>
               </div>
-              <span className={quoteStatusClass(detail.status)}>{detail.status.replaceAll("_", " ")}</span>
+              <span className={quoteStatusClass(detail.status)}>{detail.status.toLowerCase().replaceAll("_", " ")}</span>
             </div>
             <div className={styles.panelBody}>
               {detail.executiveSummary && <p className={styles.summaryText}>{detail.executiveSummary}</p>}
