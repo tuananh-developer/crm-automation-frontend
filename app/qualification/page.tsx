@@ -112,7 +112,7 @@ export default function QualificationPage() {
               <>
                 <div className={styles.selectedRecord}>
                   <div>
-                    <span className={styles.meta}>SELECTED RECORD</span>
+                    <span className={styles.meta}>Selected record</span>
                     <h2>{displayName(selectedLead)}</h2>
                     <p>{selectedLead.companyName || "Company not provided"} / {selectedLead.email}</p>
                   </div>
