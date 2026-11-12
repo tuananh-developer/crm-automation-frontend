@@ -1,5 +1,5 @@
-/* Hallmark · shape: CRM app screens · genre: modern-minimal · theme: Console (paper) · scope: T12-WF01/WF08/WF10/WF11/WF12 · navigation: shared Signal Desk · signature: evidence ledger and human decisions · states: loading, empty, error, accepted, processing, completed, failed, confirmed, rejected · v1 */
- /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · weakest: E, workflow actions are grouped around their actual records rather than trend decoration. */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (paper) · material: graphite paper · signature: evidence ledger and operator decisions · scope: T12-WF01/WF08/WF10/WF11/WF12 · redesign: full · nav: Signal Desk · states: loading/empty/error/accepted/processing/completed/failed/confirmed/rejected · version: 2.0.0 */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 · weakest: E, the dashboard gives five assigned workstreams a single shared operating surface rather than synthetic trend widgets. */
 :global(:root) {
   --desk-paper: oklch(98% 0.006 85);
   --desk-panel: oklch(96.5% 0.008 82);
@@ -16,10 +16,15 @@
   --desk-green-soft: oklch(94% 0.025 150);
   --desk-red: oklch(48% 0.16 25);
   --desk-red-soft: oklch(94% 0.025 25);
-  --desk-font: var(--font-geist-sans), "Geist", ui-sans-serif, sans-serif;
-  --desk-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --desk-font: "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --desk-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
   --desk-radius: 10px;
   --desk-control-radius: 6px;
+}
+
+:global(html),
+:global(body) {
+  overflow-x: clip;
 }
 
 :global(body) {
@@ -163,24 +168,9 @@
   max-width: 54rem;
 }
 
-.kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-bottom: 0.75rem;
-  color: var(--desk-muted);
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
-.kicker::before {
-  width: 1.35rem;
-  height: 1px;
-  background: var(--desk-amber);
-  content: "";
-}
-
 .screenTitle {
+  min-width: 0;
+  overflow-wrap: break-word;
   margin: 0;
   color: var(--desk-ink);
   font-size: clamp(2.2rem, 4.4vw, 3.7rem);
