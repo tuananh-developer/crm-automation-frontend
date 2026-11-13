@@ -1525,7 +1525,7 @@
 
 .catalogCheck input,
 .checkItem input {
-  accent-color: var(--desk-green);
+  accent-color: var(--desk-blue);
 }
 
 .leadQueueItemActive {
@@ -1833,8 +1833,8 @@
   }
 
   .brandMark {
-    background: var(--desk-green-soft);
-    color: var(--desk-green);
+    background: var(--desk-blue-soft);
+    color: var(--desk-blue);
   }
 
   .brandCopy strong {
@@ -1888,12 +1888,12 @@
   }
 
   .navLinkActive {
-    background: var(--desk-green-soft);
-    color: var(--desk-green);
+    background: var(--desk-blue-soft);
+    color: var(--desk-blue);
   }
 
   .navLinkActive svg {
-    color: var(--desk-green);
+    color: var(--desk-blue);
   }
 
   .accountTools {

@@ -9,8 +9,8 @@
   --wf01-ink-2: var(--desk-ink-2);
   --wf01-muted: var(--desk-muted);
   --wf01-rule: var(--desk-rule);
-  --wf01-amber: var(--desk-blue);
-  --wf01-amber-soft: var(--desk-blue-soft);
+  --wf01-amber: var(--desk-amber);
+  --wf01-amber-soft: var(--desk-amber-soft);
   --wf01-blue: var(--desk-blue);
   --wf01-blue-soft: var(--desk-blue-soft);
   --wf01-red: var(--desk-red);
@@ -105,10 +105,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 1px solid var(--wf01-amber);
+  border: 1px solid var(--wf01-blue);
   border-radius: var(--wf01-control-radius);
   padding: 0.55rem 0.875rem;
-  background: var(--wf01-amber);
+  background: var(--wf01-blue);
   color: var(--wf01-paper);
   font-family: var(--wf01-font);
   font-size: 0.875rem;
@@ -124,8 +124,8 @@
 
 .runButton:hover,
 .emptyButton:hover {
-  border-color: var(--wf01-ink);
-  background: var(--wf01-ink);
+  border-color: var(--desk-blue-strong);
+  background: var(--desk-blue-strong);
 }
 
 .runButton:focus-visible,

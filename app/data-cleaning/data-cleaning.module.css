@@ -494,8 +494,8 @@
 }
 
 .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
-  border-color: var(--wf08-green);
-  background: var(--wf08-green-soft);
+  border-color: var(--wf08-blue);
+  background: var(--wf08-blue-soft);
   color: var(--wf08-ink);
 }
 
@@ -506,8 +506,8 @@
 }
 
 .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"] > div:first-child) {
-  border-color: var(--wf08-green) !important;
-  background: var(--wf08-green) !important;
+  border-color: var(--wf08-blue) !important;
+  background: var(--wf08-blue) !important;
 }
 
 .page :global([data-dc-scope] [data-scope-option] > div:first-child span) {
@@ -553,9 +553,9 @@
 
 .page :global([data-dc-scope] button[type="submit"]) {
   min-height: 2.75rem;
-  border: 1px solid var(--wf08-green) !important;
+  border: 1px solid var(--wf08-blue) !important;
   border-radius: var(--wf08-control-radius) !important;
-  background: var(--wf08-green) !important;
+  background: var(--wf08-blue) !important;
   color: white !important;
   font-family: var(--wf08-font);
   font-size: 0.875rem !important;
@@ -564,8 +564,8 @@
 }
 
 .page :global([data-dc-scope] button[type="submit"]:hover) {
-  border-color: var(--desk-green-strong) !important;
-  background: var(--desk-green-strong) !important;
+  border-color: var(--desk-blue-strong) !important;
+  background: var(--desk-blue-strong) !important;
 }
 
 .page :global([data-dc-scope] button[type="submit"]:focus-visible) {
