@@ -1,4 +1,4 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass · signature: live lead status mix and asymmetric workflow bento · scope: owned CRM overview and shared workbench shell · type: IBM Plex Sans + IBM Plex Mono for technical IDs · version: 4.0.0 */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass · signature: live lead status mix and five workflow-specific operator compositions · scope: owned CRM overview and shared workflow shell · type: IBM Plex Sans + IBM Plex Mono for technical IDs · version: 4.1.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 :global(:root) {
   --desk-paper: oklch(97.4% 0.008 258);
@@ -2650,4 +2650,163 @@
   }
   .workbenchCard:hover, .overviewPrimaryLink:active, .overviewSecondaryLink:active,
   .primaryButton:active, .secondaryButton:active, .dangerButton:active { transform: none; }
+}
+
+
+/* Workflow-specific compositions: same Blueglass language, different operator jobs. */
+.screen:has(.leadQueue) .twoColumn {
+  grid-template-columns: minmax(17rem, 0.78fr) minmax(0, 1.22fr);
+  gap: 1.15rem;
+}
+.screen:has(.leadQueue) .twoColumn > .panel {
+  position: sticky;
+  top: 1.25rem;
+}
+.screen:has(.leadQueue) .panelHeader {
+  background: linear-gradient(110deg, var(--desk-blue-soft), var(--desk-panel) 78%);
+}
+.screen:has(.leadQueue) .leadQueue {
+  max-height: min(62vh, 44rem);
+  padding-right: 0.15rem;
+}
+.screen:has(.leadQueue) .selectedRecord {
+  border: 1px solid var(--desk-rule);
+  border-radius: 1.1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--desk-panel);
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--desk-ink) 4%, transparent);
+}
+.screen:has(.leadQueue) .selectedRecord h2 {
+  font-size: 1.35rem;
+}
+.screen:has(.leadQueue) .qualificationDetail > :global(*) {
+  min-width: 0;
+}
+
+/* WF10: request / receipt / recommendation are three distinct stages. */
+.screen:has(.lookupForm) .twoColumn {
+  grid-template-columns: minmax(0, 1.1fr) minmax(17rem, 0.9fr);
+  gap: 1rem;
+}
+.screen:has(.lookupForm) .twoColumn > .panel:first-child {
+  border-color: color-mix(in oklab, var(--desk-blue) 28%, var(--desk-rule));
+  box-shadow: 0 10px 30px color-mix(in oklab, var(--desk-blue) 7%, transparent);
+}
+.screen:has(.lookupForm) .twoColumn > .panel:first-child .panelHeader {
+  background: linear-gradient(100deg, var(--desk-blue-soft), var(--desk-panel) 78%);
+}
+.screen:has(.lookupForm) .twoColumn > .panel:nth-child(2) {
+  background: color-mix(in oklab, var(--desk-blue-soft) 32%, var(--desk-panel));
+}
+.screen:has(.lookupForm) .twoColumn > .panel:nth-child(2) .panelHeader {
+  background: transparent;
+}
+.screen:has(.lookupForm) > .panel {
+  margin-top: 1.1rem !important;
+}
+.screen:has(.lookupForm) .recommendationResult {
+  border-top-color: var(--desk-blue);
+}
+.screen:has(.lookupForm) .recommendationCard {
+  padding: 1.15rem 1rem;
+}
+.screen:has(.lookupForm) .recommendationCard:nth-child(odd) {
+  background: color-mix(in oklab, var(--desk-well) 42%, transparent);
+}
+.screen:has(.lookupForm) .recommendationExplain {
+  max-width: 76ch;
+  line-height: 1.65;
+}
+
+/* WF11: context and attendees sit beside the transcript that drives the analysis. */
+.screen:has(.meetingForm) .meetingForm {
+  display: grid;
+  max-width: none;
+  grid-template-columns: minmax(0, 1.12fr) minmax(17rem, 0.88fr);
+  align-items: start;
+  gap: 1rem;
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(1) {
+  min-height: 100%;
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(2) {
+  min-height: 100%;
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(3) {
+  grid-column: 1 / -1;
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(3) .panelHeader {
+  background: linear-gradient(100deg, var(--desk-blue-soft), var(--desk-panel) 72%);
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(3) .textArea {
+  min-height: 17rem;
+  border-radius: 0.95rem;
+  padding: 1rem;
+  background:
+    linear-gradient(var(--desk-panel), var(--desk-panel)) padding-box,
+    linear-gradient(135deg, color-mix(in oklab, var(--desk-blue) 42%, var(--desk-rule)), var(--desk-rule)) border-box;
+}
+.screen:has(.meetingForm) .meetingForm > .panel:nth-child(3) .formFooter {
+  border-top: 1px solid var(--desk-rule);
+  padding-top: 1rem;
+}
+
+/* WF12: a proposal studio with the catalog as the primary working surface. */
+.screen:has(.catalogList) .twoColumn {
+  grid-template-columns: minmax(0, 1.18fr) minmax(18rem, 0.82fr);
+  align-items: start;
+  gap: 1rem;
+}
+.screen:has(.catalogList) .twoColumn > .panel:first-child {
+  border-color: color-mix(in oklab, var(--desk-blue) 25%, var(--desk-rule));
+}
+.screen:has(.catalogList) .twoColumn > .panel:first-child .panelHeader {
+  background: linear-gradient(100deg, var(--desk-blue-soft), var(--desk-panel) 80%);
+}
+.screen:has(.catalogList) .catalogList {
+  border-radius: 0.9rem;
+}
+.screen:has(.catalogList) .catalogRow,
+.screen:has(.catalogList) .catalogRowActive {
+  min-height: 4.2rem;
+  padding: 0.9rem 1rem;
+  transition: background-color 140ms ease;
+}
+.screen:has(.catalogList) .catalogRowActive {
+  box-shadow: inset 3px 0 0 var(--desk-blue);
+}
+.screen:has(.catalogList) .quoteTotals {
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--desk-ink) 4%, transparent);
+}
+.screen:has(.catalogList) .quoteTotals .quoteTotal {
+  background: linear-gradient(145deg, var(--desk-cobalt-deep), var(--desk-cobalt-night));
+}
+.screen:has(.catalogList) .approvalBox {
+  border-top-color: color-mix(in oklab, var(--desk-amber) 40%, var(--desk-rule));
+}
+
+/* Responsive workflow layouts. */
+@media (max-width: 60rem) {
+  .screen:has(.leadQueue) .twoColumn,
+  .screen:has(.lookupForm) .twoColumn,
+  .screen:has(.catalogList) .twoColumn,
+  .screen:has(.meetingForm) .meetingForm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .screen:has(.leadQueue) .twoColumn > .panel {
+    position: static;
+  }
+  .screen:has(.meetingForm) .meetingForm > .panel:nth-child(3) {
+    grid-column: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen:has(.leadQueue) .leadQueueItem,
+  .screen:has(.lookupForm) .recommendationCard,
+  .screen:has(.catalogList) .catalogRow,
+  .screen:has(.catalogList) .catalogRowActive {
+    transition: none;
+    animation: none;
+  }
 }
