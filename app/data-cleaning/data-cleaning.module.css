@@ -1311,3 +1311,96 @@
   --desk-hero-muted: #5c5f78;
   font-family: var(--wf08-font);
 }
+
+
+/* WF08 · Nest-inspired contrast inside the Material 3 workbench system. */
+:global(body):has(.materialShell) .page {
+  --wf08-ember: #f05a67;
+  --wf08-ember-deep: #d94353;
+  --wf08-night: #17191f;
+  --wf08-night-2: #252831;
+}
+
+:global(body):has(.materialShell) .page .intro {
+  border-color: #343841;
+  border-radius: 1.8rem;
+  background:
+    radial-gradient(ellipse at 86% 8%, color-mix(in srgb, var(--wf08-ember) 21%, transparent), transparent 34%),
+    radial-gradient(ellipse at 72% 120%, color-mix(in srgb, #6470d8 17%, transparent), transparent 39%),
+    linear-gradient(125deg, #17191f, #22252d 62%, #30232b);
+  box-shadow: 0 20px 48px color-mix(in srgb, #17191f 17%, transparent);
+}
+
+:global(body):has(.materialShell) .page .intro::after {
+  border-color: color-mix(in srgb, var(--wf08-ember) 22%, transparent);
+  box-shadow:
+    0 0 0 2rem color-mix(in srgb, var(--wf08-ember) 5%, transparent),
+    0 0 0 4.1rem color-mix(in srgb, #ffffff 2%, transparent);
+}
+
+:global(body):has(.materialShell) .page .intro h2 {
+  color: #ffffff;
+}
+
+:global(body):has(.materialShell) .page .intro p,
+:global(body):has(.materialShell) .page .runReference span {
+  color: #c1c3cd;
+}
+
+:global(body):has(.materialShell) .page .runReference {
+  border-left-color: var(--wf08-ember);
+}
+
+:global(body):has(.materialShell) .page .runReference code {
+  color: #ffffff;
+}
+
+:global(body):has(.materialShell) .page .leadsLink,
+:global(body):has(.materialShell) .page .refreshButton {
+  border-color: color-mix(in srgb, #ffffff 28%, transparent);
+  background: color-mix(in srgb, #ffffff 7%, transparent);
+  color: #ffffff;
+}
+
+:global(body):has(.materialShell) .page .leadsLink:hover,
+:global(body):has(.materialShell) .page .refreshButton:hover {
+  border-color: color-mix(in srgb, #ffffff 50%, transparent);
+  background: color-mix(in srgb, #ffffff 14%, transparent);
+}
+
+:global(body):has(.materialShell) .page .progressPanel {
+  border: 1px solid #d8dafa;
+  border-radius: 1.2rem;
+  background: #eef0ff;
+}
+
+:global(body):has(.materialShell) .page .metric[data-tone="red"] {
+  border-top-color: var(--wf08-ember);
+}
+
+:global(body):has(.materialShell) .page .metric[data-tone="blue"] {
+  border-top-color: #5963d8;
+}
+
+:global(body):has(.materialShell) .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
+  border-color: #f3bec2;
+  background: #fff0f0;
+  box-shadow: inset 0 0 0 1px var(--wf08-ember);
+}
+
+:global(body):has(.materialShell) .page :global([data-dc-findings] .sticky) {
+  border-color: var(--wf08-ember) !important;
+  background: var(--wf08-ember) !important;
+  color: #25191c !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--wf08-ember) 22%, transparent) !important;
+}
+
+:global(body):has(.materialShell) .page :global([data-dc-findings] tbody tr:hover) {
+  background: #fff1ef !important;
+}
+
+@media (max-width: 40rem) {
+  :global(body):has(.materialShell) .page .intro {
+    border-radius: 1.4rem;
+  }
+}
