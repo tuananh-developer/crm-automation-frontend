@@ -1,5 +1,5 @@
 /* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass (cool product) · material: CRM operations · signature: cobalt action rail, readable decision rows, confident sans numerals · scope: T12-WF01/WF08/WF10/WF11/WF12 · redesign: full system refresh · nav: vertical Signal Desk · type: IBM Plex Sans + IBM Plex Mono for identifiers only · version: 3.0.0 */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 · weakest: E, live capture review remains required; KPI digits now use tabular sans and blue is reserved for operator actions. */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 :global(:root) {
   --desk-paper: oklch(97.4% 0.008 258);
   --desk-panel: oklch(99.8% 0.002 258);

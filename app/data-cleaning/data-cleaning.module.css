@@ -1,5 +1,5 @@
 /* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass (cool product) · redesign: shared system alignment · nav: Signal Desk rail · signature: findings comparison and explicit write-back decisions · type: IBM Plex Sans + IBM Plex Mono for run IDs only · v3.0.0 */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 · weakest: E, scan/apply render review remains required; workflow figures share the tabular sans system. */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 
 :global(:root) {
   --wf08-paper: var(--desk-paper);
