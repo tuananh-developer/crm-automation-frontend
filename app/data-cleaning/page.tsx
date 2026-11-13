@@ -1,19 +1,15 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 import {
   AlertCircle,
   AlertTriangle,
-  ArrowLeft,
   Loader2,
   RefreshCw,
-  ShieldAlert,
-  ShieldCheck,
-  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UserNav } from "@/components/auth/UserNav";
+import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { ScopeSelector } from "@/components/data-cleaning/ScopeSelector";
 import { FindingsTable } from "@/components/data-cleaning/FindingsTable";
 import { ScanStatusBadge } from "@/components/data-cleaning/ScanStatusBadge";
@@ -158,35 +154,24 @@ export default function DataCleaningPage() {
 
   return (
     <div className={styles.page} data-cleaning-workbench>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <div className={styles.headerStart}>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={styles.backButton}
-            >
-              <Link href="/">
-                <ArrowLeft aria-hidden="true" />
-                Dashboard
-              </Link>
-            </Button>
-            <span className={styles.headerRule} aria-hidden="true" />
-            <div className={styles.wordmark}>
-              <span className={styles.wordmarkIcon} aria-hidden="true">
-                <ShieldCheck />
-              </span>
-              <div>
-                <h1>AI CRM Data Cleaning</h1>
-                <p>Lead data quality workbench</p>
-              </div>
-            </div>
-          </div>
+      <WorkspaceHeader />
 
+      <main id="main-content" className={styles.main}>
+        <section className={styles.intro}>
+          <div>
+            <h2>Find the noise in your CRM.</h2>
+            <p>
+              Scan lead records, inspect each proposed correction, and choose what is written back.
+            </p>
+            {activeWorkflowRunId && (
+              <div className={styles.runReference}>
+                <span>Current workflow run</span>
+                <code>{activeWorkflowRunId}</code>
+              </div>
+            )}
+          </div>
           <div className={styles.headerEnd}>
             {scanData && <ScanStatusBadge status={scanData.status} />}
-
             {activeWorkflowRunId && (
               <Button
                 type="button"
@@ -201,31 +186,8 @@ export default function DataCleaningPage() {
                 Refresh
               </Button>
             )}
-
-            <Link href="/leads" className={styles.leadsLink}>
-              Leads pipeline
-            </Link>
-
-            <span className={styles.headerRule} aria-hidden="true" />
-            <UserNav />
+            <Link href="/leads" className={styles.leadsLink}>Leads pipeline</Link>
           </div>
-        </div>
-      </header>
-
-      <main className={styles.main}>
-        <section className={styles.intro}>
-          <div>
-            <h2>Find the noise in your CRM.</h2>
-            <p>
-              Scan lead records, inspect each proposed correction, and choose what is written back.
-            </p>
-          </div>
-          {activeWorkflowRunId && (
-            <div className={styles.runReference}>
-              <span>Current workflow run</span>
-              <code>{activeWorkflowRunId}</code>
-            </div>
-          )}
         </section>
 
         {errorMessage && (

@@ -1,26 +1,26 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (manual deal, paper) · redesign: full · nav: existing lead shell kept · signature: qualification decision · states: loading, empty, error, full · console: paper · axes: warm paper / amber operator / cool instrument · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, the decision and its real model output replace generic AI-card chrome */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass (cool product) · redesign: shared system alignment · nav: Signal Desk rail · signature: evidence-first qualification and tabular confidence figures · type: IBM Plex Sans + IBM Plex Mono for IDs only · v3.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 
 :global(:root) {
-  --wf01-paper: oklch(98% 0.006 85);
-  --wf01-panel: oklch(96.5% 0.008 82);
-  --wf01-well: oklch(93.5% 0.009 82);
-  --wf01-ink: oklch(19% 0.01 60);
-  --wf01-ink-2: oklch(34% 0.012 62);
-  --wf01-muted: oklch(49% 0.012 65);
-  --wf01-rule: oklch(84% 0.009 78);
-  --wf01-amber: oklch(54% 0.14 70);
-  --wf01-amber-soft: oklch(93% 0.035 78);
-  --wf01-blue: oklch(52% 0.14 250);
-  --wf01-blue-soft: oklch(93% 0.025 250);
-  --wf01-red: oklch(48% 0.16 25);
-  --wf01-red-soft: oklch(94% 0.025 25);
-  --wf01-green: oklch(43% 0.105 150);
-  --wf01-green-soft: oklch(94% 0.025 150);
-  --wf01-font: var(--font-geist-sans), "Geist", ui-sans-serif, sans-serif;
-  --wf01-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --wf01-radius: 10px;
-  --wf01-control-radius: 6px;
+  --wf01-paper: var(--desk-paper);
+  --wf01-panel: var(--desk-panel);
+  --wf01-well: var(--desk-well);
+  --wf01-ink: var(--desk-ink);
+  --wf01-ink-2: var(--desk-ink-2);
+  --wf01-muted: var(--desk-muted);
+  --wf01-rule: var(--desk-rule);
+  --wf01-amber: var(--desk-amber);
+  --wf01-amber-soft: var(--desk-amber-soft);
+  --wf01-blue: var(--desk-blue);
+  --wf01-blue-soft: var(--desk-blue-soft);
+  --wf01-red: var(--desk-red);
+  --wf01-red-soft: var(--desk-red-soft);
+  --wf01-green: var(--desk-green);
+  --wf01-green-soft: var(--desk-green-soft);
+  --wf01-font: var(--desk-font);
+  --wf01-mono: var(--desk-mono);
+  --wf01-radius: var(--desk-radius);
+  --wf01-control-radius: var(--desk-control-radius);
   --dur-micro: 90ms;
   --dur-short: 160ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
@@ -105,10 +105,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 1px solid var(--wf01-amber);
+  border: 1px solid var(--wf01-blue);
   border-radius: var(--wf01-control-radius);
   padding: 0.55rem 0.875rem;
-  background: var(--wf01-amber);
+  background: var(--wf01-blue);
   color: var(--wf01-paper);
   font-family: var(--wf01-font);
   font-size: 0.875rem;
@@ -124,8 +124,8 @@
 
 .runButton:hover,
 .emptyButton:hover {
-  border-color: var(--wf01-ink);
-  background: var(--wf01-ink);
+  border-color: var(--desk-blue-strong);
+  background: var(--desk-blue-strong);
 }
 
 .runButton:focus-visible,
@@ -255,11 +255,12 @@
 
 .confidenceValue {
   color: var(--wf01-ink);
-  font-family: var(--wf01-mono);
+  font-family: var(--wf01-font);
   font-size: 1.75rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.025em;
 }
 
 .meter {
