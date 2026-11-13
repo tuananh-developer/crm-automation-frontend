@@ -2813,7 +2813,7 @@
 
 
 /* Signal Desk · Material 3 Expressive · by request · adaptive workspace shell and tonal workbench surfaces. */
-:global(body:has(.materialShell)) {
+:global(body):has(.materialShell) {
   --desk-paper: #f7f7fb;
   --desk-panel: #ffffff;
   --desk-well: #f0eff7;
