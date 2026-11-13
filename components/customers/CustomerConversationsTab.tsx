@@ -26,6 +26,18 @@ import {
   updateActionItem,
 } from "@/services/conversation.service";
 import { getApiErrorMessage } from "@/services/api-client";
+import {
+  checkTranscriptStuck,
+  evaluatePollingInterval,
+  getPersistedTranscriptId,
+  getTranscriptStatusBadgeTone,
+  isTranscriptProcessingActive,
+  isTranscriptProcessingDone,
+  isTranscriptProcessingFailed,
+  MAX_POLL_ATTEMPTS,
+  POLL_INTERVAL_MS,
+  setPersistedTranscriptId,
+} from "@/lib/workflow-polling";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,30 +50,6 @@ import type {
   ConversationTranscriptItem,
 } from "@/types/conversation";
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 20; // 60s max automatic polling budget
-const STUCK_THRESHOLD_MS = 60_000; // 60s before transcript processing is considered stuck
-
-function checkTranscriptStuck(
-  transcript: ConversationTranscriptItem | null | undefined,
-  pollingTimedOut: boolean,
-  lastTranscriptId: string | null,
-): boolean {
-  if (lastTranscriptId && pollingTimedOut && !transcript) return true;
-  if (!transcript) return false;
-  if (
-    transcript.processingStatus !== "PENDING" &&
-    transcript.processingStatus !== "PROCESSING"
-  ) {
-    return false;
-  }
-  if (pollingTimedOut) return true;
-  if (!transcript.createdAt) return false;
-  const timestamp = new Date(transcript.createdAt).getTime();
-  if (Number.isNaN(timestamp)) return pollingTimedOut;
-  return Date.now() - timestamp > STUCK_THRESHOLD_MS;
-}
-
 interface CustomerConversationsTabProps {
   customerId: string;
 }
@@ -73,11 +61,19 @@ export function CustomerConversationsTab({
   const [sourceType, setSourceType] = React.useState("CALL");
   const [content, setContent] = React.useState("");
   const [lastTranscriptId, setLastTranscriptId] = React.useState<string | null>(
-    null,
+    () => getPersistedTranscriptId(customerId),
   );
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(false);
   const pollAttemptsRef = React.useRef(0);
+
+  const updateLastTranscriptId = React.useCallback(
+    (nextTranscriptId: string | null) => {
+      setPersistedTranscriptId(customerId, nextTranscriptId);
+      setLastTranscriptId(nextTranscriptId);
+    },
+    [customerId],
+  );
 
   // Poll latest transcript summary if created
   const {
@@ -93,24 +89,20 @@ export function CustomerConversationsTab({
       lastTranscriptId ? getTranscriptSummary(lastTranscriptId) : null,
     enabled: Boolean(lastTranscriptId),
     refetchInterval: (query) => {
-      if (query.state.status === "error") {
-        return false;
-      }
-      const status = query.state.data?.processingStatus;
-      const isPending = status === "PENDING" || status === "PROCESSING";
+      const result = evaluatePollingInterval({
+        queryStatus: query.state.status,
+        workflowStatus: query.state.data?.processingStatus,
+        isActive: isTranscriptProcessingActive,
+        pollAttempts: pollAttemptsRef.current,
+        maxAttempts: MAX_POLL_ATTEMPTS,
+        intervalMs: POLL_INTERVAL_MS,
+      });
 
-      if (!isPending) {
-        pollAttemptsRef.current = 0;
-        return false;
-      }
-
-      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+      pollAttemptsRef.current = result.nextAttempts;
+      if (result.timedOut) {
         setTimeout(() => setIsPollingTimedOut(true), 0);
-        return false;
       }
-
-      pollAttemptsRef.current += 1;
-      return POLL_INTERVAL_MS;
+      return result.nextInterval;
     },
   });
 
@@ -133,7 +125,7 @@ export function CustomerConversationsTab({
       setSubmitError(null);
       pollAttemptsRef.current = 0;
       setIsPollingTimedOut(false);
-      setLastTranscriptId(data.transcriptId);
+      updateLastTranscriptId(data.transcriptId);
     },
     onError: (err) => {
       setSubmitError(getApiErrorMessage(err));
@@ -382,6 +374,15 @@ export function CustomerConversationsTab({
               <RefreshCw className="size-3.5" />
               Thử tải lại
             </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              data-testid="btn-clear-transcript-selection"
+              onClick={() => updateLastTranscriptId(null)}
+            >
+              Bỏ chọn biên bản này
+            </Button>
           </div>
         </Card>
       ) : (
@@ -413,11 +414,9 @@ function TranscriptDetailCard({
   onReopenForm: () => void;
   onManualRetry?: () => void;
 }) {
-  const isDone = data.processingStatus === "COMPLETED";
-  const isFailed = data.processingStatus === "FAILED";
-  const isPending =
-    data.processingStatus === "PENDING" ||
-    data.processingStatus === "PROCESSING";
+  const isDone = isTranscriptProcessingDone(data.processingStatus);
+  const isFailed = isTranscriptProcessingFailed(data.processingStatus);
+  const isPending = isTranscriptProcessingActive(data.processingStatus);
   const summary = data.summary;
 
   return (
@@ -433,7 +432,9 @@ function TranscriptDetailCard({
               Kết quả Tóm lược Hội thoại ({data.sourceType})
             </span>
             {isDone ? (
-              <Badge tone="success">{data.processingStatus}</Badge>
+              <Badge tone={getTranscriptStatusBadgeTone(data.processingStatus)}>
+                {data.processingStatus}
+              </Badge>
             ) : isPending && !isStuck ? (
               <Badge tone="info" className="animate-pulse gap-1 font-medium">
                 <Loader2 className="size-3 animate-spin" />
@@ -543,7 +544,7 @@ function TranscriptDetailCard({
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-red-600" />
               <div className="space-y-2">
                 <p className="font-bold">
-                  Quá trình AI phân tích hội thoại thất bại (FAILED)
+                  Quá trình AI phân tích hội thoại thất bại ({data.processingStatus})
                 </p>
                 <p className="text-red-700">
                   {data.errorMessage ||
@@ -650,7 +651,6 @@ function ActionItemRow({
     try {
       await updateActionItem(item.id, {
         approvalState: nextApprovalState,
-        ...(nextApprovalState === "REJECTED" ? { status: "CANCELLED" } : {}),
       });
       onUpdated();
     } catch (err) {

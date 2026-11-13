@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test lib/workflow-polling.test.mjs components/customers/customer-polling-tabs.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

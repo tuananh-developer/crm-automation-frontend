@@ -21,6 +21,13 @@ import {
 
 import { getCustomer360, triggerCustomer360 } from "@/services/customer.service";
 import { getApiErrorMessage } from "@/services/api-client";
+import {
+  evaluatePollingInterval,
+  isWorkflowRunActive,
+  isWorkflowRunFailed,
+  MAX_POLL_ATTEMPTS,
+  POLL_INTERVAL_MS,
+} from "@/lib/workflow-polling";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -70,9 +77,6 @@ function getSourceCoverageMeta(status?: SourceCoverageStatus | string): Coverage
   }
 }
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 20; // 60s max budget
-
 interface Customer360TabProps {
   customerId: string;
 }
@@ -93,23 +97,20 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     queryKey: ["customer-360", customerId],
     queryFn: () => getCustomer360(customerId),
     refetchInterval: (query) => {
-      if (query.state.status === "error") {
-        return false;
-      }
-      // Auto-poll if a workflow run is actively PENDING
-      const runStatus = query.state.data?.latestWorkflowRun?.status;
-      if (runStatus !== "PENDING") {
-        pollAttemptsRef.current = 0;
-        return false;
-      }
+      const result = evaluatePollingInterval({
+        queryStatus: query.state.status,
+        workflowStatus: query.state.data?.latestWorkflowRun?.status,
+        isActive: isWorkflowRunActive,
+        pollAttempts: pollAttemptsRef.current,
+        maxAttempts: MAX_POLL_ATTEMPTS,
+        intervalMs: POLL_INTERVAL_MS,
+      });
 
-      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+      pollAttemptsRef.current = result.nextAttempts;
+      if (result.timedOut) {
         setTimeout(() => setIsPollingTimedOut(true), 0);
-        return false;
       }
-
-      pollAttemptsRef.current += 1;
-      return POLL_INTERVAL_MS;
+      return result.nextInterval;
     },
   });
 
@@ -183,7 +184,8 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     latestWorkflowRun,
   } = data360;
 
-  const isAnalyzing = triggerMutation.isPending || latestWorkflowRun?.status === "PENDING";
+  const isAnalyzing =
+    triggerMutation.isPending || isWorkflowRunActive(latestWorkflowRun?.status);
 
   return (
     <div data-testid="customer-360-container" className="space-y-6">
@@ -240,7 +242,7 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
       </div>
 
       {/* Stuck / Timed-out 360 Polling Notice */}
-      {isPollingTimedOut && latestWorkflowRun?.status === "PENDING" && (
+      {isPollingTimedOut && isWorkflowRunActive(latestWorkflowRun?.status) && (
         <div
           role="status"
           data-testid="customer-360-polling-timeout-banner"
@@ -269,7 +271,7 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
       )}
 
       {/* Trigger or Run Failure Alert Banner */}
-      {(triggerError || (latestWorkflowRun?.status === "FAILED" && !aiSummary)) && (
+      {(triggerError || isWorkflowRunFailed(latestWorkflowRun?.status)) && (
         <div
           data-testid="customer-360-trigger-error"
           className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50/70 p-4 text-sm text-red-900"

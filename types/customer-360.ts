@@ -96,6 +96,15 @@ export interface Customer360AiSummary {
   evaluatedAt?: string | null;
 }
 
+export type WorkflowRunStatus =
+  | 'PENDING'
+  | 'RUNNING'
+  | 'SUCCESS'
+  | 'PARTIAL'
+  | 'FAILED'
+  | 'CANCELLED'
+  | (string & {});
+
 export interface Customer360Response {
   customer: Customer;
   convertedLeads: ConvertedLeadItem[];
@@ -114,7 +123,7 @@ export interface Customer360Response {
   aiSummary: Customer360AiSummary | null;
   latestWorkflowRun: {
     id: string;
-    status: string;
+    status: WorkflowRunStatus;
     startedAt?: string | null;
     completedAt?: string | null;
     errorMessage?: string | null;

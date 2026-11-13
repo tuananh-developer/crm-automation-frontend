@@ -23,9 +23,19 @@ export interface ConversationSummaryData {
   createdAt?: string;
 }
 
+export type TranscriptProcessingStatus =
+  | 'PENDING'
+  | 'RUNNING'
+  | 'PROCESSING'
+  | 'SUCCESS'
+  | 'PARTIAL'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+
 export interface ConversationTranscriptItem {
   transcriptId: string;
-  processingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  processingStatus: TranscriptProcessingStatus;
   redactedContent: string;
   sourceType: string;
   summary: ConversationSummaryData | null;
