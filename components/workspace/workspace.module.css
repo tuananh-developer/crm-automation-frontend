@@ -2832,8 +2832,8 @@
   --desk-green-soft: #e3f4e9;
   --desk-red: #b3261e;
   --desk-red-soft: #fce8e6;
-  --desk-font: var(--font-roboto), "Roboto", ui-sans-serif, sans-serif;
-  --desk-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace, monospace;
+  --desk-font: var(--font-ibm-plex-sans), "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --desk-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
   --desk-rail: #f1f0f8;
   --desk-rail-ink: #282936;
   --desk-rail-muted: #646675;
@@ -2842,8 +2842,8 @@
   --desk-sidebar-width: 17rem;
   --desk-radius: 1.65rem;
   --desk-control-radius: 1rem;
-  --font-sans: var(--font-roboto);
-  --font-mono: var(--font-roboto-mono);
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-mono);
   background: var(--desk-paper);
   color: var(--desk-ink);
   font-family: var(--desk-font);
