@@ -1,4 +1,4 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass (cool product) · redesign: shared system alignment · nav: Signal Desk rail · signature: findings comparison and explicit write-back decisions · type: IBM Plex Sans + IBM Plex Mono for run IDs only · v3.0.0 */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass · signature: findings comparison and explicit write-back decisions · scope: WF08 data quality studio · type: IBM Plex Sans + IBM Plex Mono for run IDs only · version: 4.1.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 
 :global(:root) {
@@ -952,4 +952,221 @@
   .main {
     width: min(100% - 1.25rem, 88rem);
   }
+}
+
+
+/* WF08 · Data Quality Studio — the review ledger is the signature; no scan state or decision logic changes. */
+.page .intro {
+  position: relative;
+  isolation: isolate;
+  min-height: 14rem;
+  align-items: center;
+  overflow: clip;
+  border: 1px solid color-mix(in oklab, var(--desk-cobalt-deep) 70%, var(--desk-blue));
+  border-radius: 1.45rem;
+  padding: 2rem clamp(1.4rem, 3vw, 2.6rem);
+  background:
+    radial-gradient(ellipse at 90% 0%, var(--desk-cobalt-glow), transparent 42%),
+    linear-gradient(118deg, var(--desk-cobalt-night), var(--desk-cobalt-deep) 66%, var(--desk-rail));
+  box-shadow: 0 18px 44px color-mix(in oklab, var(--desk-cobalt-night) 16%, transparent);
+}
+.page .intro::after {
+  position: absolute;
+  z-index: -1;
+  right: -3rem;
+  bottom: -6rem;
+  width: 19rem;
+  height: 19rem;
+  border: 1px solid color-mix(in oklab, white 11%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2rem color-mix(in oklab, white 3%, transparent),
+    0 0 0 4.1rem color-mix(in oklab, white 2%, transparent);
+  content: "";
+  pointer-events: none;
+}
+.page .intro h2 {
+  max-width: 16ch;
+  color: var(--desk-hero-ink);
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  font-weight: 600;
+  letter-spacing: -0.065em;
+  line-height: 1.02;
+}
+.page .intro p {
+  max-width: 54ch;
+  margin-top: 0.75rem;
+  color: var(--desk-hero-muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+.page .runReference {
+  max-width: 32rem;
+  margin-top: 1rem;
+  border-left: 2px solid var(--desk-blue-mid);
+  padding-left: 0.8rem;
+  text-align: left;
+}
+.page .runReference span {
+  color: var(--desk-hero-muted);
+  font-size: 0.75rem;
+}
+.page .runReference code {
+  color: var(--desk-hero-ink);
+  font-size: 0.77rem;
+}
+.page .headerEnd {
+  position: relative;
+  z-index: 1;
+  max-width: 18rem;
+  align-items: flex-end;
+}
+.page .leadsLink {
+  border: 1px solid color-mix(in oklab, white 23%, transparent);
+  border-radius: var(--wf08-control-radius);
+  background: color-mix(in oklab, white 7%, transparent);
+  color: var(--desk-hero-ink);
+}
+.page .leadsLink:hover {
+  border-color: color-mix(in oklab, white 42%, transparent);
+  background: color-mix(in oklab, white 13%, transparent);
+  color: white;
+}
+.page .refreshButton {
+  border-color: color-mix(in oklab, white 25%, transparent);
+  background: color-mix(in oklab, white 8%, transparent);
+  color: var(--desk-hero-ink);
+}
+.page .refreshButton:hover {
+  border-color: color-mix(in oklab, white 45%, transparent);
+  background: color-mix(in oklab, white 14%, transparent);
+  color: white;
+}
+.page .refreshButton:focus-visible,
+.page .leadsLink:focus-visible {
+  outline-color: var(--desk-blue-mid);
+}
+
+.page .summarySection,
+.page .findingsSection {
+  gap: 1rem;
+}
+.page .sectionHeading {
+  align-items: center;
+  border-bottom: 1px solid var(--wf08-rule);
+  padding-bottom: 0.8rem;
+}
+.page .sectionHeading h2 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+.page .summaryGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.page .metric {
+  min-height: 8.5rem;
+  border: 1px solid var(--wf08-rule);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--wf08-paper);
+  box-shadow: 0 2px 7px color-mix(in oklab, var(--wf08-ink) 3%, transparent);
+}
+.page .metric + .metric {
+  border-left: 1px solid var(--wf08-rule);
+}
+.page .metric[data-tone="amber"] {
+  border-top: 3px solid var(--wf08-amber);
+}
+.page .metric[data-tone="red"] {
+  border-top: 3px solid var(--wf08-red);
+}
+.page .metric[data-tone="blue"] {
+  border-top: 3px solid var(--wf08-blue);
+}
+.page .metric strong {
+  margin-top: 0.65rem;
+  font-size: 2.2rem;
+  letter-spacing: -0.055em;
+}
+.page .progressPanel {
+  border-radius: 1rem;
+  background: linear-gradient(100deg, var(--wf08-blue-soft), var(--wf08-paper));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--wf08-blue) 6%, transparent);
+}
+.page :global([data-dc-scope]) {
+  border-radius: 1.15rem !important;
+  box-shadow: 0 10px 28px color-mix(in oklab, var(--wf08-ink) 4%, transparent) !important;
+}
+.page :global([data-dc-scope] > div:first-child) {
+  padding: 1.2rem 1.35rem !important;
+}
+.page :global([data-dc-scope] > div:last-child) {
+  padding: 1.35rem !important;
+}
+.page :global([data-dc-scope] [data-scope-option]) {
+  min-height: 5rem;
+  border-radius: 0.9rem;
+  padding: 1rem;
+}
+.page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
+  box-shadow: inset 3px 0 0 var(--wf08-blue), 0 5px 16px color-mix(in oklab, var(--wf08-blue) 8%, transparent);
+}
+.page :global([data-dc-findings] > div:first-child) {
+  border-radius: 0.95rem !important;
+  padding: 0.95rem !important;
+}
+.page :global([data-dc-findings] > div:nth-child(2)) {
+  border-radius: 1rem;
+  box-shadow: 0 8px 26px color-mix(in oklab, var(--wf08-ink) 4%, transparent);
+}
+.page :global([data-dc-findings] tbody tr) {
+  transition: background-color 130ms ease;
+}
+.page :global([data-dc-findings] tbody tr:hover) {
+  background: var(--wf08-blue-soft) !important;
+}
+.page :global([data-dc-findings] .sticky) {
+  border: 1px solid color-mix(in oklab, var(--wf08-blue) 70%, var(--wf08-ink)) !important;
+  border-radius: 0.95rem !important;
+  background: linear-gradient(115deg, var(--desk-cobalt-deep), var(--desk-cobalt-night)) !important;
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--desk-cobalt-night) 19%, transparent) !important;
+}
+.page :global([data-dc-summary]) {
+  border-radius: 1.1rem !important;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--wf08-ink) 4%, transparent) !important;
+}
+.page :global(dialog[data-dc-modal] > div) {
+  border-radius: 1.2rem !important;
+  box-shadow: 0 24px 70px color-mix(in oklab, var(--wf08-ink) 22%, transparent) !important;
+}
+
+@media (max-width: 60rem) {
+  .page .intro {
+    min-height: 0;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .page .headerEnd {
+    max-width: none;
+    align-items: flex-start;
+  }
+  .page .summaryGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 40rem) {
+  .page .intro {
+    border-radius: 1.1rem;
+    padding: 1.35rem 1.15rem;
+  }
+  .page .intro h2 { font-size: clamp(1.9rem, 9vw, 2.7rem); }
+  .page .summaryGrid { grid-template-columns: minmax(0, 1fr); }
+  .page .metric { min-height: 0; }
+  .page .metric + .metric { border-left: 1px solid var(--wf08-rule); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page :global([data-dc-findings] tbody tr) { transition: none; }
 }
