@@ -1,4 +1,4 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass · signature: findings comparison and explicit write-back decisions · scope: WF08 data quality studio · type: IBM Plex Sans + IBM Plex Mono for run IDs only · version: 4.1.0 */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Material 3 Expressive by request · signature: findings comparison and explicit write-back decisions · scope: WF08 data quality studio · type: Roboto + Roboto Mono for run IDs only · version: 5.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 
 :global(:root) {
@@ -1169,4 +1169,115 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .page :global([data-dc-findings] tbody tr) { transition: none; }
+}
+
+
+/* WF08 Material 3 Expressive adaptation: keep the review ledger and server decisions unchanged. */
+:global(body:has(.materialShell)) .page .intro {
+  border-color: #d9dcfa;
+  border-radius: 1.8rem;
+  background: #e9eaff;
+  box-shadow: 0 12px 34px color-mix(in srgb, #4654c8 9%, transparent);
+}
+
+:global(body:has(.materialShell)) .page .intro::after {
+  border-color: color-mix(in srgb, #505bd5 15%, transparent);
+  box-shadow:
+    0 0 0 2rem color-mix(in srgb, #505bd5 5%, transparent),
+    0 0 0 4.1rem color-mix(in srgb, #ffffff 20%, transparent);
+}
+
+:global(body:has(.materialShell)) .page .intro h2 {
+  color: #25263d;
+}
+
+:global(body:has(.materialShell)) .page .intro p,
+:global(body:has(.materialShell)) .page .runReference span {
+  color: #5c5f78;
+}
+
+:global(body:has(.materialShell)) .page .runReference {
+  border-left-color: #5963d8;
+}
+
+:global(body:has(.materialShell)) .page .runReference code {
+  color: #353a85;
+}
+
+:global(body:has(.materialShell)) .page .leadsLink,
+:global(body:has(.materialShell)) .page .refreshButton {
+  min-height: 2.8rem;
+  border: 1px solid #cfd3f2;
+  border-radius: 999px;
+  background: #f8f8ff;
+  color: #3e489f;
+}
+
+:global(body:has(.materialShell)) .page .leadsLink:hover,
+:global(body:has(.materialShell)) .page .refreshButton:hover {
+  border-color: #aeb5eb;
+  background: #ffffff;
+  color: #303b96;
+}
+
+:global(body:has(.materialShell)) .page .metric {
+  border-color: #e2e2ed;
+  border-radius: 1.3rem;
+  background: #ffffff;
+  box-shadow: 0 2px 5px color-mix(in srgb, #20212b 3%, transparent);
+}
+
+:global(body:has(.materialShell)) .page .metric[data-tone="amber"] {
+  border-top-color: #d68a33;
+}
+
+:global(body:has(.materialShell)) .page .metric[data-tone="red"] {
+  border-top-color: #ca6a65;
+}
+
+:global(body:has(.materialShell)) .page .metric[data-tone="blue"] {
+  border-top-color: #5963d8;
+}
+
+:global(body:has(.materialShell)) .page :global([data-dc-scope]) {
+  border: 1px solid #e2e2ed !important;
+  border-radius: 1.5rem !important;
+  background: #ffffff;
+  box-shadow: 0 3px 8px color-mix(in srgb, #20212b 4%, transparent) !important;
+}
+
+:global(body:has(.materialShell)) .page :global([data-dc-scope] [data-scope-option]) {
+  border-radius: 1.1rem;
+}
+
+:global(body:has(.materialShell)) .page :global([data-dc-scope] [data-scope-option][aria-pressed="true"]) {
+  border-color: #b9bef0;
+  background: #eef0ff;
+  box-shadow: inset 0 0 0 1px #5963d8;
+}
+
+:global(body:has(.materialShell)) .page :global([data-dc-findings] > div:nth-child(2)),
+:global(body:has(.materialShell)) .page :global([data-dc-summary]) {
+  border: 1px solid #e2e2ed;
+  border-radius: 1.35rem !important;
+  background: #ffffff;
+  box-shadow: 0 3px 9px color-mix(in srgb, #20212b 4%, transparent) !important;
+}
+
+:global(body:has(.materialShell)) .page :global([data-dc-findings] .sticky) {
+  border-color: #4e5bd5 !important;
+  border-radius: 999px !important;
+  background: #4e5bd5 !important;
+  box-shadow: 0 5px 14px color-mix(in srgb, #4e5bd5 20%, transparent) !important;
+}
+
+:global(body:has(.materialShell)) .page :global(dialog[data-dc-modal] > div) {
+  border: 1px solid #e2e2ed;
+  border-radius: 1.5rem !important;
+}
+
+@media (max-width: 40rem) {
+  :global(body:has(.materialShell)) .page .intro {
+    border-radius: 1.4rem;
+  }
 }
