@@ -212,7 +212,7 @@ function CreateLeadForm({
               </h4>
               <p className="text-xs text-gray-500 max-w-md mx-auto">
                 <span className="font-semibold text-gray-800">
-                  {successLead.firstName} {successLead.lastName}
+                  {[successLead.firstName, successLead.lastName].filter(Boolean).join(" ")}
                 </span>{" "}
                 from{" "}
                 <span className="font-semibold text-gray-800">
@@ -284,7 +284,7 @@ function CreateLeadForm({
                 <Input
                   id="lastName"
                   placeholder="e.g. Doe"
-                  value={formData.lastName}
+                  value={formData.lastName || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, lastName: e.target.value })
                   }
