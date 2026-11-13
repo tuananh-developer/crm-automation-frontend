@@ -1,667 +1,216 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  Bot,
-  Building2,
-  CheckCircle2,
-  ClipboardCheck,
-  Clock3,
-  Flame,
-  Globe,
-  Plus,
-  RefreshCw,
-  Sparkles,
-  Target,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { UserNav } from "@/components/auth/UserNav";
-import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
-import { ScoreBadge } from "@/components/leads/ScoreBadge";
-import { CreateLeadModal } from "@/components/leads/CreateLeadModal";
+import { Activity, ArrowUpRight, BadgeCheck, BrainCircuit, ClipboardCheck, FileText, ScanSearch, Users, Workflow } from "lucide-react";
+import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { leadService } from "@/services/lead.service";
 import { getReviewTasks } from "@/services/review.service";
-import type { LeadScore, LeadStatus } from "@/types/lead";
+import { getApiErrorMessage } from "@/services/api-client";
+import type { Lead } from "@/types/lead";
+import styles from "@/components/workspace/workspace.module.css";
+
+const workstreams = [
+  { code: "T12 / WF01", title: "Lead qualification", description: "Evaluate sales readiness, inspect model confidence, and route uncertain records to human review.", href: "/qualification", icon: BadgeCheck, state: "Lead intelligence" },
+  { code: "T12 / WF08", title: "Data cleaning", description: "Scan CRM records, compare proposed corrections, then approve only the changes worth writing back.", href: "/data-cleaning", icon: ScanSearch, state: "Quality control" },
+  { code: "T12 / WF10", title: "Next best action", description: "Request evidence-backed recommendations for a Lead or Customer. Approval stays with the operator.", href: "/next-best-actions", icon: BrainCircuit, state: "Decision support" },
+  { code: "T12 / WF11", title: "Sales meetings", description: "Turn a meeting transcript into a redacted summary, decisions, risks, and confirmable action items.", href: "/sales-meetings", icon: ClipboardCheck, state: "Conversation intelligence" },
+  { code: "T12 / WF12", title: "Quote & proposal", description: "Build a quote from the active catalog. Backend pricing and the approval policy remain authoritative.", href: "/quotes", icon: FileText, state: "Commercial workflow" },
+];
+
+function leadName(lead: Lead) {
+  return [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "Unnamed lead";
+}
+
+function leadInitials(lead: Lead) {
+  return leadName(lead).split(/\s+/).map((part) => part[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+}
+
+function readableStatus(status: string) {
+  return status.toLowerCase().replaceAll("_", " ");
+}
 
 export default function DashboardPage() {
-  const [isCreateLeadOpen, setIsCreateLeadOpen] = React.useState(false);
-
-  // 1. Fetch Leads
-  const {
-    data: leadsData,
-    isLoading: isLeadsLoading,
-    refetch: refetchLeads,
-  } = useQuery({
-    queryKey: ["leads"],
-    queryFn: () => leadService.getLeads({ limit: 100 }),
+  const leadsQuery = useQuery({
+    queryKey: ["leads", "dashboard"],
+    queryFn: () => leadService.getLeads({ limit: 100, page: 1 }),
   });
+  const reviewsQuery = useQuery({ queryKey: ["review-tasks"], queryFn: getReviewTasks });
+  const leads = useMemo(() => leadsQuery.data?.data ?? [], [leadsQuery.data?.data]);
+  const pendingReviews = (reviewsQuery.data ?? []).filter((task) => task.status === "PENDING").length;
+  const totalLeads = leadsQuery.data?.meta?.total ?? leads.length;
+  const leadError = leadsQuery.isError ? getApiErrorMessage(leadsQuery.error) : null;
+  const reviewError = reviewsQuery.isError ? getApiErrorMessage(reviewsQuery.error) : null;
 
-  const leads = React.useMemo(() => leadsData?.data || [], [leadsData?.data]);
-
-  // 2. Fetch Review Tasks
-  const {
-    data: reviewTasks = [],
-    isLoading: isReviewLoading,
-    refetch: refetchReviews,
-  } = useQuery({
-    queryKey: ["review-tasks"],
-    queryFn: () => getReviewTasks(),
-  });
-
-  // 3. Fetch Scores Map
-  const [scoresMap, setScoresMap] = React.useState<Record<string, LeadScore>>({});
-
-  React.useEffect(() => {
-    if (leads.length > 0) {
-      let isMounted = true;
-      Promise.allSettled(
-        leads.slice(0, 30).map(async (l) => {
-          const score = await leadService.getLatestScore(l.id);
-          return { leadId: l.id, score };
-        }),
-      ).then((results) => {
-        if (!isMounted) return;
-        const newMap: Record<string, LeadScore> = {};
-        for (const res of results) {
-          if (res.status === "fulfilled" && res.value.score) {
-            newMap[res.value.leadId] = res.value.score;
-          }
-        }
-        setScoresMap(newMap);
-      });
-
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [leads]);
-
-  const handleRefresh = () => {
-    refetchLeads();
-    refetchReviews();
-  };
-
-  // Metrics computation
-  const totalLeads = leads.length;
-  const qualifiedLeads = leads.filter(
-    (l) => l.status === "QUALIFIED" || l.status === "CONVERTED",
-  ).length;
-  const qualificationRate =
-    totalLeads > 0 ? Math.round((qualifiedLeads / totalLeads) * 100) : 0;
-
-  const hotLeads = Object.values(scoresMap).filter((s) => {
-    const num = Number(s.score);
-    return s.label === "HOT" || num >= 70;
-  }).length;
-
-  const pendingReviews = reviewTasks.filter((t) => t.status === "PENDING").length;
-
-  // Status Funnel Counts
-  const statusCounts: Record<LeadStatus, number> = {
-    NEW: leads.filter((l) => l.status === "NEW").length,
-    QUALIFYING: leads.filter((l) => l.status === "QUALIFYING").length,
-    QUALIFIED: leads.filter((l) => l.status === "QUALIFIED").length,
-    CONTACTED: leads.filter((l) => l.status === "CONTACTED").length,
-    PROPOSAL_SENT: leads.filter((l) => l.status === "PROPOSAL_SENT").length,
-    NEGOTIATING: leads.filter((l) => l.status === "NEGOTIATING").length,
-    CONVERTED: leads.filter((l) => l.status === "CONVERTED").length,
-    LOST: leads.filter((l) => l.status === "LOST").length,
-  };
-
-  // Source Distribution
-  const sourceDistribution = React.useMemo(() => {
-    const counts: Record<string, number> = {};
+  const statusMix = useMemo(() => {
+    const counts = new Map<string, number>();
     for (const lead of leads) {
-      const srcName = lead.source?.name || "Direct Web";
-      counts[srcName] = (counts[srcName] || 0) + 1;
+      const status = String(lead.status);
+      counts.set(status, (counts.get(status) ?? 0) + 1);
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const ranked = Array.from(counts.entries())
+      .map(([status, count]) => ({ label: readableStatus(status), count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+    const visible = ranked.slice(0, 4);
+    const remaining = ranked.slice(4).reduce((sum, item) => sum + item.count, 0);
+    return remaining > 0 ? [...visible, { label: "other", count: remaining }] : visible;
   }, [leads]);
 
   return (
-    <div className="min-h-screen bg-[#f7f9f8] text-[#17221c]">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 border-b border-[#e2e8e4] bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white shadow-xs">
-              <Sparkles className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-sm font-bold tracking-tight text-gray-900">
-                CRM Automation Platform
-              </h1>
-              <p className="text-[11px] text-gray-500">
-                AI Intelligence &amp; Autonomous Pipeline Engine
-              </p>
+    <>
+      <WorkspaceHeader />
+      <main id="main-content" tabIndex={-1} className={styles.screen}>
+        <section className={styles.overviewHero} aria-labelledby="overview-title">
+          <div className={styles.overviewHeroMain}>
+            <div className={styles.overviewKicker}><Activity size={15} strokeWidth={2} aria-hidden="true" /><span>Revenue operations workspace</span></div>
+            <h1 id="overview-title">Revenue work,<br />in one view.</h1>
+            <p className={styles.overviewDescription}>Review lead intelligence, workflow outcomes, and commercial decisions in one workspace.</p>
+            <div className={styles.overviewActions}>
+              <Link className={styles.overviewPrimaryLink} href="/leads">Open lead pipeline <ArrowUpRight size={16} aria-hidden="true" /></Link>
+              <Link className={styles.overviewSecondaryLink} href="/review">Review queue <ClipboardCheck size={15} aria-hidden="true" /></Link>
             </div>
           </div>
-
-          <div className="flex items-center gap-2.5">
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              E2E Pipeline Online
-            </span>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              className="h-8 gap-1 text-xs text-gray-600 hover:text-gray-900"
-              title="Refresh all metrics"
-            >
-              <RefreshCw className="size-3.5" />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
-
-            <NotificationBell />
-
-            <div className="h-4 w-px bg-gray-200" />
-
-            <UserNav />
-
-            <Button
-              size="sm"
-              onClick={() => setIsCreateLeadOpen(true)}
-              className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs"
-            >
-              <Plus className="size-3.5" />
-              New Lead
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="mx-auto w-full max-w-7xl px-6 py-8 space-y-8">
-        {/* Executive Banner */}
-        <div className="rounded-3xl bg-gradient-to-br from-emerald-800 via-teal-900 to-[#17221c] p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-          <div className="relative z-10 max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-semibold text-emerald-200 border border-emerald-400/20">
-              <Sparkles className="size-3" />
-              <span>AI-Powered Sales Automation</span>
+          <aside className={styles.overviewHeroMetrics} aria-label="Current CRM overview">
+            <div className={styles.overviewLeadMetric}>
+              <span className={styles.overviewMetricLabel}>Lead records</span>
+              <strong>{leadsQuery.isLoading || leadsQuery.isError ? "—" : totalLeads}</strong>
+              <span className={styles.overviewMetricNote}>Across the current CRM scope</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Enterprise AI CRM Automation Hub
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-              Real-time monitoring across multi-source lead ingestion, automated AI qualification &amp; scoring, human review queues, customer conversions, and autonomous follow-up cadences.
-            </p>
-            <div className="pt-2 flex flex-wrap gap-2.5">
-              <Button
-                asChild
-                size="sm"
-                className="bg-white text-emerald-950 hover:bg-emerald-50 font-bold text-xs shadow-xs"
-              >
-                <Link href="/leads">
-                  Open Leads Pipeline
-                  <ArrowRight className="size-3.5 ml-1.5" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
-              >
-                <Link href="/review">Human Review Center ({pendingReviews})</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 font-semibold text-xs shadow-xs"
-              >
-                <Link href="/customers">Customers &amp; Segments</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-100 border border-emerald-400/30 font-semibold text-xs shadow-xs"
-              >
-                <Link href="/data-cleaning">
-                  <Sparkles className="size-3.5 mr-1.5 text-emerald-300" />
-                  Data Cleaning Agent
-                </Link>
-              </Button>
+            <div className={styles.overviewReviewMetric}>
+              <div className={styles.overviewReviewIcon}><ClipboardCheck size={18} aria-hidden="true" /></div>
+              <div className={styles.overviewReviewCopy}>
+                <span>Awaiting human review</span>
+                <strong>{reviewsQuery.isLoading || reviewsQuery.isError ? "—" : pendingReviews}</strong>
+              </div>
+              <Link href="/review" aria-label="Open the review queue"><ArrowUpRight size={17} aria-hidden="true" /></Link>
             </div>
+            <div className={styles.overviewHeroFoot}><Workflow size={14} aria-hidden="true" /><span>Five specialist workbenches</span></div>
+          </aside>
+        </section>
+
+        {(leadError || reviewError) && (
+          <div className={styles.errorPanel} role="alert">
+            <strong>Part of the workspace could not be loaded.</strong>
+            <span>{[leadError, reviewError].filter(Boolean).join(" / ")}</span>
           </div>
+        )}
+
+        <div className={styles.overviewSectionHead}>
+          <div>
+            <h2 className={styles.sectionTitle}>Choose your workbench</h2>
+            <p className={styles.sectionDescription}>Five focused workflows for the decision in front of you.</p>
+          </div>
+          <span className={styles.overviewSectionMeta}>T12 · owned workflows</span>
         </div>
 
-        {/* 4 Primary KPI Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Card 1: Total Leads */}
-          <Card className="border border-gray-200/80 bg-white shadow-xs hover:border-emerald-300 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-500">
-                  Total Active Leads
-                </span>
-                <div className="rounded-xl bg-gray-100 p-2 text-gray-700">
-                  <Users className="size-4" />
+        <section className={styles.workbenchGrid} aria-label="Owned workflows">
+          {workstreams.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <Link className={styles.workbenchCard} data-featured={index === 0 ? "true" : "false"} href={item.href} key={item.code}>
+                <div className={styles.workbenchCardTop}>
+                  <span>{item.code}</span>
+                  <span className={styles.workbenchCardIcon}><Icon size={21} strokeWidth={1.8} aria-hidden="true" /></span>
                 </div>
-              </div>
-              <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-gray-900">
-                  {isLeadsLoading ? "..." : totalLeads}
-                </span>
-                <span className="text-[11px] font-medium text-emerald-600 flex items-center">
-                  <TrendingUp className="size-3 mr-0.5" /> Ingested
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-gray-400">
-                Real-time pipeline intake from all sources
-              </p>
-            </CardContent>
-          </Card>
+                <div className={styles.workbenchCardBody}>
+                  <span className={styles.workbenchCardIndex}>{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
+                <div className={styles.workbenchCardFoot}><span>{item.state}</span><ArrowUpRight size={17} aria-hidden="true" /></div>
+              </Link>
+            );
+          })}
+        </section>
 
-          {/* Card 2: AI Qualification Rate */}
-          <Card className="border border-emerald-200/80 bg-emerald-50/20 shadow-xs hover:border-emerald-400 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-emerald-800">
-                  AI Qualification Rate
-                </span>
-                <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
-                  <Bot className="size-4" />
+        <section className={styles.overviewPanels}>
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div><h2 className={styles.panelTitle}>Latest leads</h2><p className={styles.panelHint}>A quick path back to the records driving the work.</p></div>
+              <Link className={styles.inlineLink} href="/leads">View pipeline <ArrowUpRight size={14} aria-hidden="true" /></Link>
+            </div>
+            <div className={styles.panelBody}>
+              {leadsQuery.isLoading ? (
+                <div className={styles.loadingState}>Loading the current lead scope…</div>
+              ) : leads.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <Users size={22} aria-hidden="true" /><strong>No leads in this scope yet</strong>
+                  <p>Create or import a lead to begin qualification and follow-up work.</p>
+                  <Link className={styles.secondaryButton} href="/leads">Open leads</Link>
                 </div>
-              </div>
-              <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-emerald-700">
-                  {isLeadsLoading ? "..." : `${qualificationRate}%`}
-                </span>
-                <span className="text-[11px] font-semibold text-emerald-800">
-                  {qualifiedLeads} sales-ready
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-gray-500">
-                Confidence ≥ 80% automated threshold
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Card 3: Hot Leads Ready to Close */}
-          <Card className="border border-amber-200/80 bg-amber-50/20 shadow-xs hover:border-amber-400 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-amber-800">
-                  Hot Predictive Leads
-                </span>
-                <div className="rounded-xl bg-amber-100 p-2 text-amber-700">
-                  <Flame className="size-4" />
-                </div>
-              </div>
-              <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-amber-700">
-                  {hotLeads}
-                </span>
-                <span className="text-[11px] font-semibold text-amber-800">
-                  ML Score ≥ 70
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-gray-500">
-                Prime candidates for sales conversion
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Card 4: Pending Review Tasks */}
-          <Card className="border border-purple-200/80 bg-purple-50/20 shadow-xs hover:border-purple-400 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-purple-800">
-                  Pending Review Tasks
-                </span>
-                <div className="rounded-xl bg-purple-100 p-2 text-purple-700">
-                  <ClipboardCheck className="size-4" />
-                </div>
-              </div>
-              <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-purple-700">
-                  {isReviewLoading ? "..." : pendingReviews}
-                </span>
-                <span className="text-[11px] font-semibold text-purple-800">
-                  requires sales action
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-gray-500">
-                Low confidence / exception edge cases
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Funnel & Source Distribution (2 Columns) */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Funnel Card */}
-          <Card className="border border-[#e2e8e4] bg-white shadow-xs">
-            <CardHeader className="border-b border-[#edf0ee] px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-sm font-bold text-gray-900">
-                    Lead Lifecycle &amp; Conversion Funnel
-                  </CardTitle>
-                  <p className="text-[11px] text-gray-500">
-                    Pipeline distribution across lifecycle status stages
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-gray-400">
-                  {totalLeads} Total Leads
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              {[
-                { label: "New (Intake)", count: statusCounts.NEW, color: "bg-blue-500" },
-                { label: "Qualifying (AI In-Progress)", count: statusCounts.QUALIFYING, color: "bg-purple-500" },
-                { label: "Qualified (Sales Ready)", count: statusCounts.QUALIFIED, color: "bg-emerald-500" },
-                { label: "Contacted (Active Outreach)", count: statusCounts.CONTACTED, color: "bg-cyan-500" },
-                { label: "Converted (Won Customer)", count: statusCounts.CONVERTED, color: "bg-teal-600" },
-                { label: "Lost / Disqualified", count: statusCounts.LOST, color: "bg-gray-400" },
-              ].map((stage) => {
-                const pct = totalLeads > 0 ? Math.round((stage.count / totalLeads) * 100) : 0;
-                return (
-                  <div key={stage.label} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-gray-700">{stage.label}</span>
-                      <span className="font-bold text-gray-900">
-                        {stage.count} <span className="text-gray-400 font-normal">({pct}%)</span>
+              ) : (
+                <div className={styles.overviewLeadList}>
+                  {leads.slice(0, 5).map((lead) => (
+                    <Link className={styles.overviewLeadRow} href={"/leads/" + lead.id} key={lead.id}>
+                      <span className={styles.overviewLeadAvatar}>{leadInitials(lead)}</span>
+                      <span className={styles.overviewLeadMain}>
+                        <strong>{leadName(lead)}</strong>
+                        <small>{lead.companyName || "Company not provided"} · {lead.email}</small>
                       </span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${stage.color}`}
-                        style={{ width: `${Math.max(pct, stage.count > 0 ? 3 : 0)}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* Sources Breakdown Card */}
-          <Card className="border border-[#e2e8e4] bg-white shadow-xs">
-            <CardHeader className="border-b border-[#edf0ee] px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-sm font-bold text-gray-900">
-                    Acquisition Sources Breakdown
-                  </CardTitle>
-                  <p className="text-[11px] text-gray-500">
-                    Lead inflow by acquisition marketing channels
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-gray-400">
-                  {sourceDistribution.length} Active Channels
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              {sourceDistribution.length === 0 ? (
-                <div className="py-8 text-center text-xs text-gray-400">
-                  No source data available yet.
-                </div>
-              ) : (
-                sourceDistribution.map(([name, count]) => {
-                  const pct = totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0;
-                  return (
-                    <div key={name} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-gray-700 flex items-center gap-1.5">
-                          <Globe className="size-3.5 text-gray-400" />
-                          {name}
-                        </span>
-                        <span className="font-bold text-gray-900">
-                          {count} leads <span className="text-gray-400 font-normal">({pct}%)</span>
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                          style={{ width: `${Math.max(pct, 4)}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity Split Grid (Recent Leads & Review Tasks) */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Recent Leads */}
-          <Card className="border border-[#e2e8e4] bg-white shadow-xs overflow-hidden">
-            <CardHeader className="border-b border-[#edf0ee] px-6 py-4 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-sm font-bold text-gray-900">
-                  Recent Ingested Leads
-                </CardTitle>
-                <p className="text-[11px] text-gray-500">
-                  Latest prospects entered into pipeline
-                </p>
-              </div>
-              <Button asChild variant="ghost" size="sm" className="h-7 text-xs font-semibold text-emerald-700">
-                <Link href="/leads">
-                  View All ({totalLeads})
-                  <ArrowRight className="size-3.5 ml-1" />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-gray-100">
-                {leads.slice(0, 5).map((lead) => {
-                  const score = scoresMap[lead.id];
-                  return (
-                    <div
-                      key={lead.id}
-                      className="p-4 flex items-center justify-between hover:bg-gray-50/60 transition-colors"
-                    >
-                      <div className="space-y-0.5">
-                        <Link
-                          href={`/leads/${lead.id}`}
-                          className="text-xs font-bold text-gray-900 hover:text-emerald-700 transition-colors"
-                        >
-                          {lead.firstName} {lead.lastName}
-                        </Link>
-                        <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Building2 className="size-3 text-gray-400" />
-                            {lead.companyName}
-                          </span>
-                          <span>&bull;</span>
-                          <span>{lead.email}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <LeadStatusBadge status={lead.status} />
-                        {score && (
-                          <ScoreBadge
-                            score={score.score}
-                            label={score.label}
-                            size="sm"
-                          />
-                        )}
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="sm"
-                          className="size-7 p-0 text-gray-400 hover:text-emerald-700"
-                        >
-                          <Link href={`/leads/${lead.id}`}>
-                            <ArrowRight className="size-3.5" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pending Review Tasks */}
-          <Card className="border border-[#e2e8e4] bg-white shadow-xs overflow-hidden">
-            <CardHeader className="border-b border-[#edf0ee] px-6 py-4 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-sm font-bold text-gray-900">
-                  Human Review Tasks Queue
-                </CardTitle>
-                <p className="text-[11px] text-gray-500">
-                  Low-confidence qualification reviews
-                </p>
-              </div>
-              <Button asChild variant="ghost" size="sm" className="h-7 text-xs font-semibold text-purple-700">
-                <Link href="/review">
-                  Open Review Inbox
-                  <ArrowRight className="size-3.5 ml-1" />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-              {reviewTasks.length === 0 ? (
-                <div className="py-12 text-center text-xs text-gray-400">
-                  <CheckCircle2 className="size-8 text-emerald-500 mx-auto mb-2" />
-                  <p className="font-semibold text-gray-700">Review queue is clear!</p>
-                  <p>All automated AI decisions are within threshold.</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-100">
-                  {reviewTasks.slice(0, 5).map((task) => (
-                    <div
-                      key={task.id}
-                      className="p-4 flex items-center justify-between hover:bg-gray-50/60 transition-colors"
-                    >
-                      <div className="space-y-0.5">
-                        <span className="text-xs font-bold text-gray-900">
-                          {task.lead?.firstName ? `${task.lead.firstName} ${task.lead.lastName}` : `Lead ID: ${task.leadId.slice(0, 8)}...`}
-                        </span>
-                        <p className="text-[11px] text-gray-500 truncate max-w-xs">
-                          {task.reason || "Manual review requested by AI engine"}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          task.status === "PENDING"
-                            ? "bg-amber-100 text-amber-800"
-                            : task.status === "IN_REVIEW"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-emerald-100 text-emerald-800"
-                        }`}>
-                          {task.status}
-                        </span>
-
-                        <Button asChild variant="outline" size="sm" className="h-7 px-2 text-[11px]">
-                          <Link href="/review">Review</Link>
-                        </Button>
-                      </div>
-                    </div>
+                      <span className={styles.overviewLeadStatus}>{readableStatus(lead.status)}</span>
+                      <ArrowUpRight className={styles.overviewLeadArrow} size={15} aria-hidden="true" />
+                    </Link>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Platform Modules Navigation Strip */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider text-xs">
-            CRM Modules Quick Navigation
-          </h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <Link
-              href="/leads"
-              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-emerald-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                <Target className="size-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">
-                  Leads Pipeline
-                </h4>
-                <p className="text-[11px] text-gray-500">Lead Intake, AI Qualification &amp; Scoring</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/follow-ups"
-              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-blue-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <Clock3 className="size-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
-                  Follow-up Cadences
-                </h4>
-                <p className="text-[11px] text-gray-500">Outreach Sequences &amp; Cadences</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/customers"
-              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-amber-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                <Users className="size-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 group-hover:text-amber-700 transition-colors">
-                  Customers &amp; Segments
-                </h4>
-                <p className="text-[11px] text-gray-500">Conversion &amp; Dynamic Cohorts</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/review"
-              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-purple-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-purple-100 text-purple-700 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                <ClipboardCheck className="size-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
-                  Review Center
-                </h4>
-                <p className="text-[11px] text-gray-500">Manual Quality &amp; Approval Queue</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/data-cleaning"
-              className="rounded-2xl border border-gray-200 bg-white p-4 hover:border-emerald-500 hover:shadow-xs transition-all flex items-center gap-3.5 group"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-teal-100 text-teal-700 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                <Sparkles className="size-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 group-hover:text-teal-700 transition-colors">
-                  Data Cleaning
-                </h4>
-                <p className="text-[11px] text-gray-500">AI Quality Audit &amp; Clean</p>
-              </div>
-            </Link>
+            </div>
           </div>
-        </div>
-      </main>
 
-      {/* Create Lead Modal */}
-      <CreateLeadModal
-        isOpen={isCreateLeadOpen}
-        onClose={() => setIsCreateLeadOpen(false)}
-        onSuccess={() => handleRefresh()}
-      />
-    </div>
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div><h2 className={styles.panelTitle}>Lead status mix</h2><p className={styles.panelHint}>A live view of the records loaded into this workspace.</p></div>
+              <span className={styles.overviewSampleCount}>{leadsQuery.isLoading ? "—" : leads.length} loaded</span>
+            </div>
+            <div className={styles.panelBody}>
+              {leadsQuery.isLoading ? (
+                <div className={styles.loadingState}>Preparing the status distribution…</div>
+              ) : leads.length === 0 ? (
+                <div className={styles.overviewChartEmpty}>Status distribution appears when leads are available.</div>
+              ) : (
+                <>
+                  <div
+                    className={styles.statusMixBar}
+                    role="img"
+                    aria-label={"Status distribution across " + leads.length + " loaded lead records: " + statusMix.map((item) => item.label + ": " + item.count).join(", ")}
+                  >
+                    {statusMix.map((item, index) => (
+                      <span className={styles.statusMixSegment} data-tone={index} key={item.label}
+                        style={{ width: ((item.count / leads.length) * 100) + "%" }}
+                        title={item.label + ": " + item.count} />
+                    ))}
+                  </div>
+                  <div className={styles.statusMixLegend}>
+                    {statusMix.map((item, index) => (
+                      <div className={styles.statusMixRow} key={item.label}>
+                        <span className={styles.statusMixSwatch} data-tone={index} aria-hidden="true" />
+                        <span className={styles.statusMixName}>{item.label}</span>
+                        <strong>{item.count}</strong>
+                        <span className={styles.statusMixPercent}>{Math.round((item.count / leads.length) * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  {totalLeads > leads.length && (
+                    <p className={styles.statusMixFoot}>Distribution uses the first {leads.length} loaded records out of {totalLeads} total.</p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.overviewPrinciples} aria-labelledby="principles-title">
+          <div className={styles.overviewPrinciplesHead}>
+            <h2 id="principles-title" className={styles.sectionTitle}>Operating principles</h2>
+            <span className={styles.overviewSectionMeta}>Built around accountable automation</span>
+          </div>
+          <div className={styles.overviewPrincipleGrid}>
+            <div><span>Evidence</span><strong>Evidence before action</strong><p>Recommendations and corrections expose their source before an operator decides.</p></div>
+            <div><span>Policy</span><strong>Backend owns policy</strong><p>Pricing, permissions, validation, idempotency, and final writes stay server-side.</p></div>
+            <div><span>People</span><strong>Human approval stays visible</strong><p>Uncertain or consequential actions are presented as decisions, not silent automation.</p></div>
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
