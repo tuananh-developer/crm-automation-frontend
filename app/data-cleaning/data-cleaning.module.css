@@ -1281,3 +1281,33 @@
     border-radius: 1.4rem;
   }
 }
+
+
+:global(body:has(.materialShell)) .page {
+  --wf08-paper: #f7f7fb;
+  --wf08-panel: #ffffff;
+  --wf08-well: #f0eff7;
+  --wf08-ink: #20212b;
+  --wf08-ink-2: #454653;
+  --wf08-muted: #70717f;
+  --wf08-rule: #e4e3ed;
+  --wf08-amber: #a45d12;
+  --wf08-amber-soft: #fff0d8;
+  --wf08-blue: #505bd5;
+  --wf08-blue-soft: #e8eaff;
+  --wf08-red: #b3261e;
+  --wf08-red-soft: #fce8e6;
+  --wf08-green: #18794e;
+  --wf08-green-soft: #e3f4e9;
+  --wf08-font: var(--font-roboto), "Roboto", ui-sans-serif, sans-serif;
+  --wf08-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace, monospace;
+  --wf08-radius: 1.65rem;
+  --wf08-control-radius: 1rem;
+  --desk-cobalt-deep: #3e438d;
+  --desk-cobalt-night: #292b52;
+  --desk-cobalt-glow: color-mix(in srgb, #7580ed 18%, transparent);
+  --desk-blue-mid: #7780ea;
+  --desk-hero-ink: #25263d;
+  --desk-hero-muted: #5c5f78;
+  font-family: var(--wf08-font);
+}
