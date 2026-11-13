@@ -1,4 +1,4 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass · signature: live lead status mix and five workflow-specific operator compositions · scope: owned CRM overview and shared workflow shell · type: IBM Plex Sans + IBM Plex Mono for technical IDs · version: 4.1.0 */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Material 3 Expressive by request · signature: adaptive Google-inspired navigation and tonal workflow surfaces · scope: owned CRM overview and WF01/WF08/WF10/WF11/WF12 · typography: Roboto + Roboto Mono for technical IDs · version: 5.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V4 · weakest: E, live capture review remains required; KPI figures use tabular sans and identifiers stay mono.*/
 :global(:root) {
   --desk-paper: oklch(97.4% 0.008 258);
@@ -2808,5 +2808,915 @@
   .screen:has(.catalogList) .catalogRowActive {
     transition: none;
     animation: none;
+  }
+}
+
+
+/* Signal Desk · Material 3 Expressive · by request · adaptive workspace shell and tonal workbench surfaces. */
+:global(body:has(.materialShell)) {
+  --desk-paper: #f7f7fb;
+  --desk-panel: #ffffff;
+  --desk-well: #f0eff7;
+  --desk-ink: #20212b;
+  --desk-ink-2: #454653;
+  --desk-muted: #70717f;
+  --desk-rule: #e4e3ed;
+  --desk-amber: #a45d12;
+  --desk-amber-ink: #80500f;
+  --desk-amber-soft: #fff0d8;
+  --desk-blue: #505bd5;
+  --desk-blue-strong: #3f49b8;
+  --desk-blue-soft: #e8eaff;
+  --desk-green: #18794e;
+  --desk-green-strong: #146340;
+  --desk-green-soft: #e3f4e9;
+  --desk-red: #b3261e;
+  --desk-red-soft: #fce8e6;
+  --desk-font: var(--font-roboto), "Roboto", ui-sans-serif, sans-serif;
+  --desk-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace, monospace;
+  --desk-rail: #f1f0f8;
+  --desk-rail-ink: #282936;
+  --desk-rail-muted: #646675;
+  --desk-rail-active: #e3e6ff;
+  --desk-rail-accent: #4e5bd2;
+  --desk-sidebar-width: 17rem;
+  --desk-radius: 1.65rem;
+  --desk-control-radius: 1rem;
+  --font-sans: var(--font-roboto);
+  --font-mono: var(--font-roboto-mono);
+  background: var(--desk-paper);
+  color: var(--desk-ink);
+  font-family: var(--desk-font);
+}
+
+.materialShell {
+  position: relative;
+  z-index: 100;
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+.materialSidebar {
+  position: fixed;
+  z-index: 105;
+  inset: 0 auto 0 0;
+  display: flex;
+  width: var(--desk-sidebar-width);
+  flex-direction: column;
+  border-right: 1px solid var(--desk-rule);
+  background: var(--desk-rail);
+  padding: 1.15rem 0.85rem 1rem;
+}
+
+.materialShell .brand {
+  min-width: 0;
+  gap: 0.8rem;
+  padding: 0.35rem 0.65rem 1.45rem;
+  text-decoration: none;
+}
+
+.materialShell .brandMark {
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 0;
+  border-radius: 1.05rem;
+  background: var(--desk-blue);
+  color: #ffffff;
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--desk-blue) 20%, transparent);
+}
+
+.materialShell .brandCopy {
+  gap: 0.1rem;
+}
+
+.materialShell .brandCopy strong {
+  color: var(--desk-ink);
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.materialShell .brandCopy span {
+  color: var(--desk-muted);
+  font-size: 0.76rem;
+}
+
+.materialShell .navigation {
+  display: grid;
+  min-height: 0;
+  align-content: start;
+  justify-content: stretch;
+  gap: 1.45rem;
+  overflow-x: visible;
+  overflow-y: auto;
+  padding: 0.5rem 0.3rem 1.25rem;
+  scrollbar-width: thin;
+}
+
+.materialShell .navGroup {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.materialShell .navGroupLabel {
+  padding: 0 0.85rem 0.1rem;
+  color: var(--desk-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.materialShell .navGroupItems {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.materialShell .navLink {
+  display: flex;
+  width: 100%;
+  min-height: 3rem;
+  justify-content: flex-start;
+  gap: 0.9rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.68rem 1rem;
+  color: var(--desk-rail-muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.materialShell .navLink svg {
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.materialShell .navLink:hover {
+  border-color: transparent;
+  background: #e8e7f0;
+  color: var(--desk-ink);
+}
+
+.materialShell .navLinkActive {
+  border-color: transparent;
+  background: var(--desk-rail-active);
+  box-shadow: none;
+  color: #303d9d;
+  font-weight: 600;
+}
+
+.materialShell .navLinkActive svg {
+  color: var(--desk-blue);
+}
+
+.materialShell .navLink:focus-visible,
+.materialShell .brand:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--desk-blue) 48%, transparent);
+  outline-offset: 3px;
+}
+
+.materialTopbar {
+  position: fixed;
+  z-index: 104;
+  top: 0;
+  right: 0;
+  left: var(--desk-sidebar-width);
+  display: flex;
+  height: 4.8rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--desk-rule) 80%, transparent);
+  background: color-mix(in srgb, #ffffff 92%, var(--desk-paper));
+  padding: 0 2.1rem;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--desk-ink) 2%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.topbarContext {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--desk-muted);
+  font-size: 0.84rem;
+}
+
+.topbarContext strong {
+  overflow: hidden;
+  color: var(--desk-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbarContext svg {
+  flex: 0 0 auto;
+  color: #999aa7;
+}
+
+.materialTopbar .accountTools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.materialTopbar .accountDivider {
+  height: 1.65rem;
+  background: var(--desk-rule);
+}
+
+.materialShell ~ main {
+  width: min(92rem, calc(100% - var(--desk-sidebar-width) - 3.5rem));
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: calc(var(--desk-sidebar-width) + (100% - var(--desk-sidebar-width) - min(92rem, calc(100% - var(--desk-sidebar-width) - 3.5rem))) / 2);
+  padding-top: 6.85rem;
+  padding-bottom: 4rem;
+}
+
+.materialShell ~ main .screenTitle,
+.materialShell ~ main h1,
+.materialShell ~ main h2,
+.materialShell ~ main h3 {
+  font-family: var(--desk-font);
+}
+
+.materialShell ~ main .screenTitle {
+  color: var(--desk-ink);
+  font-size: clamp(2.1rem, 3.6vw, 3.15rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+.materialShell ~ main .screenDescription {
+  max-width: 60ch;
+  color: var(--desk-muted);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.materialShell ~ main .sectionTitle {
+  color: var(--desk-ink);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.materialShell ~ main .sectionDescription,
+.materialShell ~ main .panelHint {
+  color: var(--desk-muted);
+}
+
+.materialShell ~ main .panel {
+  border: 1px solid var(--desk-rule);
+  border-radius: 1.5rem;
+  background: var(--desk-panel);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--desk-ink) 3%, transparent),
+    0 12px 28px color-mix(in srgb, var(--desk-ink) 4%, transparent);
+}
+
+.materialShell ~ main .panelHeader {
+  border-bottom-color: color-mix(in srgb, var(--desk-rule) 75%, transparent);
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: #fbfaff;
+  padding: 1.25rem 1.45rem;
+}
+
+.materialShell ~ main .panelBody {
+  padding: 1.4rem 1.45rem;
+}
+
+.materialShell ~ main .panelTitle {
+  font-size: 1.03rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.materialShell ~ main .primaryButton,
+.materialShell ~ main .secondaryButton,
+.materialShell ~ main .dangerButton {
+  min-height: 2.9rem;
+  border-radius: 999px;
+  padding-inline: 1.25rem;
+  font-family: var(--desk-font);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease,
+    box-shadow 150ms ease, transform 150ms ease;
+}
+
+.materialShell ~ main .primaryButton {
+  border-color: var(--desk-blue);
+  background: var(--desk-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--desk-blue) 20%, transparent);
+}
+
+.materialShell ~ main .primaryButton:hover {
+  border-color: var(--desk-blue-strong);
+  background: var(--desk-blue-strong);
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--desk-blue) 23%, transparent);
+}
+
+.materialShell ~ main .secondaryButton {
+  border-color: var(--desk-rule);
+  background: #ffffff;
+  color: var(--desk-ink);
+}
+
+.materialShell ~ main .secondaryButton:hover {
+  border-color: color-mix(in srgb, var(--desk-blue) 30%, var(--desk-rule));
+  background: var(--desk-blue-soft);
+  color: var(--desk-blue-strong);
+}
+
+.materialShell ~ main .dangerButton {
+  border-color: color-mix(in srgb, var(--desk-red) 36%, var(--desk-rule));
+  background: #ffffff;
+  color: var(--desk-red);
+}
+
+.materialShell ~ main .textInput,
+.materialShell ~ main .textArea,
+.materialShell ~ main .selectInput {
+  min-height: 3rem;
+  border: 1px solid #d8d8e4;
+  border-radius: 1rem;
+  background: #ffffff;
+  color: var(--desk-ink);
+  font-family: var(--desk-font);
+  font-size: 0.9rem;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.materialShell ~ main .textInput:focus,
+.materialShell ~ main .textArea:focus,
+.materialShell ~ main .selectInput:focus {
+  border-color: var(--desk-blue);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--desk-blue) 15%, transparent);
+}
+
+.materialShell ~ main .status {
+  min-height: 1.8rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.72rem;
+  background: var(--desk-well);
+  font-weight: 600;
+}
+
+.materialShell ~ main .statusBlue {
+  background: var(--desk-blue-soft);
+  color: var(--desk-blue-strong);
+}
+
+.materialShell ~ main .statusAmber {
+  background: var(--desk-amber-soft);
+  color: var(--desk-amber-ink);
+}
+
+.materialShell ~ main .statusGreen {
+  background: var(--desk-green-soft);
+  color: var(--desk-green-strong);
+}
+
+.materialShell ~ main .statusRed {
+  background: var(--desk-red-soft);
+  color: var(--desk-red);
+}
+
+.materialShell ~ main .infoPanel,
+.materialShell ~ main .successPanel,
+.materialShell ~ main .errorPanel {
+  border-radius: 1.15rem;
+  box-shadow: none;
+}
+
+.materialShell ~ main .dataTable {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.materialShell ~ main .dataTable th {
+  background: #f3f2f9;
+  color: var(--desk-ink-2);
+  font-weight: 600;
+}
+
+.materialShell ~ main .dataTable tbody tr:hover {
+  background: #f1f2ff;
+}
+
+/* Overview signature: a bright tonal hero and workbench tiles with distinct hues. */
+.materialShell ~ main .overviewHero {
+  position: relative;
+  min-height: 22rem;
+  border: 1px solid #dfe2fb;
+  border-radius: 2rem;
+  background: #e9eaff;
+  box-shadow: 0 12px 34px color-mix(in srgb, #4654c8 9%, transparent);
+}
+
+.materialShell ~ main .overviewHero::before {
+  background-image: radial-gradient(circle, color-mix(in srgb, #ffffff 70%, transparent) 1px, transparent 1.8px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at 85% 50%, black, transparent 68%);
+  opacity: 0.55;
+}
+
+.materialShell ~ main .overviewHero::after {
+  position: absolute;
+  z-index: -1;
+  top: -5rem;
+  right: 7%;
+  width: 20rem;
+  height: 20rem;
+  border: 1px solid color-mix(in srgb, #505bd5 13%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2rem color-mix(in srgb, #505bd5 5%, transparent),
+    0 0 0 4rem color-mix(in srgb, #ffffff 20%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.materialShell ~ main .overviewKicker {
+  color: #4853bd;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.materialShell ~ main .overviewHero h1 {
+  color: #22243a;
+  font-size: clamp(3rem, 5vw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: -0.07em;
+}
+
+.materialShell ~ main .overviewDescription {
+  color: #55576c;
+  font-size: 1.02rem;
+}
+
+.materialShell ~ main .overviewHeroMetrics {
+  border-left-color: #d1d4f4;
+  color: #252743;
+}
+
+.materialShell ~ main .overviewMetricLabel,
+.materialShell ~ main .overviewMetricNote,
+.materialShell ~ main .overviewReviewCopy span,
+.materialShell ~ main .overviewHeroFoot {
+  color: #5e6178;
+}
+
+.materialShell ~ main .overviewLeadMetric strong {
+  color: #424db7;
+  font-size: clamp(4rem, 7vw, 5.6rem);
+  font-weight: 700;
+}
+
+.materialShell ~ main .overviewReviewMetric {
+  border-top-color: #d1d4f4;
+}
+
+.materialShell ~ main .overviewReviewIcon {
+  border: 0;
+  border-radius: 1rem;
+  background: #d5d9ff;
+  color: #4652c1;
+}
+
+.materialShell ~ main .overviewReviewCopy strong {
+  color: #272943;
+}
+
+.materialShell ~ main .overviewReviewMetric a {
+  color: #414ebd;
+}
+
+.materialShell ~ main .overviewPrimaryLink,
+.materialShell ~ main .overviewSecondaryLink {
+  min-height: 3rem;
+  border-radius: 999px;
+  padding-inline: 1.2rem;
+  font-weight: 600;
+}
+
+.materialShell ~ main .overviewPrimaryLink {
+  border-color: var(--desk-blue);
+  background: var(--desk-blue);
+  color: #ffffff;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--desk-blue) 20%, transparent);
+}
+
+.materialShell ~ main .overviewPrimaryLink:hover {
+  border-color: var(--desk-blue-strong);
+  background: var(--desk-blue-strong);
+}
+
+.materialShell ~ main .overviewSecondaryLink {
+  border-color: #d1d3ef;
+  background: #f8f8ff;
+  color: #353b8c;
+}
+
+.materialShell ~ main .overviewSecondaryLink:hover {
+  border-color: #b9bef0;
+  background: #ffffff;
+}
+
+.materialShell ~ main .workbenchCard {
+  min-height: 15.5rem;
+  border: 1px solid var(--desk-rule);
+  border-radius: 1.55rem;
+  background: #ffffff;
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--desk-ink) 3%, transparent);
+}
+
+.materialShell ~ main .workbenchCard[data-featured="true"] {
+  border-color: #d4d8ff;
+  background: #e2e5ff;
+  color: var(--desk-ink);
+  box-shadow: 0 9px 24px color-mix(in srgb, #515bd3 9%, transparent);
+}
+
+.materialShell ~ main .workbenchCard[data-featured="true"]::after {
+  border-color: color-mix(in srgb, #515bd3 17%, transparent);
+  box-shadow: 0 0 0 1.7rem color-mix(in srgb, #515bd3 5%, transparent),
+    0 0 0 3.5rem color-mix(in srgb, #515bd3 3%, transparent);
+}
+
+.materialShell ~ main .workbenchCard:nth-child(2) {
+  background: #e6f4f0;
+}
+
+.materialShell ~ main .workbenchCard:nth-child(3) {
+  background: #fff0e8;
+}
+
+.materialShell ~ main .workbenchCard:nth-child(4) {
+  background: #fff5dc;
+}
+
+.materialShell ~ main .workbenchCard:nth-child(5) {
+  background: #f0eaff;
+}
+
+.materialShell ~ main .workbenchCard:hover {
+  border-color: color-mix(in srgb, var(--desk-blue) 34%, var(--desk-rule));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--desk-ink) 8%, transparent);
+}
+
+.materialShell ~ main .workbenchCard[data-featured="true"]:hover {
+  border-color: #aeb6f1;
+}
+
+.materialShell ~ main .workbenchCardTop,
+.materialShell ~ main .workbenchCardTop span {
+  color: var(--desk-ink-2);
+}
+
+.materialShell ~ main .workbenchCard[data-featured="true"] .workbenchCardTop,
+.materialShell ~ main .workbenchCard[data-featured="true"] .workbenchCardIndex {
+  color: #4851a9;
+}
+
+.materialShell ~ main .workbenchCardIcon {
+  border: 0;
+  border-radius: 1rem;
+  background: color-mix(in srgb, #ffffff 78%, transparent);
+  color: var(--desk-blue-strong);
+}
+
+.materialShell ~ main .workbenchCard[data-featured="true"] .workbenchCardIcon {
+  background: #cbd1ff;
+  color: #3d49b7;
+}
+
+.materialShell ~ main .workbenchCard h3,
+.materialShell ~ main .workbenchCard[data-featured="true"] h3 {
+  color: #252638;
+}
+
+.materialShell ~ main .workbenchCard p,
+.materialShell ~ main .workbenchCard[data-featured="true"] p {
+  color: #555766;
+}
+
+.materialShell ~ main .workbenchCardFoot,
+.materialShell ~ main .workbenchCard[data-featured="true"] .workbenchCardFoot {
+  border-top-color: color-mix(in srgb, var(--desk-ink) 9%, transparent);
+  color: #5d5f70;
+}
+
+.materialShell ~ main .workbenchCardFoot svg {
+  color: var(--desk-blue);
+}
+
+.materialShell ~ main .overviewLeadAvatar {
+  border: 0;
+  border-radius: 50%;
+  background: #e6e9ff;
+  color: #414db8;
+  font-weight: 700;
+}
+
+.materialShell ~ main .overviewLeadRow:hover {
+  border-radius: 0.9rem;
+  background: #f5f5fd;
+}
+
+.materialShell ~ main .statusMixBar {
+  height: 0.9rem;
+  gap: 0.2rem;
+  border-radius: 999px;
+}
+
+.materialShell ~ main .statusMixSegment {
+  border-radius: 999px;
+  background: #4e5bd5;
+}
+
+.materialShell ~ main .statusMixSegment[data-tone="1"],
+.materialShell ~ main .statusMixSwatch[data-tone="1"] { background: #1a887d; }
+
+.materialShell ~ main .statusMixSegment[data-tone="2"],
+.materialShell ~ main .statusMixSwatch[data-tone="2"] { background: #e49a43; }
+
+.materialShell ~ main .statusMixSegment[data-tone="3"],
+.materialShell ~ main .statusMixSwatch[data-tone="3"] { background: #d97868; }
+
+.materialShell ~ main .statusMixSegment[data-tone="4"],
+.materialShell ~ main .statusMixSwatch[data-tone="4"] { background: #9999b1; }
+
+.materialShell ~ main .statusMixSwatch {
+  border-radius: 50%;
+}
+
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(1) { border-left-color: #4e5bd5; }
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(2) { border-left-color: #1a887d; }
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(3) { border-left-color: #d97868; }
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(1) > span { color: #4e5bd5; }
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(2) > span { color: #1a887d; }
+.materialShell ~ main .overviewPrincipleGrid > div:nth-child(3) > span { color: #c45d50; }
+
+.materialShell ~ main .overviewPrinciples {
+  border-top-color: var(--desk-rule);
+}
+
+/* Each owned workflow keeps its own task layout while sharing the same material language. */
+.materialShell ~ main .segmentControl {
+  border-radius: 999px;
+  background: #f0eff7;
+  padding: 0.25rem;
+}
+
+.materialShell ~ main .segment,
+.materialShell ~ main .segmentActive {
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+}
+
+.materialShell ~ main .segmentActive {
+  border-color: transparent;
+  background: #ffffff;
+  color: #313b9c;
+  box-shadow: 0 1px 3px color-mix(in srgb, #25243b 10%, transparent);
+}
+
+.materialShell ~ main .catalogList {
+  border-color: var(--desk-rule);
+  border-radius: 1.2rem;
+}
+
+.materialShell ~ main .catalogRow,
+.materialShell ~ main .catalogRowActive {
+  border-bottom-color: var(--desk-rule);
+  padding: 1rem 1.1rem;
+}
+
+.materialShell ~ main .catalogRowActive {
+  background: #eef0ff;
+  box-shadow: inset 4px 0 0 #5963d8;
+}
+
+.materialShell ~ main .quoteTotals {
+  border-radius: 1.4rem;
+  background: #f0effa;
+  box-shadow: none;
+}
+
+.materialShell ~ main .quoteTotals .quoteTotal {
+  border-radius: 1.2rem;
+  background: #e1e5ff;
+  color: #2b327f;
+}
+
+.materialShell ~ main .quoteTotals .quoteTotal strong {
+  color: #2b327f;
+}
+
+.materialShell ~ main .meetingForm > .panel:nth-child(3) .textArea {
+  border: 1px solid #d8d8e6;
+  background: #ffffff;
+}
+
+.materialShell ~ main .recommendationCard {
+  border-radius: 1rem;
+}
+
+.materialShell ~ main a:focus-visible,
+.materialShell ~ main button:focus-visible,
+.materialShell ~ main input:focus-visible,
+.materialShell ~ main textarea:focus-visible,
+.materialShell ~ main select:focus-visible {
+  outline-color: var(--desk-blue);
+  outline-offset: 3px;
+}
+
+@media (max-width: 76rem) {
+  .materialSidebar {
+    inset: 0 0 auto;
+    width: 100%;
+    min-height: 7.9rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--desk-rule);
+    padding: 0.7rem 1rem 0.4rem;
+    background: color-mix(in srgb, var(--desk-rail) 96%, #ffffff);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--desk-ink) 5%, transparent);
+  }
+
+  .materialShell .brand {
+    min-height: 2.8rem;
+    margin-right: 9rem;
+    padding: 0.1rem 0 0.55rem;
+  }
+
+  .materialShell .brandMark {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.85rem;
+  }
+
+  .materialShell .navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.1rem 0 0.2rem;
+  }
+
+  .materialShell .navGroup,
+  .materialShell .navGroupItems {
+    display: contents;
+  }
+
+  .materialShell .navGroupLabel {
+    display: none;
+  }
+
+  .materialShell .navLink {
+    width: auto;
+    min-height: 2.45rem;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+    padding: 0.45rem 0.78rem;
+    font-size: 0.78rem;
+  }
+
+  .materialTopbar {
+    top: 0;
+    right: 0;
+    left: auto;
+    height: 3.7rem;
+    border: 0;
+    background: transparent;
+    padding: 0 1rem;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .topbarContext {
+    display: none;
+  }
+
+  .materialTopbar .accountTools {
+    gap: 0.6rem;
+  }
+
+  .materialTopbar .accountDivider {
+    display: none;
+  }
+
+  .materialShell ~ main {
+    width: min(calc(100% - 2rem), 92rem);
+    margin-inline: auto;
+    padding-top: 9rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .materialSidebar {
+    min-height: 7.3rem;
+    padding: 0.55rem 0.75rem 0.3rem;
+  }
+
+  .materialShell .brand {
+    min-height: 2.45rem;
+    margin-right: 7.5rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .materialShell .brandMark {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.72rem;
+  }
+
+  .materialShell .brandMark svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .materialShell .brandCopy strong {
+    font-size: 0.96rem;
+  }
+
+  .materialShell .brandCopy span {
+    display: none;
+  }
+
+  .materialShell .navigation {
+    gap: 0.15rem;
+  }
+
+  .materialShell .navLink {
+    min-height: 2.3rem;
+    gap: 0.4rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.73rem;
+  }
+
+  .materialShell .navLink svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .materialTopbar {
+    height: 3rem;
+    padding-inline: 0.65rem;
+  }
+
+  .materialShell ~ main {
+    width: min(calc(100% - 1.25rem), 92rem);
+    padding-top: 8.35rem;
+    padding-bottom: 2.6rem;
+  }
+
+  .materialShell ~ main .panelHeader,
+  .materialShell ~ main .panelBody {
+    padding-inline: 1rem;
+  }
+
+  .materialShell ~ main .overviewHero {
+    border-radius: 1.45rem;
+    padding: 1.45rem 1.2rem;
+  }
+
+  .materialShell ~ main .overviewHero h1 {
+    font-size: clamp(2.8rem, 13vw, 4rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materialShell *,
+  .materialShell ~ main .primaryButton,
+  .materialShell ~ main .secondaryButton,
+  .materialShell ~ main .dangerButton,
+  .materialShell ~ main .workbenchCard,
+  .materialShell ~ main .overviewPrimaryLink,
+  .materialShell ~ main .overviewSecondaryLink,
+  .materialShell ~ main .textInput,
+  .materialShell ~ main .textArea,
+  .materialShell ~ main .selectInput {
+    scroll-behavior: auto;
+    transition: none;
+    animation: none;
+  }
+
+  .materialShell ~ main .workbenchCard:hover,
+  .materialShell ~ main .primaryButton:active,
+  .materialShell ~ main .secondaryButton:active,
+  .materialShell ~ main .dangerButton:active {
+    transform: none;
   }
 }
