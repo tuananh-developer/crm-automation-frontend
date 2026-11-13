@@ -1299,8 +1299,8 @@
   --wf08-red-soft: #fce8e6;
   --wf08-green: #18794e;
   --wf08-green-soft: #e3f4e9;
-  --wf08-font: var(--font-roboto), "Roboto", ui-sans-serif, sans-serif;
-  --wf08-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace, monospace;
+  --wf08-font: var(--font-ibm-plex-sans), "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --wf08-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
   --wf08-radius: 1.65rem;
   --wf08-control-radius: 1rem;
   --desk-cobalt-deep: #3e438d;
