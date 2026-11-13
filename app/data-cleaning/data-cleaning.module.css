@@ -1,5 +1,5 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (manual deal, paper) · redesign: full · nav: existing app header kept · signature: findings comparison ledger · states: scan, empty, loading, failure, findings, apply result · console: paper · axes: warm paper / amber operator / cool instrument · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H5 E4 S5 R5 V4 · weakest: E, dense controls are grouped around the real scan and findings instead of decorative tiles */
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Blueglass (cool product) · redesign: shared system alignment · nav: Signal Desk rail · signature: findings comparison and explicit write-back decisions · type: IBM Plex Sans + IBM Plex Mono for run IDs only · v3.0.0 */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 · weakest: E, scan/apply render review remains required; workflow figures share the tabular sans system. */
 
 :global(:root) {
   --wf08-paper: var(--desk-paper);
@@ -825,17 +825,17 @@
 
 .page :global(dialog[data-dc-modal] > div > div:last-child button:last-child) {
   min-height: 2.75rem;
-  border: 1px solid var(--wf08-green);
+  border: 1px solid var(--wf08-blue);
   border-radius: var(--wf08-control-radius);
-  background: var(--wf08-green) !important;
+  background: var(--wf08-blue) !important;
   color: white !important;
   font-family: var(--wf08-font);
   font-weight: 600;
 }
 
 .page :global(dialog[data-dc-modal] > div > div:last-child button:last-child:hover) {
-  border-color: var(--desk-green-strong);
-  background: var(--desk-green-strong) !important;
+  border-color: var(--desk-blue-strong);
+  background: var(--desk-blue-strong) !important;
 }
 
 .page :global(dialog[data-dc-modal] button:disabled) {
