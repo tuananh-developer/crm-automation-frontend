@@ -64,8 +64,8 @@ export default function DashboardPage() {
         <section className={styles.overviewHero} aria-labelledby="overview-title">
           <div className={styles.overviewHeroMain}>
             <div className={styles.overviewKicker}><Activity size={15} strokeWidth={2} aria-hidden="true" /><span>Revenue operations workspace</span></div>
-            <h1 id="overview-title">Revenue work,<br />in one view.</h1>
-            <p className={styles.overviewDescription}>Review lead intelligence, workflow outcomes, and commercial decisions in one workspace.</p>
+            <h1 id="overview-title">Signals in.<br />Decisions out.</h1>
+            <p className={styles.overviewDescription}>Turn lead intelligence, AI recommendations, and commercial intent into decisions your team can review.</p>
             <div className={styles.overviewActions}>
               <Link className={styles.overviewPrimaryLink} href="/leads">Open lead pipeline <ArrowUpRight size={16} aria-hidden="true" /></Link>
               <Link className={styles.overviewSecondaryLink} href="/review">Review queue <ClipboardCheck size={15} aria-hidden="true" /></Link>
