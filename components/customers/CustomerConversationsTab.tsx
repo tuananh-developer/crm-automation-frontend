@@ -32,51 +32,40 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/components/segments/segment-utils";
+import {
+  checkTranscriptStuck,
+  evaluatePollStep,
+  isTranscriptProcessingActive,
+  isTranscriptProcessingDone,
+  isTranscriptProcessingFailed,
+} from "@/lib/workflow-polling";
 import type {
   ActionItem,
   ActionItemApprovalState,
   ConversationTranscriptItem,
 } from "@/types/conversation";
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 20; // 60s max automatic polling budget
-const STUCK_THRESHOLD_MS = 60_000; // 60s before transcript processing is considered stuck
-
-function checkTranscriptStuck(
-  transcript: ConversationTranscriptItem | null | undefined,
-  pollingTimedOut: boolean,
-  lastTranscriptId: string | null,
-): boolean {
-  if (lastTranscriptId && pollingTimedOut && !transcript) return true;
-  if (!transcript) return false;
-  if (
-    transcript.processingStatus !== "PENDING" &&
-    transcript.processingStatus !== "PROCESSING"
-  ) {
-    return false;
-  }
-  if (pollingTimedOut) return true;
-  if (!transcript.createdAt) return false;
-  const timestamp = new Date(transcript.createdAt).getTime();
-  if (Number.isNaN(timestamp)) return pollingTimedOut;
-  return Date.now() - timestamp > STUCK_THRESHOLD_MS;
-}
-
 interface CustomerConversationsTabProps {
   customerId: string;
+  initialTranscriptId?: string | null;
+  initialPollingTimedOut?: boolean;
 }
 
 export function CustomerConversationsTab({
   customerId,
+  initialTranscriptId = null,
+  initialPollingTimedOut = false,
 }: CustomerConversationsTabProps) {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [sourceType, setSourceType] = React.useState("CALL");
   const [content, setContent] = React.useState("");
   const [lastTranscriptId, setLastTranscriptId] = React.useState<string | null>(
-    null,
+    initialTranscriptId,
   );
   const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(false);
+  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(
+    initialPollingTimedOut,
+  );
   const pollAttemptsRef = React.useRef(0);
 
   // Poll latest transcript summary if created
@@ -93,24 +82,15 @@ export function CustomerConversationsTab({
       lastTranscriptId ? getTranscriptSummary(lastTranscriptId) : null,
     enabled: Boolean(lastTranscriptId),
     refetchInterval: (query) => {
-      if (query.state.status === "error") {
-        return false;
-      }
       const status = query.state.data?.processingStatus;
-      const isPending = status === "PENDING" || status === "PROCESSING";
-
-      if (!isPending) {
-        pollAttemptsRef.current = 0;
-        return false;
-      }
-
-      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
-        setTimeout(() => setIsPollingTimedOut(true), 0);
-        return false;
-      }
-
-      pollAttemptsRef.current += 1;
-      return POLL_INTERVAL_MS;
+      return evaluatePollStep({
+        isQueryError: query.state.status === "error",
+        isActive: isTranscriptProcessingActive(status),
+        attemptsRef: pollAttemptsRef,
+        onTimeout: () => {
+          setTimeout(() => setIsPollingTimedOut(true), 0);
+        },
+      });
     },
   });
 
@@ -400,7 +380,7 @@ export function CustomerConversationsTab({
   );
 }
 
-function TranscriptDetailCard({
+export function TranscriptDetailCard({
   data,
   isStuck,
   onActionItemUpdated,
@@ -413,11 +393,9 @@ function TranscriptDetailCard({
   onReopenForm: () => void;
   onManualRetry?: () => void;
 }) {
-  const isDone = data.processingStatus === "COMPLETED";
-  const isFailed = data.processingStatus === "FAILED";
-  const isPending =
-    data.processingStatus === "PENDING" ||
-    data.processingStatus === "PROCESSING";
+  const isDone = isTranscriptProcessingDone(data.processingStatus);
+  const isFailed = isTranscriptProcessingFailed(data.processingStatus);
+  const isPending = isTranscriptProcessingActive(data.processingStatus);
   const summary = data.summary;
 
   return (
@@ -433,9 +411,18 @@ function TranscriptDetailCard({
               Kết quả Tóm lược Hội thoại ({data.sourceType})
             </span>
             {isDone ? (
-              <Badge tone="success">{data.processingStatus}</Badge>
+              <Badge
+                tone={data.processingStatus === "PARTIAL" ? "warning" : "success"}
+                data-testid="transcript-done-badge"
+              >
+                {data.processingStatus}
+              </Badge>
             ) : isPending && !isStuck ? (
-              <Badge tone="info" className="animate-pulse gap-1 font-medium">
+              <Badge
+                tone="info"
+                data-testid="transcript-processing-badge"
+                className="animate-pulse gap-1 font-medium"
+              >
                 <Loader2 className="size-3 animate-spin" />
                 {data.processingStatus}
               </Badge>
@@ -449,7 +436,9 @@ function TranscriptDetailCard({
                 Quá thời gian chờ AI (Stuck)
               </Badge>
             ) : (
-              <Badge tone="danger">{data.processingStatus}</Badge>
+              <Badge tone="danger" data-testid="transcript-failed-badge">
+                {data.processingStatus}
+              </Badge>
             )}
           </div>
 
@@ -572,7 +561,10 @@ function TranscriptDetailCard({
             </div>
           </div>
         ) : isPending && isStuck ? (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
+          <div
+            data-testid="transcript-stuck-panel"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900"
+          >
             <span>
               Tiến trình tóm lược AI chưa phản hồi sau thời gian chờ. Bạn có thể
               bấm kiểm tra lại trạng thái hoặc ghi nhận lại hội thoại.
@@ -599,9 +591,17 @@ function TranscriptDetailCard({
               </Button>
             </div>
           </div>
+        ) : isPending ? (
+          <p
+            data-testid="transcript-processing-message"
+            className="flex items-center gap-2 text-xs italic text-gray-500"
+          >
+            <Loader2 className="size-3.5 animate-spin text-[#173b2b]" />
+            Đang chờ AI phản hồi...
+          </p>
         ) : (
           <p className="text-xs italic text-gray-500">
-            Đang chờ AI phản hồi...
+            Chưa có nội dung tóm lược cho biên bản này.
           </p>
         )}
 

@@ -1,3 +1,5 @@
+import type { TranscriptProcessingStatus } from '@/lib/workflow-polling';
+
 export type ActionItemStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 export type ActionItemApprovalState = 'PROPOSED' | 'APPROVED' | 'REJECTED';
 
@@ -25,7 +27,7 @@ export interface ConversationSummaryData {
 
 export interface ConversationTranscriptItem {
   transcriptId: string;
-  processingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  processingStatus: TranscriptProcessingStatus;
   redactedContent: string;
   sourceType: string;
   summary: ConversationSummaryData | null;

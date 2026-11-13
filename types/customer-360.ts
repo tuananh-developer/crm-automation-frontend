@@ -1,3 +1,4 @@
+import type { WorkflowRunStatus } from '@/lib/workflow-polling';
 import type { Customer } from './customer';
 
 export interface ConvertedLeadItem {
@@ -114,7 +115,7 @@ export interface Customer360Response {
   aiSummary: Customer360AiSummary | null;
   latestWorkflowRun: {
     id: string;
-    status: string;
+    status: WorkflowRunStatus | string;
     startedAt?: string | null;
     completedAt?: string | null;
     errorMessage?: string | null;

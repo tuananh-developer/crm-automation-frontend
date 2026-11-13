@@ -25,6 +25,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDateTime } from "@/components/segments/segment-utils";
+import {
+  evaluatePollStep,
+  isWorkflowRunActive,
+  isWorkflowRunFailure,
+} from "@/lib/workflow-polling";
 import type { SourceCoverageStatus } from "@/types/customer-360";
 
 import type { BadgeTone } from "@/components/ui/badge";
@@ -70,16 +75,19 @@ function getSourceCoverageMeta(status?: SourceCoverageStatus | string): Coverage
   }
 }
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 20; // 60s max budget
-
 interface Customer360TabProps {
   customerId: string;
+  initialPollingTimedOut?: boolean;
 }
 
-export function Customer360Tab({ customerId }: Customer360TabProps) {
+export function Customer360Tab({
+  customerId,
+  initialPollingTimedOut = false,
+}: Customer360TabProps) {
   const queryClient = useQueryClient();
-  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(false);
+  const [isPollingTimedOut, setIsPollingTimedOut] = React.useState(
+    initialPollingTimedOut,
+  );
   const pollAttemptsRef = React.useRef(0);
 
   const {
@@ -93,23 +101,15 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     queryKey: ["customer-360", customerId],
     queryFn: () => getCustomer360(customerId),
     refetchInterval: (query) => {
-      if (query.state.status === "error") {
-        return false;
-      }
-      // Auto-poll if a workflow run is actively PENDING
       const runStatus = query.state.data?.latestWorkflowRun?.status;
-      if (runStatus !== "PENDING") {
-        pollAttemptsRef.current = 0;
-        return false;
-      }
-
-      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
-        setTimeout(() => setIsPollingTimedOut(true), 0);
-        return false;
-      }
-
-      pollAttemptsRef.current += 1;
-      return POLL_INTERVAL_MS;
+      return evaluatePollStep({
+        isQueryError: query.state.status === "error",
+        isActive: isWorkflowRunActive(runStatus),
+        attemptsRef: pollAttemptsRef,
+        onTimeout: () => {
+          setTimeout(() => setIsPollingTimedOut(true), 0);
+        },
+      });
     },
   });
 
@@ -183,7 +183,9 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
     latestWorkflowRun,
   } = data360;
 
-  const isAnalyzing = triggerMutation.isPending || latestWorkflowRun?.status === "PENDING";
+  const isRunActive = isWorkflowRunActive(latestWorkflowRun?.status);
+  const isRunFailure = isWorkflowRunFailure(latestWorkflowRun?.status);
+  const isAnalyzing = triggerMutation.isPending || isRunActive;
 
   return (
     <div data-testid="customer-360-container" className="space-y-6">
@@ -240,7 +242,7 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
       </div>
 
       {/* Stuck / Timed-out 360 Polling Notice */}
-      {isPollingTimedOut && latestWorkflowRun?.status === "PENDING" && (
+      {isPollingTimedOut && isRunActive && (
         <div
           role="status"
           data-testid="customer-360-polling-timeout-banner"
@@ -268,8 +270,37 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
         </div>
       )}
 
+      {/* Partial completion banner when summary is unavailable */}
+      {latestWorkflowRun?.status === "PARTIAL" && !aiSummary && !triggerError && (
+        <div
+          role="status"
+          data-testid="customer-360-partial-banner"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-4 shrink-0 text-amber-600" />
+            <span>
+              {latestWorkflowRun.errorMessage ||
+                "Quy trình phân tích Customer 360 hoàn tất một phần nhưng chưa tạo được bản tóm lược đầy đủ."}
+            </span>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => triggerMutation.mutate()}
+            disabled={isAnalyzing}
+          >
+            <RefreshCw
+              className={`size-3.5 ${triggerMutation.isPending ? "animate-spin" : ""}`}
+            />
+            Phân tích lại
+          </Button>
+        </div>
+      )}
+
       {/* Trigger or Run Failure Alert Banner */}
-      {(triggerError || (latestWorkflowRun?.status === "FAILED" && !aiSummary)) && (
+      {(triggerError || (isRunFailure && !aiSummary)) && (
         <div
           data-testid="customer-360-trigger-error"
           className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50/70 p-4 text-sm text-red-900"
@@ -280,7 +311,9 @@ export function Customer360Tab({ customerId }: Customer360TabProps) {
               <p className="font-semibold text-red-900">
                 {triggerError
                   ? "Kích hoạt phân tích thất bại"
-                  : "Quy trình phân tích Customer 360 gặp sự cố"}
+                  : latestWorkflowRun?.status === "CANCELLED"
+                    ? "Quy trình phân tích Customer 360 đã bị hủy"
+                    : "Quy trình phân tích Customer 360 gặp sự cố"}
               </p>
               <p className="mt-0.5 text-xs text-red-700">
                 {triggerError ||
