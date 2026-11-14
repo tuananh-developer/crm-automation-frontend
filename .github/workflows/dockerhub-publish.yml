@@ -75,14 +75,30 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -Eeuo pipefail
+          set -Eeuo pipefail
           IMAGE_TAG="sha-${HEAD_SHA:0:7}"
-          DEPLOY_REPO="/home/ssm-user/Projects/crm-automation-backend"
+          DEPLOY_REPO="/opt/crm-automation-backend"
           SCRIPT=$(cat <<EOF
           set -Eeuo pipefail
-          git -C "$DEPLOY_REPO" pull --ff-only origin main
+          if [[ ! -d "$DEPLOY_REPO/.git" ]]; then
+            mkdir -p /opt
+            git clone --depth 1 --branch main https://github.com/tuananh-developer/crm-automation-backend.git "$DEPLOY_REPO"
+          else
+            git -c safe.directory="$DEPLOY_REPO" -C "$DEPLOY_REPO" pull --ff-only origin main
+          fi
           bash "$DEPLOY_REPO/deploy/ssm-deploy-image.sh" frontend "$IMAGE_TAG"
           EOF
           )
+          PARAMETERS=$(jq -cn --arg command "$SCRIPT" '{commands: [$command]}')
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name AWS-RunShellScript \
+            --instance-ids "$INSTANCE_ID" \
+            --comment "Deploy CRM frontend image $IMAGE_TAG" \
+            --parameters "$PARAMETERS" \
+            --timeout-seconds 900 \
+            --query 'Command.CommandId' --output text)
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "Sent SSM command $COMMAND_ID for $INSTANCE_ID ($IMAGE_TAG)"
           PARAMETERS=$(jq -cn --arg command "$SCRIPT" '{commands: [$command]}')
           COMMAND_ID=$(aws ssm send-command \
             --document-name AWS-RunShellScript \
