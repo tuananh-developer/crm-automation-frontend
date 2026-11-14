@@ -76,11 +76,11 @@ jobs:
         run: |
           set -Eeuo pipefail
           IMAGE_TAG="sha-${HEAD_SHA:0:7}"
+          DEPLOY_REPO="/home/ssm-user/Projects/crm-automation-backend"
           SCRIPT=$(cat <<EOF
           set -Eeuo pipefail
-          REPO=/home/ssm-user/Projects/crm-automation-backend
-          git -C "$REPO" pull --ff-only origin main
-          bash "$REPO/deploy/ssm-deploy-image.sh" frontend "$IMAGE_TAG"
+          git -C "$DEPLOY_REPO" pull --ff-only origin main
+          bash "$DEPLOY_REPO/deploy/ssm-deploy-image.sh" frontend "$IMAGE_TAG"
           EOF
           )
           PARAMETERS=$(jq -cn --arg command "$SCRIPT" '{commands: [$command]}')
