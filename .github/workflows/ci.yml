@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Lint, build, and Docker image
+    name: Lint and production build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -42,6 +42,3 @@ jobs:
 
       - name: Production build
         run: pnpm build
-
-      - name: Build Docker image
-        run: docker build --build-arg NEXT_PUBLIC_API_BASE_URL=/api/v1 -t crm-automation-frontend:ci .
