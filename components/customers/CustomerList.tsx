@@ -11,6 +11,7 @@ import {
   Mail,
   Phone,
   RefreshCw,
+  Star,
   TriangleAlert,
   Users,
 } from "lucide-react";
@@ -84,7 +85,15 @@ function CustomerCard({
       <CardContent className="space-y-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate font-bold text-[#17221c]">{customer.name}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="truncate font-bold text-[#17221c]">{customer.name}</p>
+              {customer.isStrategic ? (
+                <Badge tone="warning">
+                  <Star className="size-3 fill-current" />
+                  Strategic
+                </Badge>
+              ) : null}
+            </div>
             <div className="mt-1 flex flex-col gap-1 text-xs text-gray-500 sm:flex-row sm:flex-wrap sm:gap-3">
               <span className="inline-flex items-center gap-1 break-all">
                 <Mail className="size-3 shrink-0" />
@@ -131,6 +140,9 @@ export function CustomerList() {
 
   const [search, setSearch] = React.useState("");
   const [status, setStatus] = React.useState("");
+  const [strategicFilter, setStrategicFilter] = React.useState<
+    "ALL" | "STRATEGIC" | "STANDARD"
+  >("ALL");
   const [page, setPage] = React.useState(1);
 
   const params = React.useMemo(
@@ -139,8 +151,12 @@ export function CustomerList() {
       limit: PAGE_SIZE,
       search: search.trim() || undefined,
       status: status || undefined,
+      isStrategic:
+        strategicFilter === "ALL"
+          ? undefined
+          : strategicFilter === "STRATEGIC",
     }),
-    [page, search, status],
+    [page, search, status, strategicFilter],
   );
 
   const query = useQuery({
@@ -191,6 +207,22 @@ export function CustomerList() {
                 <option value="CONVERTED">CONVERTED</option>
               </Select>
 
+              <Select
+                className="sm:w-44"
+                aria-label="Lọc theo phân nhóm chiến lược"
+                value={strategicFilter}
+                onChange={(event) => {
+                  setStrategicFilter(
+                    event.target.value as "ALL" | "STRATEGIC" | "STANDARD",
+                  );
+                  setPage(1);
+                }}
+              >
+                <option value="ALL">Mọi phân nhóm</option>
+                <option value="STRATEGIC">Strategic (Chiến lược)</option>
+                <option value="STANDARD">Standard (Thường)</option>
+              </Select>
+
               <Button
                 type="button"
                 variant="outline"
@@ -239,12 +271,12 @@ export function CustomerList() {
               </div>
               <div>
                 <p className="font-semibold text-[#17221c]">
-                  {search || status
+                  {search || status || strategicFilter !== "ALL"
                     ? "Không có khách hàng khớp bộ lọc"
                     : "Chưa có khách hàng nào"}
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
-                  {search || status
+                  {search || status || strategicFilter !== "ALL"
                     ? "Thử xoá bộ lọc hoặc tìm từ khoá khác."
                     : "Khách hàng xuất hiện sau khi một lead được chuyển đổi."}
                 </p>
@@ -269,7 +301,15 @@ export function CustomerList() {
                     {customers.map((customer) => (
                       <tr key={customer.id} className="hover:bg-[#f6f8f7]">
                         <td className="px-5 py-3 font-semibold text-[#17221c]">
-                          {customer.name}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span>{customer.name}</span>
+                            {customer.isStrategic ? (
+                              <Badge tone="warning">
+                                <Star className="size-3 fill-current" />
+                                Strategic
+                              </Badge>
+                            ) : null}
+                          </div>
                         </td>
                         <td className="px-5 py-3 text-gray-600">
                           {customer.email}

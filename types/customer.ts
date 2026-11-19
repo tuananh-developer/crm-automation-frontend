@@ -15,6 +15,8 @@ export interface Customer {
   jobTitle: string | null;
   companySize: number | null;
   industry: string | null;
+  /** Whether the customer is flagged as a strategic account (WF15 Account Health). */
+  isStrategic?: boolean;
   /** Free-form varchar in the schema, e.g. CONVERTED. */
   status: string | null;
   createdBy: string;

@@ -13,6 +13,7 @@ import {
   Mail,
   Phone,
   RefreshCw,
+  Star,
   TriangleAlert,
   UserRound,
   Users,
@@ -165,6 +166,12 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {customer.isStrategic ? (
+                <Badge tone="warning">
+                  <Star className="size-3 fill-current" />
+                  Strategic Account
+                </Badge>
+              ) : null}
               <Badge tone={customer.status === "CONVERTED" ? "success" : "neutral"}>
                 {customer.status ?? "CHƯA GÁN TRẠNG THÁI"}
               </Badge>
