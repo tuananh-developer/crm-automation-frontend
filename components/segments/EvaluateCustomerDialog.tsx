@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckSquare, Loader2, Play, Search, Square, Users, Zap } from "lucide-react";
+import { Loader2, Play, Search, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,9 @@ type EvaluateCustomerDialogProps = {
     customerIds: string[];
     assignmentType: SegmentAssignmentType;
   }) => Promise<SegmentEvaluationResult[]>;
-  onEvaluateAll?: (assignmentType: SegmentAssignmentType) => Promise<void>;
+  onEvaluateAll?: (
+    assignmentType: SegmentAssignmentType,
+  ) => Promise<{ status?: EvaluationStatus; message?: string } | void>;
 };
 
 const assignmentTypes: SegmentAssignmentType[] = ["RULE", "AI"];
@@ -59,6 +61,7 @@ export function EvaluateCustomerDialog({
   const [assignmentType, setAssignmentType] =
     React.useState<SegmentAssignmentType>("RULE");
   const [status, setStatus] = React.useState<EvaluationStatus>("PENDING");
+  const [message, setMessage] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [results, setResults] = React.useState<SegmentEvaluationResult[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -98,10 +101,14 @@ export function EvaluateCustomerDialog({
   const handleEvaluateAll = async () => {
     if (!onEvaluateAll) return;
     setError(null);
+    setMessage(null);
     setStatus("PROCESSING");
     try {
-      await onEvaluateAll(assignmentType);
-      setStatus("COMPLETED");
+      const outcome = await onEvaluateAll(assignmentType);
+      setStatus(outcome?.status ?? "COMPLETED");
+      if (outcome?.message) {
+        setMessage(outcome.message);
+      }
     } catch (evaluateError) {
       setStatus("FAILED");
       setError(
@@ -352,7 +359,7 @@ export function EvaluateCustomerDialog({
 
           <EvaluateOutcomeMessage
             status={status}
-            message={error ?? undefined}
+            message={error ?? message ?? undefined}
           />
 
           {results.length > 0 ? <EvaluateResultList results={results} /> : null}

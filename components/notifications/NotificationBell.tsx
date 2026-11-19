@@ -7,8 +7,10 @@ import {
   Bell,
   BellRing,
   CheckCheck,
+  CheckCircle2,
   ClipboardCheck,
   Inbox,
+  Layers,
   Loader2,
   RefreshCw,
   TriangleAlert,
@@ -36,7 +38,7 @@ type Notice = { tone: "success" | "danger"; message: string };
 type NotificationVisual = {
   label: string;
   icon: LucideIcon;
-  tone: "info" | "danger";
+  tone: "info" | "danger" | "success" | "warning";
 };
 
 const NOTIFICATION_VISUALS: Record<string, NotificationVisual> = {
@@ -49,6 +51,21 @@ const NOTIFICATION_VISUALS: Record<string, NotificationVisual> = {
     label: "Follow-up thất bại",
     icon: Workflow,
     tone: "danger",
+  },
+  WORKFLOW_COMPLETED: {
+    label: "Workflow hoàn tất",
+    icon: CheckCircle2,
+    tone: "success",
+  },
+  ANOMALY_ALERT: {
+    label: "Cảnh báo bất thường",
+    icon: TriangleAlert,
+    tone: "warning",
+  },
+  SEGMENT_EVALUATION: {
+    label: "Đánh giá phân khúc",
+    icon: Layers,
+    tone: "info",
   },
 };
 
@@ -84,7 +101,21 @@ function getNotificationHref(notification: AppNotification): string | null {
   }
 
   if (notification.type === "FOLLOW_UP_FAILED") {
-    return "/follow-ups";
+    return "/follow-ups?tab=executions";
+  }
+
+  if (notification.type === "SEGMENT_EVALUATION") {
+    return notification.customerId
+      ? `/customers/${notification.customerId}`
+      : "/segments";
+  }
+
+  if (notification.customerId) {
+    return `/customers/${notification.customerId}`;
+  }
+
+  if (notification.leadId) {
+    return `/leads/${notification.leadId}`;
   }
 
   return null;

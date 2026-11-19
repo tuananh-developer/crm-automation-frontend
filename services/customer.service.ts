@@ -21,6 +21,7 @@ export interface CustomerListParams {
   limit?: number;
   search?: string;
   status?: string;
+  isStrategic?: boolean;
 }
 
 function unwrapList(response: { data?: unknown }): CustomerListResponse {

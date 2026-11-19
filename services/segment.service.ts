@@ -120,8 +120,8 @@ export async function evaluateCustomer(
 }
 
 /**
- * Bulk evaluation. The API only supports `RULE`: sending `AI` returns
- * HTTP 400 "AI segmentation is not configured for this backend".
+ * Bulk evaluation. RULE runs synchronously in the backend, while AI dispatches
+ * the WF07 n8n segmentation workflow asynchronously (status: "PROCESSING").
  */
 export async function evaluateSegmentCustomers(
   segmentId: string,

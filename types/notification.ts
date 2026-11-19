@@ -8,7 +8,15 @@
  * review task is assigned; FOLLOW_UP_FAILED is reserved for UC06 execute
  * follow-up and is not emitted by the API yet.
  */
-export type NotificationType = "HUMAN_REVIEW_REQUIRED" | "FOLLOW_UP_FAILED";
+export type NotificationType =
+  | "HUMAN_REVIEW_REQUIRED"
+  | "FOLLOW_UP_FAILED"
+  | "WORKFLOW_COMPLETED"
+  | "ANOMALY_ALERT"
+  | "SEGMENT_EVALUATION"
+  | "CONVERSATION_SUMMARY_READY"
+  | "CUSTOMER_FEEDBACK_PROCESSED"
+  | "MEETING_SUMMARY_AVAILABLE";
 
 export type AppNotification = {
   id: string;

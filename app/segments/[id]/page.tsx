@@ -147,9 +147,13 @@ export default function SegmentDetailPage() {
         tone: "success",
         message:
           response.message ||
-          `Đã quét toàn bộ: ${response.matched}/${response.total} khách hàng phù hợp và đã được thêm vào phân khúc!`,
+          (response.status === "PROCESSING"
+            ? `Đã gửi yêu cầu phân khúc AI cho ${response.total} khách hàng. Hệ thống đang xử lý ngầm qua workflow.`
+            : `Đã quét toàn bộ: ${response.matched}/${response.total} khách hàng phù hợp và đã được thêm vào phân khúc!`),
       });
-      setEvaluateOpen(false);
+      if (response.status !== "PROCESSING") {
+        setEvaluateOpen(false);
+      }
     },
     onError: (error) => {
       setNotice({ tone: "danger", message: getApiErrorMessage(error) });
@@ -290,7 +294,7 @@ export default function SegmentDetailPage() {
             }
           }}
           onEvaluateAll={async (assignmentType) => {
-            await evaluateAllMutation.mutateAsync(assignmentType);
+            return await evaluateAllMutation.mutateAsync(assignmentType);
           }}
         />
       ) : null}

@@ -5,11 +5,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Play, Users } from "lucide-react";
 
 import { getApiErrorMessage } from "@/services/api-client";
+import { getCustomers } from "@/services/customer.service";
 import {
   evaluateCustomer,
   evaluateSegmentCustomers,
   getSegment,
-  getSegmentCustomers,
   getSegments,
 } from "@/services/segment.service";
 import { Button } from "@/components/ui/button";
@@ -34,10 +34,8 @@ import {
   Notice,
 } from "@/components/segments/States";
 import type {
-  CustomerSegmentAssignment,
   EvaluationStatus,
   SegmentAssignmentType,
-  SegmentCustomerRef,
   SegmentEvaluationResult,
 } from "@/types/segment";
 
@@ -65,9 +63,8 @@ export default function EvaluateSegmentPage() {
   });
 
   const customersQuery = useQuery({
-    queryKey: ["segments", segmentId, "customers", { limit: 100 }],
-    queryFn: () => getSegmentCustomers(segmentId, { limit: 100 }),
-    enabled: Boolean(segmentId),
+    queryKey: ["customers", { limit: 100 }],
+    queryFn: () => getCustomers({ limit: 100 }),
   });
 
   const segmentNames = React.useMemo(() => {
@@ -82,7 +79,7 @@ export default function EvaluateSegmentPage() {
     mutationFn: () =>
       evaluateSegmentCustomers(segmentId, { assignmentType }),
     onSuccess: (response) => {
-      setStatus("COMPLETED");
+      setStatus(response.status ?? "COMPLETED");
       setMessage(
         response.message ??
           `Bulk evaluation finished: ${response.processed}/${response.total} processed, ${response.matched} matched.`,
@@ -247,14 +244,10 @@ export default function EvaluateSegmentPage() {
               />
             ) : (
               <ul className="max-h-64 space-y-1 overflow-y-auto rounded-xl border border-[#e2e8e4] p-2">
-                {customers.map((item, index) => {
-                  const record = item as unknown as Partial<
-                    CustomerSegmentAssignment & SegmentCustomerRef
-                  >;
-                  const customer = item.customer;
-                  const id = item.customerId || record.id || String(index);
-                  const name = customer?.name || record.name || id;
-                  const email = customer?.email || record.email || "";
+                {customers.map((customer) => {
+                  const id = customer.id;
+                  const name = customer.name || id;
+                  const email = customer.email || "";
                   return (
                     <li key={id}>
                       <label className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-[#f6f8f7]">

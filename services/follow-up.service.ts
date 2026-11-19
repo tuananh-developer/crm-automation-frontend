@@ -254,6 +254,7 @@ export async function getEnrollments(params?: {
   leadId?: string;
   sequenceId?: string;
   status?: string;
+  customerId?: string;
 }): Promise<LeadFollowUpEnrollment[]> {
   try {
     const response = await apiClient.get<LeadFollowUpEnrollment[]>(
