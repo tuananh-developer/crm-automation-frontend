@@ -6,10 +6,15 @@ import {
   Activity,
   BadgeCheck,
   BrainCircuit,
+  Building2,
   ChevronRight,
+  ClipboardCheck,
   ClipboardList,
+  Clock3,
   FileText,
   Home,
+  Layers,
+  RefreshCw,
   ScanSearch,
   Users,
 } from "lucide-react";
@@ -28,16 +33,21 @@ const navigationGroups = [
     label: "Workflows",
     items: [
       { href: "/qualification", label: "Lead qualification", icon: BadgeCheck, match: (path: string) => path.startsWith("/qualification") },
+      { href: "/follow-ups", label: "Follow-up cadences", icon: Clock3, match: (path: string) => path.startsWith("/follow-ups") },
+      { href: "/segments", label: "Customer segments", icon: Layers, match: (path: string) => path.startsWith("/segments") },
       { href: "/data-cleaning", label: "Data cleaning", icon: ScanSearch, match: (path: string) => path.startsWith("/data-cleaning") },
       { href: "/next-best-actions", label: "Next best actions", icon: BrainCircuit, match: (path: string) => path.startsWith("/next-best-actions") },
       { href: "/sales-meetings", label: "Sales meetings", icon: ClipboardList, match: (path: string) => path.startsWith("/sales-meetings") },
       { href: "/quotes", label: "Quotes & proposals", icon: FileText, match: (path: string) => path.startsWith("/quotes") },
+      { href: "/renewals", label: "Contract renewals", icon: RefreshCw, match: (path: string) => path.startsWith("/renewals") },
     ],
   },
   {
     label: "CRM",
     items: [
       { href: "/leads", label: "Leads", icon: Users, match: (path: string) => path.startsWith("/leads") },
+      { href: "/customers", label: "Customers", icon: Building2, match: (path: string) => path.startsWith("/customers") },
+      { href: "/review", label: "Review queue", icon: ClipboardCheck, match: (path: string) => path.startsWith("/review") },
     ],
   },
 ];
@@ -48,6 +58,7 @@ const materialRoutes = [
   "/next-best-actions",
   "/sales-meetings",
   "/quotes",
+  "/renewals",
 ];
 
 export function WorkspaceHeader() {

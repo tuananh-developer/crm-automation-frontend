@@ -3,7 +3,7 @@
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
-import { ClipboardCheck, Clock3, LayoutDashboard, Layers } from "lucide-react";
+import { ClipboardCheck, Clock3, FileText, LayoutDashboard, Layers, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -58,6 +58,13 @@ export default function ReviewLayout({
                 </Link>
               </Button>
 
+              <Button asChild variant="ghost">
+                <Link href="/customers">
+                  <Users />
+                  Customers
+                </Link>
+              </Button>
+
               <Button asChild variant="outline">
                 <Link href="/follow-ups">
                   <Clock3 />
@@ -69,6 +76,13 @@ export default function ReviewLayout({
                 <Link href="/segments">
                   <Layers />
                   Segments
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline">
+                <Link href="/renewals">
+                  <FileText />
+                  Renewals
                 </Link>
               </Button>
             </div>

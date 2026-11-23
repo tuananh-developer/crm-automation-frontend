@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   Clock3,
+  FileText,
   Layers,
   LayoutDashboard,
   Target,
@@ -93,6 +94,13 @@ export default function FollowUpsLayout({
                 <Link href="/segments">
                   <Layers className="size-3.5 mr-1" />
                   Segments
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline" className="text-xs h-9">
+                <Link href="/renewals">
+                  <FileText className="size-3.5 mr-1" />
+                  Renewals
                 </Link>
               </Button>
 
