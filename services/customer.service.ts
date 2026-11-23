@@ -1,6 +1,8 @@
 import { apiClient } from "./api-client";
 import type {
+  AccountHealthSnapshot,
   Customer,
+  CustomerChurnAssessment,
   CustomerDetail,
   CustomerListResponse,
 } from "@/types/customer";
@@ -49,4 +51,43 @@ export async function getCustomer(id: string): Promise<CustomerDetail> {
   const response = await apiClient.get<CustomerDetail>(`/customers/${id}`);
 
   return response.data;
+}
+
+/**
+ * WF06 - Customer churn assessment history.
+ * Backend: GET /api/v1/customers/:customerId/churn-assessments
+ */
+export async function getCustomerChurnAssessments(
+  customerId: string,
+): Promise<CustomerChurnAssessment[]> {
+  const response = await apiClient.get<
+    CustomerChurnAssessment[] | { data?: CustomerChurnAssessment[] }
+  >(`/customers/${encodeURIComponent(customerId)}/churn-assessments`);
+  const body = response.data;
+  if (Array.isArray(body)) {
+    return body;
+  }
+  return Array.isArray(body?.data) ? body.data : [];
+}
+
+/**
+ * WF15 - Strategic Account Health snapshots.
+ * Backend: GET /api/v1/account-health/snapshots/:customerId
+ * Falls back gracefully to an empty array if the route requires internal service auth or is unavailable.
+ */
+export async function getCustomerHealthSnapshots(
+  customerId: string,
+): Promise<AccountHealthSnapshot[]> {
+  try {
+    const response = await apiClient.get<
+      AccountHealthSnapshot[] | { data?: AccountHealthSnapshot[] }
+    >(`/account-health/snapshots/${encodeURIComponent(customerId)}`);
+    const body = response.data;
+    if (Array.isArray(body)) {
+      return body;
+    }
+    return Array.isArray(body?.data) ? body.data : [];
+  } catch {
+    return [];
+  }
 }

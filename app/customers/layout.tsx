@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ClipboardCheck,
   Clock3,
+  FileText,
   LayoutDashboard,
   Layers,
   Users,
@@ -85,6 +86,13 @@ export default function CustomersLayout({
                 <Link href="/follow-ups">
                   <Clock3 />
                   Follow-up
+                </Link>
+              </Button>
+
+              <Button asChild variant="outline">
+                <Link href="/renewals">
+                  <FileText />
+                  Renewals
                 </Link>
               </Button>
 

@@ -5,14 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
+  Activity,
   ArrowLeft,
   Building2,
+  FileText,
   Globe,
+  HeartPulse,
   Layers,
   Loader2,
   Mail,
   Phone,
   RefreshCw,
+  ShieldAlert,
   Star,
   TriangleAlert,
   UserRound,
@@ -20,9 +24,14 @@ import {
 } from "lucide-react";
 
 import { getApiErrorMessage } from "@/services/api-client";
-import { getCustomer } from "@/services/customer.service";
+import {
+  getCustomer,
+  getCustomerChurnAssessments,
+  getCustomerHealthSnapshots,
+} from "@/services/customer.service";
+import { listContracts } from "@/services/renewal.service";
 import { ASSIGNMENT_TYPE_LABELS } from "@/types/segment";
-import { Badge } from "@/components/ui/badge";
+import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -31,9 +40,12 @@ import {
   toConfidenceNumber,
 } from "@/components/segments/segment-utils";
 import type {
+  AccountHealthSnapshot,
+  CustomerChurnAssessment,
   CustomerDetail,
   CustomerSegmentMembership,
 } from "@/types/customer";
+import type { CustomerContract } from "@/types/renewal";
 
 function Row({
   icon: Icon,
@@ -143,8 +155,300 @@ function SegmentMembershipCard({
   );
 }
 
+function churnRiskTone(level: string): BadgeTone {
+  const normalized = level.toUpperCase();
+  if (normalized === "HIGH") return "danger";
+  if (normalized === "MEDIUM") return "warning";
+  if (normalized === "LOW") return "success";
+  return "neutral";
+}
+
+function healthStatusTone(status: string): BadgeTone {
+  const normalized = status.toUpperCase();
+  if (normalized === "HEALTHY") return "success";
+  if (normalized === "AT_RISK") return "warning";
+  if (normalized === "CRITICAL") return "danger";
+  return "neutral";
+}
+
+function contractStatusTone(status: string): BadgeTone {
+  const normalized = status.toUpperCase();
+  if (normalized === "ACTIVE" || normalized === "RENEWED") return "success";
+  if (normalized === "PENDING_RENEWAL") return "warning";
+  if (normalized === "EXPIRED" || normalized === "CANCELLED") return "danger";
+  return "info";
+}
+
+function formatContractAmount(amount: string | number | null): string {
+  if (amount === null || amount === undefined || amount === "") return "—";
+  const num = typeof amount === "number" ? amount : Number(amount);
+  if (!Number.isFinite(num)) return String(amount);
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(num);
+}
+
+function ChurnAssessmentCard({
+  assessment,
+}: {
+  assessment: CustomerChurnAssessment;
+}) {
+  const evidenceItems = Array.isArray(assessment.evidence)
+    ? assessment.evidence
+    : [];
+  const explanation =
+    typeof assessment.metadata?.explanation === "string"
+      ? assessment.metadata.explanation
+      : null;
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="size-4 text-[#173b2b]" />
+            <span className="font-bold text-[#17221c]">
+              Score:{" "}
+              {assessment.score !== null && assessment.score !== undefined
+                ? `${assessment.score} / 100`
+                : "Insufficient data"}
+            </span>
+          </div>
+
+          <Badge tone={churnRiskTone(assessment.riskLevel)}>
+            {assessment.riskLevel}
+          </Badge>
+        </div>
+
+        {assessment.score !== null && assessment.score !== undefined ? (
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e2e8e4]">
+            <div
+              className="h-full rounded-full bg-[#173b2b]"
+              style={{
+                width: `${Math.min(100, Math.max(0, assessment.score))}%`,
+              }}
+            />
+          </div>
+        ) : null}
+
+        <div className="grid gap-3 text-xs text-gray-500 sm:grid-cols-3">
+          <div>
+            <p className="font-semibold uppercase tracking-wide">As of date</p>
+            <p className="mt-0.5 text-sm text-[#17221c]">
+              {assessment.asOfDate ?? "—"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide">
+              Policy version
+            </p>
+            <p className="mt-0.5 text-sm text-[#17221c]">
+              {assessment.policyVersion || "v1"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide">Assessed at</p>
+            <p className="mt-0.5 text-sm text-[#17221c]">
+              {formatDateTime(assessment.assessedAt)}
+            </p>
+          </div>
+        </div>
+
+        {explanation ? (
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              AI Explanation
+            </p>
+            <p className="mt-1 text-sm text-[#17221c]">{explanation}</p>
+          </div>
+        ) : null}
+
+        {evidenceItems.length > 0 ? (
+          <div className="space-y-1.5 border-t border-[#edf0ee] pt-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Canonical DB Evidence ({evidenceItems.length})
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {evidenceItems.map((item, idx) => (
+                <span
+                  key={`${assessment.id}-ev-${idx}`}
+                  className="inline-flex items-center gap-1 rounded-md border border-[#e2e8e4] bg-[#f6f8f7] px-2 py-1 text-xs text-[#17221c]"
+                >
+                  <span className="font-semibold">
+                    {String(item.source ?? "signal")}:
+                  </span>
+                  <span>{String(item.signal ?? "metric")}</span>
+                  {item.value !== undefined && item.value !== null ? (
+                    <span className="font-mono text-gray-600">
+                      ({String(item.value)})
+                    </span>
+                  ) : null}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function HealthSnapshotCard({ snapshot }: { snapshot: AccountHealthSnapshot }) {
+  const breakdown = snapshot.breakdown ?? {};
+  const missingData = Array.isArray(snapshot.missingData)
+    ? snapshot.missingData
+    : [];
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <HeartPulse className="size-4 text-[#173b2b]" />
+            <span className="font-bold text-[#17221c]">
+              Health Score: {snapshot.score} / 100
+            </span>
+          </div>
+
+          <Badge tone={healthStatusTone(snapshot.status)}>
+            {snapshot.status}
+          </Badge>
+        </div>
+
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e2e8e4]">
+          <div
+            className="h-full rounded-full bg-[#173b2b]"
+            style={{
+              width: `${Math.min(100, Math.max(0, snapshot.score))}%`,
+            }}
+          />
+        </div>
+
+        <div className="grid gap-3 rounded-xl border border-[#edf0ee] bg-[#f6f8f7] p-3 text-xs sm:grid-cols-4">
+          <div>
+            <p className="font-semibold uppercase tracking-wide text-gray-500">
+              Engagement (30%)
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[#17221c]">
+              {breakdown.engagement ?? "—"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide text-gray-500">
+              Feedback (25%)
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[#17221c]">
+              {breakdown.feedback ?? "—"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide text-gray-500">
+              Open Issues (25%)
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[#17221c]">
+              {breakdown.openIssues ?? "—"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide text-gray-500">
+              Follow-ups (20%)
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[#17221c]">
+              {breakdown.followUpCompletion ?? "—"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+          <span>Assessed at: {formatDateTime(snapshot.assessedAt)}</span>
+          {missingData.length > 0 ? (
+            <span>Missing inputs: {missingData.join(", ")}</span>
+          ) : (
+            <span>Full component coverage</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CustomerContractCard({ contract }: { contract: CustomerContract }) {
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <FileText className="size-4 text-[#173b2b]" />
+            <span className="font-bold text-[#17221c]">
+              {contract.contractNumber}
+            </span>
+          </div>
+
+          <Badge tone={contractStatusTone(contract.status)}>
+            {contract.status}
+          </Badge>
+        </div>
+
+        <div className="grid gap-3 text-xs text-gray-500 sm:grid-cols-3">
+          <div>
+            <p className="font-semibold uppercase tracking-wide">Value</p>
+            <p className="mt-0.5 text-sm font-semibold text-[#17221c]">
+              {formatContractAmount(contract.amount)}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide">
+              Renewal date
+            </p>
+            <p className="mt-0.5 text-sm text-[#17221c]">
+              {contract.renewalDate
+                ? formatDateTime(contract.renewalDate)
+                : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold uppercase tracking-wide">End date</p>
+            <p className="mt-0.5 text-sm text-[#17221c]">
+              {formatDateTime(contract.endDate)}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/renewals?contractId=${encodeURIComponent(contract.id)}`}>
+              Quản lý gia hạn &amp; phê duyệt (WF13)
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
   const router = useRouter();
+
+  const churnQuery = useQuery({
+    queryKey: ["customers", customer.id, "churn-assessments"],
+    queryFn: () => getCustomerChurnAssessments(customer.id),
+  });
+
+  const healthQuery = useQuery({
+    queryKey: ["customers", customer.id, "health-snapshots"],
+    queryFn: () => getCustomerHealthSnapshots(customer.id),
+  });
+
+  const contractsQuery = useQuery({
+    queryKey: ["customer-contracts", { customerId: customer.id }],
+    queryFn: () => listContracts({ customerId: customer.id }),
+  });
+
+  const churnAssessments = churnQuery.data ?? [];
+  const healthSnapshots = healthQuery.data ?? [];
+  const contracts = contractsQuery.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -288,6 +592,141 @@ function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
               </p>
               <Button asChild variant="outline" className="mt-3">
                 <Link href="/segments">Mở Segments</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* WF06 - Churn Risk Monitoring History */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="size-4 text-[#173b2b]" />
+            <h3 className="font-bold text-[#17221c]">
+              Lịch sử đánh giá rủi ro rời bỏ — Churn Monitoring (WF06) (
+              {churnAssessments.length})
+            </h3>
+          </div>
+          <Badge tone="neutral">Canonical Backend Policy</Badge>
+        </div>
+
+        {churnQuery.isLoading ? (
+          <Card>
+            <CardContent className="flex items-center gap-2 p-5 text-sm text-gray-500">
+              <Loader2 className="size-4 animate-spin text-[#173b2b]" />
+              Đang tải lịch sử đánh giá churn…
+            </CardContent>
+          </Card>
+        ) : churnAssessments.length > 0 ? (
+          <ul className="space-y-3">
+            {churnAssessments.map((assessment) => (
+              <li key={assessment.id}>
+                <ChurnAssessmentCard assessment={assessment} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Card>
+            <CardContent className="px-5 py-6 text-center text-sm text-gray-500">
+              Chưa có bản ghi đánh giá rủi ro rời bỏ (Churn Assessment) nào cho
+              khách hàng này. Khi workflow WF06 chạy định kỳ, điểm rủi ro (0–100
+              hoặc INSUFFICIENT_DATA) và bằng chứng tương tác sẽ hiển thị tại
+              đây.
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* WF15 - Strategic Account Health Snapshots */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Activity className="size-4 text-[#173b2b]" />
+            <h3 className="font-bold text-[#17221c]">
+              Sức khỏe tài khoản chiến lược — Account Health (WF15) (
+              {healthSnapshots.length})
+            </h3>
+          </div>
+          <Badge tone={customer.isStrategic ? "warning" : "neutral"}>
+            {customer.isStrategic
+              ? "Strategic Cohort (30/25/25/20)"
+              : "Standard Account"}
+          </Badge>
+        </div>
+
+        {healthQuery.isLoading ? (
+          <Card>
+            <CardContent className="flex items-center gap-2 p-5 text-sm text-gray-500">
+              <Loader2 className="size-4 animate-spin text-[#173b2b]" />
+              Đang tải lịch sử Account Health…
+            </CardContent>
+          </Card>
+        ) : healthSnapshots.length > 0 ? (
+          <ul className="space-y-3">
+            {healthSnapshots.map((snapshot) => (
+              <li key={snapshot.id}>
+                <HealthSnapshotCard snapshot={snapshot} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Card>
+            <CardContent className="px-5 py-6 text-center text-sm text-gray-500">
+              {customer.isStrategic
+                ? "Khách hàng này thuộc diện Strategic Account nhưng chưa có bản ghi Account Health Snapshot từ lần quét hàng tuần của WF15."
+                : "Khách hàng này chưa được gắn cờ Strategic Account. WF15 chỉ đánh giá tự động các tài khoản có isStrategic = true."}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* WF13 - Customer Contracts & Renewal Management */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <FileText className="size-4 text-[#173b2b]" />
+            <h3 className="font-bold text-[#17221c]">
+              Hợp đồng &amp; Gia hạn — Renewal Management (WF13) (
+              {contracts.length})
+            </h3>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link
+              href={`/renewals?customerId=${encodeURIComponent(customer.id)}`}
+            >
+              Mở Contract Renewals Workbench
+            </Link>
+          </Button>
+        </div>
+
+        {contractsQuery.isLoading ? (
+          <Card>
+            <CardContent className="flex items-center gap-2 p-5 text-sm text-gray-500">
+              <Loader2 className="size-4 animate-spin text-[#173b2b]" />
+              Đang tải danh sách hợp đồng…
+            </CardContent>
+          </Card>
+        ) : contracts.length > 0 ? (
+          <ul className="space-y-3">
+            {contracts.map((contract) => (
+              <li key={contract.id}>
+                <CustomerContractCard contract={contract} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Card>
+            <CardContent className="px-5 py-6 text-center">
+              <p className="text-sm text-gray-500">
+                Khách hàng này chưa có hợp đồng nào được đăng ký.
+              </p>
+              <Button asChild variant="outline" size="sm" className="mt-3">
+                <Link
+                  href={`/renewals?customerId=${encodeURIComponent(customer.id)}`}
+                >
+                  Tạo hợp đồng mới
+                </Link>
               </Button>
             </CardContent>
           </Card>
